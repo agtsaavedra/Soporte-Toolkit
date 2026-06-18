@@ -85,8 +85,20 @@
   background: var(--primary-soft);
 }
 
+.form-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .submit-solution {
   align-self: flex-start;
+}
+
+.cancel-solution {
+  color: var(--text-secondary) !important;
+  background: var(--bg-muted) !important;
+  border: 1px solid var(--border);
 }
 
 @media (max-width: 760px) {

@@ -11,7 +11,9 @@ import {
 } from "./data/catalog";
 import {
   addUserSolution,
+  deleteUserSolution,
   loadUserSolutions,
+  updateUserSolution,
 } from "./services/solutionsRepository";
 import "./styles/app.css";
 
@@ -111,6 +113,38 @@ function App() {
     setView("catalog");
   };
 
+  const handleUpdateSolution = async (solution) => {
+    const result = await updateUserSolution(solution, customSolutions);
+
+    setCustomSolutions(result.items);
+    setRepositoryMode(result.mode);
+    setSelected(result.item);
+    setView("catalog");
+  };
+
+  const handleDeleteSolution = async () => {
+    if (!selected || selected.source === "base") return;
+
+    const confirmed = window.confirm(
+      `¿Eliminar la solución "${selected.title}" de la base compartida?`
+    );
+
+    if (!confirmed) return;
+
+    const result = await deleteUserSolution(selected.id, customSolutions);
+    const nextSelected =
+      getFirstMatchingSolution({
+        items: createSolutionIndex([...solutions, ...result.items]),
+        category: selectedCategory,
+        onlyPowerShell,
+      }) ?? solutions[0];
+
+    setCustomSolutions(result.items);
+    setRepositoryMode(result.mode);
+    setSelected(nextSelected);
+    setView("catalog");
+  };
+
   const toggleTheme = () => {
     setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"));
   };
@@ -147,13 +181,13 @@ function App() {
             placeholder="Buscar problema, síntoma, comando..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            disabled={view === "new"}
+            disabled={view !== "catalog"}
           />
 
           <select
             value={selectedCategory}
             onChange={(event) => handleCategoryChange(event.target.value)}
-            disabled={view === "new"}
+            disabled={view !== "catalog"}
           >
             {categories.map((category) => (
               <option key={category} value={category}>
@@ -165,7 +199,7 @@ function App() {
           <button
             className={onlyPowerShell ? "filter-btn active" : "filter-btn"}
             onClick={handleOnlyPowerShell}
-            disabled={view === "new"}
+            disabled={view !== "catalog"}
           >
             {onlyPowerShell ? "✓ Solo PowerShell" : "Solo PowerShell"}
           </button>
@@ -221,10 +255,27 @@ function App() {
               <p className="eyebrow">Base de conocimiento</p>
               <h2>Nueva solución</h2>
             </div>
-            <SolutionForm onAddSolution={handleAddSolution} />
+            <SolutionForm key="new-solution" onSubmit={handleAddSolution} />
+          </div>
+        ) : view === "edit" && selected ? (
+          <div className="form-shell">
+            <div className="form-heading">
+              <p className="eyebrow">Base de conocimiento</p>
+              <h2>Editar solución</h2>
+            </div>
+            <SolutionForm
+              key={selected.id}
+              initialSolution={selected}
+              onCancel={() => setView("catalog")}
+              onSubmit={handleUpdateSolution}
+            />
           </div>
         ) : selected ? (
-          <SolutionCard solution={selected} />
+          <SolutionCard
+            solution={selected}
+            onDelete={handleDeleteSolution}
+            onEdit={() => setView("edit")}
+          />
         ) : (
           <div className="empty-card">Seleccioná una solución.</div>
         )}

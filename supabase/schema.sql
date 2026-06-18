@@ -10,6 +10,7 @@ alter table public.solutions enable row level security;
 drop policy if exists "solutions_select" on public.solutions;
 drop policy if exists "solutions_insert" on public.solutions;
 drop policy if exists "solutions_update" on public.solutions;
+drop policy if exists "solutions_delete" on public.solutions;
 
 create policy "solutions_select"
 on public.solutions
@@ -29,6 +30,12 @@ for update
 to anon
 using (true)
 with check (true);
+
+create policy "solutions_delete"
+on public.solutions
+for delete
+to anon
+using (true);
 
 create or replace function public.set_updated_at()
 returns trigger

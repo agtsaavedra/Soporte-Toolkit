@@ -31,8 +31,28 @@ const initialForm = {
   internalNotes: "",
 };
 
-const SolutionForm = ({ onAddSolution }) => {
-  const [form, setForm] = useState(initialForm);
+const solutionToForm = (solution) => {
+  if (!solution) return initialForm;
+
+  return {
+    title: solution.title,
+    category: solution.category,
+    tags: solution.tags.join(", "),
+    risk: solution.risk,
+    time: solution.time,
+    powershell: solution.powershell,
+    symptoms: solution.symptoms.join("\n"),
+    causes: solution.causes.join("\n"),
+    steps: solution.steps.join("\n"),
+    commands: solution.commands.length > 0 ? solution.commands : [emptyCommand],
+    userMessage: solution.userMessage,
+    internalNotes: solution.internalNotes,
+  };
+};
+
+const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
+  const [form, setForm] = useState(() => solutionToForm(initialSolution));
+  const isEditing = Boolean(initialSolution);
 
   const updateField = (field, value) => {
     setForm((currentForm) => ({ ...currentForm, [field]: value }));
@@ -68,7 +88,7 @@ const SolutionForm = ({ onAddSolution }) => {
     event.preventDefault();
 
     const solution = normalizeSolution({
-      id: `custom-${Date.now()}`,
+      id: initialSolution?.id ?? `custom-${Date.now()}`,
       title: form.title,
       category: form.category || "General",
       tags: splitTags(form.tags),
@@ -83,11 +103,11 @@ const SolutionForm = ({ onAddSolution }) => {
         .map(normalizeCommand),
       userMessage: form.userMessage,
       internalNotes: form.internalNotes,
-      source: "custom",
+      source: initialSolution?.source ?? "custom",
     });
 
-    onAddSolution(solution);
-    setForm(initialForm);
+    onSubmit(solution);
+    if (!isEditing) setForm(initialForm);
   };
 
   return (
@@ -204,7 +224,7 @@ const SolutionForm = ({ onAddSolution }) => {
               onChange={(event) =>
                 updateCommand(index, "description", event.target.value)
               }
-              placeholder="Qué hace este comando"
+              placeholder="Descripción del comando"
             />
             <button type="button" onClick={() => removeCommand(index)}>
               Quitar
@@ -230,9 +250,16 @@ const SolutionForm = ({ onAddSolution }) => {
         />
       </label>
 
-      <button className="submit-solution" type="submit">
-        Guardar solución
-      </button>
+      <div className="form-actions">
+        {onCancel && (
+          <button className="cancel-solution" type="button" onClick={onCancel}>
+            Cancelar
+          </button>
+        )}
+        <button className="submit-solution" type="submit">
+          {isEditing ? "Guardar cambios" : "Guardar solución"}
+        </button>
+      </div>
     </form>
   );
 };

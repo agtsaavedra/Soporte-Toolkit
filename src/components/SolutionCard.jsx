@@ -31,7 +31,7 @@ const buildProcedure = (solution) =>
       solution.commands,
       (command) =>
         `- ${commandText(command)}${
-          command.description ? `\n  Qué hace: ${command.description}` : ""
+          command.description ? `\n  Descripción: ${command.description}` : ""
         }`
     ),
     "",
@@ -42,8 +42,9 @@ const buildProcedure = (solution) =>
     solution.internalNotes,
   ].join("\n");
 
-const SolutionCard = ({ solution }) => {
+const SolutionCard = ({ solution, onDelete, onEdit }) => {
   const [copiedLabel, setCopiedLabel] = useState("");
+  const isEditable = solution.source !== "base";
 
   const copyText = async (text, label) => {
     await navigator.clipboard.writeText(text);
@@ -62,6 +63,16 @@ const SolutionCard = ({ solution }) => {
         </div>
 
         <div className="quick-actions">
+          {isEditable && (
+            <>
+              <button className="secondary-action" onClick={onEdit}>
+                Editar
+              </button>
+              <button className="danger-action" onClick={onDelete}>
+                Eliminar
+              </button>
+            </>
+          )}
           <button
             className="secondary-action"
             onClick={() => copyText(commandsText, "Comandos")}
@@ -85,7 +96,7 @@ const SolutionCard = ({ solution }) => {
           Riesgo {solution.risk}
         </span>
         <span className="time">Tiempo {solution.time}</span>
-        {solution.source === "custom" && <span className="source">Agregada</span>}
+        {isEditable && <span className="source">Agregada</span>}
       </div>
 
       <div className="tags">

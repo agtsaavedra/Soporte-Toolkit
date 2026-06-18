@@ -20,6 +20,11 @@ const supabaseHeaders = {
   Prefer: "return=representation",
 };
 
+const solutionPayload = (solution) => ({
+  ...solution,
+  source: solution.source === "base" ? "shared" : solution.source,
+});
+
 export const readLocalSolutions = () => {
   try {
     const rawValue = localStorage.getItem(CUSTOM_SOLUTIONS_STORAGE_KEY);
@@ -64,7 +69,7 @@ const insertRemoteSolution = async (solution) => {
     headers: supabaseHeaders,
     body: JSON.stringify({
       id: solution.id,
-      payload: solution,
+      payload: solutionPayload(solution),
     }),
   });
 
@@ -79,6 +84,45 @@ const insertRemoteSolution = async (solution) => {
     id: row.id,
     source: "shared",
   });
+};
+
+const updateRemoteSolution = async (solution) => {
+  const response = await fetch(
+    `${supabaseEndpoint}?id=eq.${encodeURIComponent(solution.id)}`,
+    {
+      method: "PATCH",
+      headers: supabaseHeaders,
+      body: JSON.stringify({
+        payload: solutionPayload(solution),
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("No se pudo actualizar la solución en la base compartida.");
+  }
+
+  const [row] = await response.json();
+
+  return normalizeSolution({
+    ...row.payload,
+    id: row.id,
+    source: "shared",
+  });
+};
+
+const deleteRemoteSolution = async (solutionId) => {
+  const response = await fetch(
+    `${supabaseEndpoint}?id=eq.${encodeURIComponent(solutionId)}`,
+    {
+      method: "DELETE",
+      headers: supabaseHeaders,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("No se pudo eliminar la solución de la base compartida.");
+  }
 };
 
 export const loadUserSolutions = async () => {
@@ -132,6 +176,67 @@ export const addUserSolution = async (solution, currentSolutions) => {
   } catch {
     return {
       item: solution,
+      items: localNext,
+      mode: "local-fallback",
+    };
+  }
+};
+
+export const updateUserSolution = async (solution, currentSolutions) => {
+  const localNext = currentSolutions.map((currentSolution) =>
+    currentSolution.id === solution.id ? solution : currentSolution
+  );
+  saveLocalSolutions(localNext);
+
+  if (!isRemoteRepositoryConfigured) {
+    return {
+      item: solution,
+      items: localNext,
+      mode: "local",
+    };
+  }
+
+  try {
+    const remoteSolution = await updateRemoteSolution(solution);
+    const remoteNext = currentSolutions.map((currentSolution) =>
+      currentSolution.id === remoteSolution.id ? remoteSolution : currentSolution
+    );
+    saveLocalSolutions(remoteNext);
+
+    return {
+      item: remoteSolution,
+      items: remoteNext,
+      mode: "shared",
+    };
+  } catch {
+    return {
+      item: solution,
+      items: localNext,
+      mode: "local-fallback",
+    };
+  }
+};
+
+export const deleteUserSolution = async (solutionId, currentSolutions) => {
+  const localNext = currentSolutions.filter((solution) => solution.id !== solutionId);
+  saveLocalSolutions(localNext);
+
+  if (!isRemoteRepositoryConfigured) {
+    return {
+      items: localNext,
+      mode: "local",
+    };
+  }
+
+  try {
+    await deleteRemoteSolution(solutionId);
+
+    return {
+      items: localNext,
+      mode: "shared",
+    };
+  } catch {
+    return {
       items: localNext,
       mode: "local-fallback",
     };

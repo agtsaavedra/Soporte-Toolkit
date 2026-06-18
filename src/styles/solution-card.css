@@ -69,6 +69,15 @@
   color: #ffffff;
 }
 
+.solution-card .danger-action {
+  color: #ffffff;
+  background: var(--danger);
+}
+
+.solution-card .danger-action:hover {
+  background: #991b1b;
+}
+
 .copy-status {
   display: inline-flex;
   padding: 8px 11px;
