@@ -1,0 +1,97 @@
+.solution-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.solution-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.solution-form input,
+.solution-form select,
+.solution-form textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  color: var(--text-primary);
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.solution-form textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.checkbox-row {
+  flex-direction: row !important;
+  align-items: center;
+}
+
+.checkbox-row input {
+  width: 16px;
+  min-height: 16px;
+}
+
+.command-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.command-editor-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.command-editor-title h3 {
+  color: var(--text-primary);
+  font-size: 18px;
+}
+
+.command-editor-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.solution-form button {
+  min-height: 40px;
+  padding: 9px 13px;
+  color: #ffffff;
+  cursor: pointer;
+  background: var(--primary);
+  border-radius: var(--radius-sm);
+  font-weight: 760;
+}
+
+.solution-form button[type="button"] {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.submit-solution {
+  align-self: flex-start;
+}
+
+@media (max-width: 760px) {
+  .form-grid,
+  .command-editor-row {
+    grid-template-columns: 1fr;
+  }
+}

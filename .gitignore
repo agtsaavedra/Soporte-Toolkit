@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.vite/
+
+*.log
+*.zip
+
+.env
+.env.*
+
+Thumbs.db
+Desktop.ini
