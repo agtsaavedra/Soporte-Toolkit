@@ -64,6 +64,11 @@
   background: var(--accent-soft);
 }
 
+:root[data-theme="dark"] .solution-card .secondary-action,
+:root[data-theme="dark"] .time {
+  color: #ffffff;
+}
+
 .copy-status {
   display: inline-flex;
   padding: 8px 11px;
@@ -194,6 +199,11 @@
   color: #b8ccda;
   font-size: 13px;
   line-height: 1.45;
+}
+
+.command-content p strong {
+  color: #ffffff;
+  font-weight: 800;
 }
 
 .user-message,

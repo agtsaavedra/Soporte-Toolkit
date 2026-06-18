@@ -7,10 +7,12 @@ import {
   filterSolutions,
   getCategories,
   getFirstMatchingSolution,
-  readCustomSolutions,
-  saveCustomSolutions,
   solutions,
 } from "./data/catalog";
+import {
+  addUserSolution,
+  loadUserSolutions,
+} from "./services/solutionsRepository";
 import "./styles/app.css";
 
 const getInitialTheme = () => {
@@ -22,13 +24,20 @@ const getInitialTheme = () => {
     : "light";
 };
 
+const REPOSITORY_LABELS = {
+  local: "Local",
+  shared: "Compartida",
+  "local-fallback": "Local sin conexión",
+};
+
 function App() {
   const [search, setSearch] = useState("");
-  const [customSolutions, setCustomSolutions] = useState(readCustomSolutions);
+  const [customSolutions, setCustomSolutions] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORIES);
   const [onlyPowerShell, setOnlyPowerShell] = useState(false);
   const [theme, setTheme] = useState(getInitialTheme);
   const [view, setView] = useState("catalog");
+  const [repositoryMode, setRepositoryMode] = useState("local");
 
   const solutionIndex = useMemo(
     () => createSolutionIndex([...solutions, ...customSolutions]),
@@ -54,8 +63,19 @@ function App() {
   }, [theme]);
 
   useEffect(() => {
-    saveCustomSolutions(customSolutions);
-  }, [customSolutions]);
+    let isMounted = true;
+
+    loadUserSolutions().then((result) => {
+      if (!isMounted) return;
+
+      setCustomSolutions(result.items);
+      setRepositoryMode(result.mode);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
@@ -82,9 +102,12 @@ function App() {
     if (firstMatch) setSelected(firstMatch);
   };
 
-  const handleAddSolution = (solution) => {
-    setCustomSolutions((currentSolutions) => [...currentSolutions, solution]);
-    setSelected(solution);
+  const handleAddSolution = async (solution) => {
+    const result = await addUserSolution(solution, customSolutions);
+
+    setCustomSolutions(result.items);
+    setRepositoryMode(result.mode);
+    setSelected(result.item);
     setView("catalog");
   };
 
@@ -150,6 +173,9 @@ function App() {
 
         <div className="sidebar-tools">
           <p className="result-count">{filteredSolutions.length} resultado(s)</p>
+          <span className={`repository-mode repository-${repositoryMode}`}>
+            {REPOSITORY_LABELS[repositoryMode]}
+          </span>
           <button className="theme-toggle" onClick={toggleTheme}>
             {theme === "dark" ? "Modo claro" : "Modo oscuro"}
           </button>
@@ -174,7 +200,7 @@ function App() {
 
               <div className="mini-tags">
                 {solution.powershell && <small>PowerShell</small>}
-                {solution.source === "custom" && <small>Agregada</small>}
+                {solution.source !== "base" && <small>Agregada</small>}
                 {solution.tags.slice(0, 3).map((tag) => (
                   <small key={tag}>{tag}</small>
                 ))}

@@ -154,6 +154,27 @@
   font-size: 13px;
 }
 
+.repository-mode {
+  padding: 7px 9px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(210, 239, 250, 0.22);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.repository-shared {
+  color: #06213d;
+  background: #dff3fb;
+}
+
+.repository-local-fallback {
+  color: #ffffff;
+  background: rgba(227, 111, 82, 0.24);
+  border-color: rgba(255, 138, 107, 0.45);
+}
+
 .theme-toggle {
   padding: 0 12px;
   color: var(--text-white);

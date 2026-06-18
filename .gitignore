@@ -1,5 +1,6 @@
 node_modules/
 dist/
+release/
 .vite/
 
 *.log
@@ -7,6 +8,7 @@ dist/
 
 .env
 .env.*
+!.env.example
 
 Thumbs.db
 Desktop.ini

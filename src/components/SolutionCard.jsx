@@ -128,7 +128,11 @@ const SolutionCard = ({ solution }) => {
             <div key={command.command} className="command-box">
               <div className="command-content">
                 <code>{command.command}</code>
-                {command.description && <p>{command.description}</p>}
+                {command.description && (
+                  <p>
+                    <strong>Descripción:</strong> {command.description}
+                  </p>
+                )}
               </div>
               <button onClick={() => copyText(command.command, "Comando")}>
                 Copiar

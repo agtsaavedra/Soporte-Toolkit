@@ -33,24 +33,56 @@ const normalizeBrokenText = (value) => {
 const inferCommandDescription = (command) => {
   const text = command.toLowerCase();
 
-  if (text.includes("get-service")) return "Lista servicios para validar estado, nombre y disponibilidad.";
-  if (text.includes("test-netconnection")) return "Prueba conectividad contra un host y puerto específico.";
-  if (text.includes("get-itemproperty")) return "Consulta claves del registro para detectar software instalado.";
-  if (text.includes("get-appxpackage")) return "Busca paquetes instalados desde Microsoft Store/AppX.";
-  if (text.includes("remove-appxpackage")) return "Desinstala un paquete AppX para el usuario actual.";
-  if (text.includes("get-childitem")) return "Lista archivos o carpetas para inspección y diagnóstico.";
-  if (text.includes("remove-item")) return "Elimina archivos o carpetas indicados; revisar alcance antes de ejecutar.";
-  if (text.includes("ipconfig /flushdns")) return "Limpia la caché DNS local del equipo.";
-  if (text.includes("ipconfig /renew")) return "Renueva la concesión DHCP del adaptador de red.";
-  if (text.includes("resolve-dnsname")) return "Valida resolución DNS para un nombre de equipo o dominio.";
-  if (text.includes("outlook.exe /safe")) return "Abre Outlook sin complementos para descartar conflictos.";
-  if (text.includes("control printers")) return "Abre la consola clásica de impresoras de Windows.";
-  if (text.includes("eventvwr.msc")) return "Abre el Visor de eventos para revisar errores del sistema o aplicación.";
-  if (text.includes("hostname")) return "Muestra el nombre del equipo.";
-  if (text.includes("whoami")) return "Muestra el usuario actual o sus grupos según el parámetro usado.";
-  if (text.includes("msiexec")) return "Ejecuta instalación o desinstalación MSI con parámetros controlados.";
+  if (text === "outlook.exe /safe") return "Abre Outlook en modo seguro, sin complementos. Sirve para confirmar si la lentitud o el cierre inesperado viene de un add-in.";
+  if (text === "control mlcfg32.cpl") return "Abre la configuración clásica de perfiles de correo. Se usa para crear, cambiar o reparar perfiles de Outlook.";
+  if (text.includes("microsoft\\outlook") && text.includes("*.ost")) return "Busca archivos OST del perfil local y calcula su tamaño en GB para detectar cachés demasiado grandes.";
+  if (text.includes("displayname -like '*wps*'")) return "Consulta las claves de desinstalación de Windows para encontrar instalaciones de WPS Office y su UninstallString.";
+  if (text.includes("get-appxpackage *wps* | remove-appxpackage")) return "Quita WPS si fue instalado como paquete AppX para el usuario actual.";
+  if (text.includes("get-appxpackage *wps*")) return "Verifica si WPS existe como aplicación AppX/Microsoft Store antes de intentar quitarlo.";
+  if (text.includes("$name = '*nombre*'")) return "Plantilla para buscar un programa por nombre en el registro y obtener versión, editor y comando de desinstalación.";
+  if (text.includes("msiexec /x")) return "Desinstala un producto MSI usando su GUID. Conviene validar el GUID antes de ejecutar.";
+  if (text.includes("get-dnsclientserveraddress")) return "Muestra los DNS configurados por adaptador para detectar DNS manuales o heredados.";
+  if (text.includes("get-netadapter")) return "Lista adaptadores activos para identificar el nombre exacto que debe usarse en comandos de red.";
+  if (text.includes("set-dnsclientserveraddress") && text.includes("resetserveraddresses")) return "Vuelve el DNS del adaptador a automático por DHCP, quitando servidores configurados a mano.";
+  if (text.includes("ipconfig /flushdns")) return "Limpia la caché DNS local para forzar nuevas resoluciones de nombres.";
+  if (text.includes("ipconfig /renew")) return "Renueva la concesión DHCP y puede corregir IP, gateway o DNS entregados por la red.";
+  if (text.includes("resolve-dnsname")) return "Consulta DNS para confirmar si el nombre resuelve y a qué dirección apunta.";
+  if (text === "get-psdrive c") return "Muestra capacidad, espacio usado y espacio libre de la unidad C.";
+  if (text.includes("c:\\users") && text.includes("measure-object")) return "Calcula el tamaño aproximado de cada perfil en C:\\Users para priorizar limpieza de disco.";
+  if (text.includes("$env:temp")) return "Elimina temporales del usuario actual. Revisar aplicaciones abiertas antes de ejecutar.";
+  if (text.includes("c:\\$recycle.bin")) return "Vacía la papelera del sistema. Puede liberar mucho espacio, pero no permite recuperar esos archivos fácilmente.";
+  if (text.includes("win32_userprofile") && text.includes("remove-ciminstance")) return "Elimina un perfil de Windows desde WMI/CIM, limpiando registro y carpeta asociada cuando corresponde.";
+  if (text.includes("win32_userprofile")) return "Lista perfiles locales, última fecha de uso y si están cargados para evitar borrar usuarios activos.";
+  if (text.includes("query user") || text === "quser") return "Lista sesiones abiertas en el equipo para identificar usuario, estado e ID de sesión.";
+  if (text.includes("logoff id_sesion")) return "Cierra una sesión específica por ID. Confirmar el ID antes porque se cierran aplicaciones del usuario.";
+  if (text.includes("shutdown /l")) return "Cierra la sesión interactiva actual del usuario.";
+  if (text.includes("get-service spooler")) return "Muestra el estado del servicio de cola de impresión antes de reiniciarlo.";
+  if (text.includes("stop-service spooler")) return "Detiene forzosamente la cola de impresión para poder limpiar trabajos trabados.";
+  if (text.includes("spool\\printers")) return "Borra archivos pendientes de la cola de impresión. Esto elimina trabajos atascados.";
+  if (text.includes("start-service spooler")) return "Vuelve a iniciar el servicio de impresión después de limpiar la cola.";
+  if (text === "get-printer") return "Lista impresoras instaladas para validar que exista la impresora esperada.";
+  if (text.includes("printuientry")) return "Agrega una impresora compartida desde el servidor usando la utilidad clásica PrintUI.";
+  if (text.includes("-port 445")) return "Prueba SMB/Admin Share contra el host. Útil para validar acceso a recursos compartidos o instalación remota.";
+  if (text.includes("-port 135")) return "Prueba RPC/WMI contra el host. Útil para administración remota clásica de Windows.";
+  if (text.includes("-port 3389")) return "Prueba RDP contra el host para confirmar si el escritorio remoto responde.";
+  if (text.includes("-port 5985")) return "Prueba WinRM contra el host para validar administración remota por PowerShell.";
+  if (text.includes("forti")) return "Revisa instalación, servicios o diagnóstico de FortiClient para validar VPN, EMS o telemetría.";
+  if (text.includes("invgate")) return "Revisa el agente de InvGate o su conectividad para confirmar si puede reportar inventario.";
+  if (text === "hostname") return "Muestra el nombre del equipo para cargarlo en el ticket o validar inventario.";
+  if (text === "whoami") return "Muestra el usuario actual con dominio o equipo local.";
+  if (text.includes("win32_computersystem")) return "Obtiene fabricante, modelo, RAM y usuario activo del equipo.";
+  if (text.includes("win32_bios")) return "Obtiene el número de serie del equipo desde BIOS.";
+  if (text.includes("win32_operatingsystem")) return "Muestra versión de Windows y último inicio para contexto de diagnóstico.";
+  if (text.includes("appwiz.cpl")) return "Abre Programas y características para reparar o desinstalar software instalado.";
+  if (text.includes("excel.exe /safe")) return "Abre Excel sin complementos para descartar fallas causadas por add-ins.";
+  if (text.includes("excel.exe") && text.includes("/regserver")) return "Re-registra Excel en Windows para corregir asociaciones o problemas de automatización COM.";
+  if (text.includes("cleanmgr")) return "Abre el liberador de espacio de Windows para limpieza asistida.";
+  if (text.includes("saplogon.exe")) return "Abre SAP Logon para crear o probar entradas de conexión SAP.";
+  if (text.includes("eventvwr.msc")) return "Abre el Visor de eventos para capturar errores de aplicación, .NET o sistema.";
+  if (text.includes("whoami /groups")) return "Lista grupos y privilegios del usuario para diagnosticar problemas de permisos.";
+  if (text.includes("control printers")) return "Abre Dispositivos e impresoras para revisar estado, predeterminada y propiedades.";
 
-  return "Comando de apoyo para ejecutar o abrir la herramienta indicada en el procedimiento.";
+  return "Comando auxiliar del procedimiento. Revisar el contexto de la ficha antes de ejecutarlo.";
 };
 
 export const normalizeCommand = (command) => {
@@ -65,7 +97,9 @@ export const normalizeCommand = (command) => {
 
   return {
     command: normalizeBrokenText(command.command ?? ""),
-    description: normalizeBrokenText(command.description ?? ""),
+    description:
+      normalizeBrokenText(command.description ?? "") ||
+      inferCommandDescription(command.command ?? ""),
   };
 };
 
@@ -118,14 +152,20 @@ const toSearchableText = (solution) =>
     .join(" ")
     .toLocaleLowerCase("es-AR");
 
-export const createSolutionIndex = (items) => items.map((solution) => ({
-  ...solution,
-  searchableText: toSearchableText(solution),
-}));
+export const createSolutionIndex = (items) =>
+  items.map((solution) => ({
+    ...solution,
+    searchableText: toSearchableText(solution),
+  }));
 
 export const solutionIndex = createSolutionIndex(solutions);
 
-export const filterSolutions = ({ items = solutionIndex, search, category, onlyPowerShell }) => {
+export const filterSolutions = ({
+  items = solutionIndex,
+  search,
+  category,
+  onlyPowerShell,
+}) => {
   const query = search.trim().toLocaleLowerCase("es-AR");
 
   return items.filter((solution) => {
@@ -138,7 +178,11 @@ export const filterSolutions = ({ items = solutionIndex, search, category, onlyP
   });
 };
 
-export const getFirstMatchingSolution = ({ items = solutionIndex, category, onlyPowerShell }) =>
+export const getFirstMatchingSolution = ({
+  items = solutionIndex,
+  category,
+  onlyPowerShell,
+}) =>
   items.find((solution) => {
     const matchesCategory =
       category === ALL_CATEGORIES || solution.category === category;
@@ -146,21 +190,3 @@ export const getFirstMatchingSolution = ({ items = solutionIndex, category, only
 
     return matchesCategory && matchesPowerShell;
   });
-
-export const readCustomSolutions = () => {
-  try {
-    const rawValue = localStorage.getItem(CUSTOM_SOLUTIONS_STORAGE_KEY);
-    if (!rawValue) return [];
-
-    const parsedValue = JSON.parse(rawValue);
-    if (!Array.isArray(parsedValue)) return [];
-
-    return parsedValue.map(normalizeSolution);
-  } catch {
-    return [];
-  }
-};
-
-export const saveCustomSolutions = (items) => {
-  localStorage.setItem(CUSTOM_SOLUTIONS_STORAGE_KEY, JSON.stringify(items));
-};
