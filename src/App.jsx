@@ -16,6 +16,7 @@ import {
   loadUserSolutions,
   publishSolutions,
   readSolutionHistory,
+  saveSessionFromCallbackUrl,
   readStoredSession,
   signIn,
   signOut,
@@ -95,6 +96,27 @@ function App() {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem("support-toolkit-theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    const handleAuthCallback = async (url) => {
+      try {
+        const session = await saveSessionFromCallbackUrl(url);
+        if (!session) return;
+
+        setAuthSession(session);
+        showToast("Email confirmado. Sesión iniciada.");
+      } catch {
+        showToast("No se pudo completar el callback de autenticación");
+      }
+    };
+
+    if (window.location.hash.includes("access_token")) {
+      handleAuthCallback(window.location.href);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+
+    window.soporteToolkit?.onAuthCallback?.(handleAuthCallback);
+  }, []);
 
   useEffect(() => {
     if (!authSession?.access_token) return undefined;

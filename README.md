@@ -84,6 +84,7 @@ Variables de entorno:
 VITE_SUPABASE_URL=https://TU_PROYECTO.supabase.co
 VITE_SUPABASE_ANON_KEY=TU_ANON_KEY
 VITE_SUPABASE_TABLE=solutions
+VITE_AUTH_REDIRECT_URL=http://localhost:5173/auth/callback
 ```
 
 Para este proyecto local ya queda creada una base `.env.local` con la URL del proyecto. Falta completar `VITE_SUPABASE_ANON_KEY` con la anon public key de Supabase.
@@ -96,7 +97,39 @@ Con esas variables, la app lee y guarda soluciones en Supabase. Si Supabase no r
 - Eliminar una solución: 1 registro de historial y 1 delete.
 - El buscador y los filtros no consultan Supabase; trabajan en memoria.
 
-El script actual deja policies abiertas para `anon` y `authenticated`, útil para una herramienta interna en etapa inicial. Para producción conviene endurecer RLS, por ejemplo permitiendo escritura solo a usuarios autenticados.
+El script actual permite leer y escribir solo con usuarios autenticados.
+
+## Autenticación
+
+Para desarrollo local, lo más simple es desactivar confirmación de email en Supabase:
+
+1. Authentication.
+2. Sign In / Providers.
+3. Email.
+4. Desactivar `Confirm email`.
+
+Con eso, al crear usuario desde la app ya queda habilitado.
+
+Si querés mantener confirmación de email en desarrollo, configurar:
+
+- Site URL: `http://localhost:5173`
+- Redirect URLs:
+  - `http://localhost:5173/auth/callback`
+  - `http://127.0.0.1:5173/auth/callback`
+
+Para producción web, usar una URL pública:
+
+```env
+VITE_AUTH_REDIRECT_URL=https://soporte-toolkit.tu-dominio.com/auth/callback
+```
+
+Para producción escritorio, la app registra el protocolo:
+
+```text
+soporte-toolkit://auth/callback
+```
+
+En Supabase se puede agregar como Redirect URL permitida. Al confirmar email, el sistema puede volver a abrir la app instalada usando ese protocolo.
 
 ## Estructura
 

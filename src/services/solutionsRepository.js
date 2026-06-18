@@ -6,6 +6,7 @@ import {
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const SUPABASE_TABLE = import.meta.env.VITE_SUPABASE_TABLE ?? "solutions";
+const AUTH_REDIRECT_URL = import.meta.env.VITE_AUTH_REDIRECT_URL;
 const HISTORY_TABLE = "solution_history";
 const SESSION_STORAGE_KEY = "support-toolkit-supabase-session";
 
@@ -94,7 +95,10 @@ export const signIn = async ({ email, password }) => {
 };
 
 export const signUp = async ({ email, password }) => {
-  const response = await fetch(authEndpoint("signup"), {
+  const query = AUTH_REDIRECT_URL
+    ? `?redirect_to=${encodeURIComponent(AUTH_REDIRECT_URL)}`
+    : "";
+  const response = await fetch(`${authEndpoint("signup")}${query}`, {
     method: "POST",
     headers: {
       apikey: SUPABASE_ANON_KEY,
@@ -124,6 +128,35 @@ export const signOut = async () => {
   }
 
   saveSession(null);
+};
+
+export const saveSessionFromCallbackUrl = async (url) => {
+  const callbackUrl = new URL(url);
+  const params = new URLSearchParams(callbackUrl.hash.replace("#", ""));
+  const accessToken = params.get("access_token");
+  const refreshToken = params.get("refresh_token");
+  const expiresIn = params.get("expires_in");
+  const tokenType = params.get("token_type") ?? "bearer";
+
+  if (!accessToken) return null;
+
+  const userResponse = await fetch(authEndpoint("user"), {
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  const user = userResponse.ok ? await userResponse.json() : null;
+  const session = {
+    access_token: accessToken,
+    refresh_token: refreshToken,
+    expires_in: Number(expiresIn ?? 0),
+    token_type: tokenType,
+    user,
+  };
+
+  saveSession(session);
+  return session;
 };
 
 const readRemoteSolutions = async () => {
