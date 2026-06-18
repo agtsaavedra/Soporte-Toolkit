@@ -68,16 +68,9 @@ Esto evita requerir permisos de administrador mientras la política de Windows p
 
 Por defecto, las soluciones nuevas se guardan en `localStorage`. Para que varias personas usen y modifiquen la misma base, configurar Supabase.
 
-Crear una tabla `solutions`:
+Crear la tabla y policies ejecutando el contenido de:
 
-```sql
-create table public.solutions (
-  id text primary key,
-  payload jsonb not null,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-```
+- `supabase/schema.sql`
 
 Variables de entorno:
 
@@ -87,7 +80,13 @@ VITE_SUPABASE_ANON_KEY=TU_ANON_KEY
 VITE_SUPABASE_TABLE=solutions
 ```
 
-Con esas variables, la app lee y guarda soluciones en Supabase. Si Supabase no responde, usa la copia local como fallback.
+Para este proyecto local ya queda creada una base `.env.local` con la URL del proyecto. Falta completar `VITE_SUPABASE_ANON_KEY` con la anon public key de Supabase.
+
+Con esas variables, la app lee y guarda soluciones en Supabase. Si Supabase no responde, usa la copia local como fallback. En el uso actual:
+
+- Abrir la app: 1 lectura de la tabla `solutions`.
+- Agregar una solución: 1 insert.
+- El buscador y los filtros no consultan Supabase; trabajan en memoria.
 
 Para producción conviene configurar políticas RLS según el uso real. Para una herramienta interna simple se puede empezar restringiendo la API key al equipo/grupo que vaya a usar la app.
 
