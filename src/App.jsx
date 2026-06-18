@@ -97,6 +97,8 @@ function App() {
   }, [theme]);
 
   useEffect(() => {
+    if (!authSession?.access_token) return undefined;
+
     let isMounted = true;
 
     loadUserSolutions().then((result) => {
@@ -109,7 +111,7 @@ function App() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [authSession?.access_token]);
 
   useEffect(() => {
     let isMounted = true;
@@ -252,8 +254,12 @@ function App() {
         mode === "signup" ? await signUp(authForm) : await signIn(authForm);
 
       setAuthSession(session);
-      showToast(mode === "signup" ? "Usuario creado" : "Sesión iniciada");
-      syncSolutions();
+      if (session.access_token) {
+        showToast(mode === "signup" ? "Usuario creado" : "Sesión iniciada");
+        syncSolutions();
+      } else {
+        showToast("Usuario creado. Confirmá el email antes de entrar.");
+      }
     } catch {
       showToast("No se pudo completar la autenticación");
     }
@@ -262,12 +268,63 @@ function App() {
   const handleSignOut = async () => {
     await signOut();
     setAuthSession(null);
+    setCustomSolutions([]);
+    setHistory([]);
     showToast("Sesión cerrada");
   };
 
   const toggleTheme = () => {
     setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"));
   };
+
+  if (!authSession?.access_token) {
+    return (
+      <main className="login-screen">
+        <section className="login-card">
+          <img className="login-icon" src="/toolkit-icon.svg" alt="" />
+          <p className="eyebrow">Soporte Toolkit</p>
+          <h1>Acceso requerido</h1>
+          <p>
+            Iniciá sesión para consultar, editar y sincronizar la base de
+            soluciones.
+          </p>
+
+          <div className="login-form">
+            <input
+              type="email"
+              placeholder="Email"
+              value={authForm.email}
+              onChange={(event) =>
+                setAuthForm((current) => ({
+                  ...current,
+                  email: event.target.value,
+                }))
+              }
+            />
+            <input
+              type="password"
+              placeholder="Contraseña"
+              value={authForm.password}
+              onChange={(event) =>
+                setAuthForm((current) => ({
+                  ...current,
+                  password: event.target.value,
+                }))
+              }
+            />
+            <div>
+              <button onClick={() => handleAuthSubmit("signin")}>Entrar</button>
+              <button className="secondary-login" onClick={() => handleAuthSubmit("signup")}>
+                Crear usuario
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {toast && <div className="toast-message">{toast}</div>}
+      </main>
+    );
+  }
 
   return (
     <main className="app">

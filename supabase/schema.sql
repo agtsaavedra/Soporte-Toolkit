@@ -27,44 +27,46 @@ drop policy if exists "solution_history_insert" on public.solution_history;
 create policy "solutions_select"
 on public.solutions
 for select
-to anon, authenticated
+to authenticated
 using (true);
 
 create policy "solutions_insert"
 on public.solutions
 for insert
-to anon, authenticated
+to authenticated
 with check (true);
 
 create policy "solutions_update"
 on public.solutions
 for update
-to anon, authenticated
+to authenticated
 using (true)
 with check (true);
 
 create policy "solutions_delete"
 on public.solutions
 for delete
-to anon, authenticated
+to authenticated
 using (true);
 
 create policy "solution_history_select"
 on public.solution_history
 for select
-to anon, authenticated
+to authenticated
 using (true);
 
 create policy "solution_history_insert"
 on public.solution_history
 for insert
-to anon, authenticated
+to authenticated
 with check (true);
 
 grant usage on schema public to anon, authenticated;
-grant select, insert, update, delete on public.solutions to anon, authenticated;
-grant select, insert on public.solution_history to anon, authenticated;
-grant usage, select on sequence public.solution_history_id_seq to anon, authenticated;
+revoke select, insert, update, delete on public.solutions from anon;
+revoke select, insert on public.solution_history from anon;
+grant select, insert, update, delete on public.solutions to authenticated;
+grant select, insert on public.solution_history to authenticated;
+grant usage, select on sequence public.solution_history_id_seq to authenticated;
 
 create or replace function public.set_updated_at()
 returns trigger
