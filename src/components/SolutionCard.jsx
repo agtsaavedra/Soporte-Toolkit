@@ -42,9 +42,10 @@ const buildProcedure = (solution) =>
     solution.internalNotes,
   ].join("\n");
 
-const SolutionCard = ({ solution, onDelete, onEdit }) => {
+const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) => {
   const [copiedLabel, setCopiedLabel] = useState("");
   const isEditable = solution.source !== "base";
+  const canPromote = isEditable && solution.source !== "shared";
 
   const copyText = async (text, label) => {
     await navigator.clipboard.writeText(text);
@@ -65,6 +66,11 @@ const SolutionCard = ({ solution, onDelete, onEdit }) => {
         <div className="quick-actions">
           {isEditable && (
             <>
+              {canPromote && (
+                <button className="secondary-action" onClick={onPromote}>
+                  Publicar
+                </button>
+              )}
               <button className="secondary-action" onClick={onEdit}>
                 Editar
               </button>
@@ -167,6 +173,21 @@ const SolutionCard = ({ solution, onDelete, onEdit }) => {
         <h3>Notas internas</h3>
         <div className="internal-notes">{solution.internalNotes}</div>
       </section>
+
+      {history.length > 0 && (
+        <section>
+          <h3>Historial reciente</h3>
+          <div className="history-list">
+            {history.map((item) => (
+              <div key={`${item.created_at}-${item.action}`}>
+                <strong>{item.action}</strong>
+                <span>{item.actor}</span>
+                <time>{new Date(item.created_at).toLocaleString("es-AR")}</time>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </article>
   );
 };

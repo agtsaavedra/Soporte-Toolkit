@@ -6,24 +6,57 @@ import {
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const SUPABASE_TABLE = import.meta.env.VITE_SUPABASE_TABLE ?? "solutions";
+const HISTORY_TABLE = "solution_history";
+const SESSION_STORAGE_KEY = "support-toolkit-supabase-session";
 
 export const isRemoteRepositoryConfigured = Boolean(
   SUPABASE_URL && SUPABASE_ANON_KEY
 );
 
-const supabaseEndpoint = `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}`;
+const restEndpoint = (table) => `${SUPABASE_URL}/rest/v1/${table}`;
+const authEndpoint = (path) => `${SUPABASE_URL}/auth/v1/${path}`;
 
-const supabaseHeaders = {
-  apikey: SUPABASE_ANON_KEY,
-  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-  "Content-Type": "application/json",
-  Prefer: "return=representation",
+export const readStoredSession = () => {
+  try {
+    const rawValue = localStorage.getItem(SESSION_STORAGE_KEY);
+    return rawValue ? JSON.parse(rawValue) : null;
+  } catch {
+    return null;
+  }
+};
+
+const saveSession = (session) => {
+  if (!session) {
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+    return;
+  }
+
+  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+};
+
+const currentActor = () => readStoredSession()?.user?.email ?? "anon";
+
+const supabaseHeaders = (options = {}) => {
+  const session = readStoredSession();
+
+  return {
+    apikey: SUPABASE_ANON_KEY,
+    Authorization: `Bearer ${session?.access_token ?? SUPABASE_ANON_KEY}`,
+    "Content-Type": "application/json",
+    ...(options.prefer ? { Prefer: options.prefer } : {}),
+  };
 };
 
 const solutionPayload = (solution) => ({
   ...solution,
   source: solution.source === "base" ? "shared" : solution.source,
 });
+
+const mergeSolutions = (items) => {
+  const byId = new Map();
+  items.forEach((item) => byId.set(item.id, normalizeSolution(item)));
+  return [...byId.values()];
+};
 
 export const readLocalSolutions = () => {
   try {
@@ -43,10 +76,63 @@ export const saveLocalSolutions = (items) => {
   localStorage.setItem(CUSTOM_SOLUTIONS_STORAGE_KEY, JSON.stringify(items));
 };
 
-const readRemoteSolutions = async () => {
-  const response = await fetch(`${supabaseEndpoint}?select=id,payload&order=created_at.desc`, {
-    headers: supabaseHeaders,
+export const signIn = async ({ email, password }) => {
+  const response = await fetch(authEndpoint("token?grant_type=password"), {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password }),
   });
+
+  if (!response.ok) throw new Error("No se pudo iniciar sesión.");
+
+  const session = await response.json();
+  saveSession(session);
+  return session;
+};
+
+export const signUp = async ({ email, password }) => {
+  const response = await fetch(authEndpoint("signup"), {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) throw new Error("No se pudo crear el usuario.");
+
+  const session = await response.json();
+  if (session.access_token) saveSession(session);
+  return session;
+};
+
+export const signOut = async () => {
+  const session = readStoredSession();
+
+  if (session?.access_token) {
+    await fetch(authEndpoint("logout"), {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    });
+  }
+
+  saveSession(null);
+};
+
+const readRemoteSolutions = async () => {
+  const response = await fetch(
+    `${restEndpoint(SUPABASE_TABLE)}?select=id,payload&order=updated_at.desc`,
+    {
+      headers: supabaseHeaders(),
+    }
+  );
 
   if (!response.ok) {
     throw new Error("No se pudo leer la base compartida de soluciones.");
@@ -63,60 +149,66 @@ const readRemoteSolutions = async () => {
   );
 };
 
-const insertRemoteSolution = async (solution) => {
-  const response = await fetch(supabaseEndpoint, {
+const writeHistory = async ({ action, solution }) => {
+  if (!isRemoteRepositoryConfigured) return;
+
+  await fetch(restEndpoint(HISTORY_TABLE), {
     method: "POST",
-    headers: supabaseHeaders,
+    headers: supabaseHeaders({ prefer: "return=minimal" }),
     body: JSON.stringify({
-      id: solution.id,
+      solution_id: solution.id,
+      action,
+      actor: currentActor(),
       payload: solutionPayload(solution),
     }),
   });
-
-  if (!response.ok) {
-    throw new Error("No se pudo guardar la solución en la base compartida.");
-  }
-
-  const [row] = await response.json();
-
-  return normalizeSolution({
-    ...row.payload,
-    id: row.id,
-    source: "shared",
-  });
 };
 
-const updateRemoteSolution = async (solution) => {
+const upsertRemoteSolutions = async (items, action = "upsert") => {
+  const rows = items.map((solution) => ({
+    id: solution.id,
+    payload: solutionPayload(solution),
+  }));
+
   const response = await fetch(
-    `${supabaseEndpoint}?id=eq.${encodeURIComponent(solution.id)}`,
+    `${restEndpoint(SUPABASE_TABLE)}?on_conflict=id`,
     {
-      method: "PATCH",
-      headers: supabaseHeaders,
-      body: JSON.stringify({
-        payload: solutionPayload(solution),
+      method: "POST",
+      headers: supabaseHeaders({
+        prefer: "return=representation,resolution=merge-duplicates",
       }),
+      body: JSON.stringify(rows),
     }
   );
 
   if (!response.ok) {
-    throw new Error("No se pudo actualizar la solución en la base compartida.");
+    throw new Error("No se pudieron guardar las soluciones en la base compartida.");
   }
 
-  const [row] = await response.json();
+  const savedRows = await response.json();
+  const savedSolutions = savedRows.map((row) =>
+    normalizeSolution({
+      ...row.payload,
+      id: row.id,
+      source: "shared",
+    })
+  );
 
-  return normalizeSolution({
-    ...row.payload,
-    id: row.id,
-    source: "shared",
-  });
+  await Promise.all(
+    savedSolutions.map((solution) => writeHistory({ action, solution }))
+  );
+
+  return savedSolutions;
 };
 
-const deleteRemoteSolution = async (solutionId) => {
+const deleteRemoteSolution = async (solution) => {
+  await writeHistory({ action: "delete", solution });
+
   const response = await fetch(
-    `${supabaseEndpoint}?id=eq.${encodeURIComponent(solutionId)}`,
+    `${restEndpoint(SUPABASE_TABLE)}?id=eq.${encodeURIComponent(solution.id)}`,
     {
       method: "DELETE",
-      headers: supabaseHeaders,
+      headers: supabaseHeaders(),
     }
   );
 
@@ -151,8 +243,24 @@ export const loadUserSolutions = async () => {
   }
 };
 
+export const readSolutionHistory = async (solutionId) => {
+  if (!isRemoteRepositoryConfigured || !solutionId) return [];
+
+  const response = await fetch(
+    `${restEndpoint(HISTORY_TABLE)}?solution_id=eq.${encodeURIComponent(
+      solutionId
+    )}&select=action,actor,created_at&order=created_at.desc&limit=8`,
+    {
+      headers: supabaseHeaders(),
+    }
+  );
+
+  if (!response.ok) return [];
+  return response.json();
+};
+
 export const addUserSolution = async (solution, currentSolutions) => {
-  const localNext = [...currentSolutions, solution];
+  const localNext = mergeSolutions([...currentSolutions, solution]);
   saveLocalSolutions(localNext);
 
   if (!isRemoteRepositoryConfigured) {
@@ -164,8 +272,8 @@ export const addUserSolution = async (solution, currentSolutions) => {
   }
 
   try {
-    const remoteSolution = await insertRemoteSolution(solution);
-    const remoteNext = [...currentSolutions, remoteSolution];
+    const [remoteSolution] = await upsertRemoteSolutions([solution], "insert");
+    const remoteNext = mergeSolutions([...currentSolutions, remoteSolution]);
     saveLocalSolutions(remoteNext);
 
     return {
@@ -183,8 +291,10 @@ export const addUserSolution = async (solution, currentSolutions) => {
 };
 
 export const updateUserSolution = async (solution, currentSolutions) => {
-  const localNext = currentSolutions.map((currentSolution) =>
-    currentSolution.id === solution.id ? solution : currentSolution
+  const localNext = mergeSolutions(
+    currentSolutions.map((currentSolution) =>
+      currentSolution.id === solution.id ? solution : currentSolution
+    )
   );
   saveLocalSolutions(localNext);
 
@@ -197,9 +307,11 @@ export const updateUserSolution = async (solution, currentSolutions) => {
   }
 
   try {
-    const remoteSolution = await updateRemoteSolution(solution);
-    const remoteNext = currentSolutions.map((currentSolution) =>
-      currentSolution.id === remoteSolution.id ? remoteSolution : currentSolution
+    const [remoteSolution] = await upsertRemoteSolutions([solution], "update");
+    const remoteNext = mergeSolutions(
+      currentSolutions.map((currentSolution) =>
+        currentSolution.id === remoteSolution.id ? remoteSolution : currentSolution
+      )
     );
     saveLocalSolutions(remoteNext);
 
@@ -217,8 +329,8 @@ export const updateUserSolution = async (solution, currentSolutions) => {
   }
 };
 
-export const deleteUserSolution = async (solutionId, currentSolutions) => {
-  const localNext = currentSolutions.filter((solution) => solution.id !== solutionId);
+export const deleteUserSolution = async (solution, currentSolutions) => {
+  const localNext = currentSolutions.filter((item) => item.id !== solution.id);
   saveLocalSolutions(localNext);
 
   if (!isRemoteRepositoryConfigured) {
@@ -229,7 +341,7 @@ export const deleteUserSolution = async (solutionId, currentSolutions) => {
   }
 
   try {
-    await deleteRemoteSolution(solutionId);
+    await deleteRemoteSolution(solution);
 
     return {
       items: localNext,
@@ -241,4 +353,64 @@ export const deleteUserSolution = async (solutionId, currentSolutions) => {
       mode: "local-fallback",
     };
   }
+};
+
+export const importUserSolutions = async (items, currentSolutions) => {
+  const normalizedItems = items.map((item) =>
+    normalizeSolution({
+      ...item,
+      id: item.id ?? `import-${Date.now()}-${crypto.randomUUID()}`,
+      source: item.source ?? "custom",
+    })
+  );
+
+  const localNext = mergeSolutions([...currentSolutions, ...normalizedItems]);
+  saveLocalSolutions(localNext);
+
+  if (!isRemoteRepositoryConfigured) {
+    return {
+      items: localNext,
+      mode: "local",
+    };
+  }
+
+  try {
+    const remoteSolutions = await upsertRemoteSolutions(normalizedItems, "import");
+    const remoteNext = mergeSolutions([...currentSolutions, ...remoteSolutions]);
+    saveLocalSolutions(remoteNext);
+
+    return {
+      items: remoteNext,
+      mode: "shared",
+    };
+  } catch {
+    return {
+      items: localNext,
+      mode: "local-fallback",
+    };
+  }
+};
+
+export const publishSolutions = async (items, currentSolutions) => {
+  if (!isRemoteRepositoryConfigured) {
+    return {
+      items: currentSolutions,
+      mode: "local",
+    };
+  }
+
+  const publishableItems = items.map((item) =>
+    normalizeSolution({
+      ...item,
+      source: "shared",
+    })
+  );
+  const remoteSolutions = await upsertRemoteSolutions(publishableItems, "publish");
+  const remoteNext = mergeSolutions([...currentSolutions, ...remoteSolutions]);
+  saveLocalSolutions(remoteNext);
+
+  return {
+    items: remoteNext,
+    mode: "shared",
+  };
 };

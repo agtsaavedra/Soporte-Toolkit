@@ -12,6 +12,12 @@ Funciona como web local con Vite, como app de escritorio con Electron y también
 - Fichas con síntomas, causas, pasos, comandos, mensaje al usuario y notas internas.
 - Cada comando muestra una sección de `Descripción` con el objetivo del comando.
 - Alta de nuevas soluciones desde la interfaz.
+- Edición y eliminación de soluciones agregadas o compartidas.
+- Sincronización manual con Supabase.
+- Importación/exportación JSON.
+- Publicación de la base inicial en Supabase.
+- Historial reciente de cambios por solución.
+- Login simple con Supabase Auth para registrar quién modifica.
 - Persistencia local por defecto y persistencia compartida opcional con Supabase.
 - Copia rápida de comandos, mensajes o ficha completa.
 
@@ -68,7 +74,7 @@ Esto evita requerir permisos de administrador mientras la política de Windows p
 
 Por defecto, las soluciones nuevas se guardan en `localStorage`. Para que varias personas usen y modifiquen la misma base, configurar Supabase.
 
-Crear la tabla y policies ejecutando el contenido de:
+Crear las tablas, triggers y policies ejecutando el contenido de:
 
 - `supabase/schema.sql`
 
@@ -86,9 +92,11 @@ Con esas variables, la app lee y guarda soluciones en Supabase. Si Supabase no r
 
 - Abrir la app: 1 lectura de la tabla `solutions`.
 - Agregar una solución: 1 insert.
+- Editar una solución: 1 upsert y 1 registro de historial.
+- Eliminar una solución: 1 registro de historial y 1 delete.
 - El buscador y los filtros no consultan Supabase; trabajan en memoria.
 
-Para producción conviene configurar políticas RLS según el uso real. Para una herramienta interna simple se puede empezar restringiendo la API key al equipo/grupo que vaya a usar la app.
+El script actual deja policies abiertas para `anon` y `authenticated`, útil para una herramienta interna en etapa inicial. Para producción conviene endurecer RLS, por ejemplo permitiendo escritura solo a usuarios autenticados.
 
 ## Estructura
 

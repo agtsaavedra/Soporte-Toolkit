@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import SolutionCard from "./components/SolutionCard";
 import SolutionForm from "./components/SolutionForm";
 import {
@@ -12,7 +12,14 @@ import {
 import {
   addUserSolution,
   deleteUserSolution,
+  importUserSolutions,
   loadUserSolutions,
+  publishSolutions,
+  readSolutionHistory,
+  readStoredSession,
+  signIn,
+  signOut,
+  signUp,
   updateUserSolution,
 } from "./services/solutionsRepository";
 import "./styles/app.css";
@@ -33,6 +40,7 @@ const REPOSITORY_LABELS = {
 };
 
 function App() {
+  const importInputRef = useRef(null);
   const [search, setSearch] = useState("");
   const [customSolutions, setCustomSolutions] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORIES);
@@ -40,6 +48,10 @@ function App() {
   const [theme, setTheme] = useState(getInitialTheme);
   const [view, setView] = useState("catalog");
   const [repositoryMode, setRepositoryMode] = useState("local");
+  const [authSession, setAuthSession] = useState(readStoredSession);
+  const [authForm, setAuthForm] = useState({ email: "", password: "" });
+  const [history, setHistory] = useState([]);
+  const [toast, setToast] = useState("");
 
   const solutionIndex = useMemo(
     () => createSolutionIndex([...solutions, ...customSolutions]),
@@ -59,6 +71,26 @@ function App() {
     [solutionIndex, search, selectedCategory, onlyPowerShell]
   );
 
+  const showToast = (message) => {
+    setToast(message);
+    window.setTimeout(() => setToast(""), 2600);
+  };
+
+  const applyRepositoryResult = (result) => {
+    setCustomSolutions(result.items);
+    setRepositoryMode(result.mode);
+  };
+
+  const syncSolutions = async () => {
+    const result = await loadUserSolutions();
+    applyRepositoryResult(result);
+    showToast(
+      result.mode === "shared"
+        ? "Base compartida sincronizada"
+        : "No se pudo sincronizar; usando copia local"
+    );
+  };
+
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem("support-toolkit-theme", theme);
@@ -70,14 +102,26 @@ function App() {
     loadUserSolutions().then((result) => {
       if (!isMounted) return;
 
-      setCustomSolutions(result.items);
-      setRepositoryMode(result.mode);
+      applyRepositoryResult(result);
+      if (result.mode === "shared") showToast("Base compartida sincronizada");
     });
 
     return () => {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    readSolutionHistory(selected?.id).then((rows) => {
+      if (isMounted) setHistory(rows);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selected?.id, repositoryMode]);
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
@@ -107,19 +151,19 @@ function App() {
   const handleAddSolution = async (solution) => {
     const result = await addUserSolution(solution, customSolutions);
 
-    setCustomSolutions(result.items);
-    setRepositoryMode(result.mode);
+    applyRepositoryResult(result);
     setSelected(result.item);
     setView("catalog");
+    showToast("Solución guardada");
   };
 
   const handleUpdateSolution = async (solution) => {
     const result = await updateUserSolution(solution, customSolutions);
 
-    setCustomSolutions(result.items);
-    setRepositoryMode(result.mode);
+    applyRepositoryResult(result);
     setSelected(result.item);
     setView("catalog");
+    showToast("Solución actualizada");
   };
 
   const handleDeleteSolution = async () => {
@@ -131,7 +175,7 @@ function App() {
 
     if (!confirmed) return;
 
-    const result = await deleteUserSolution(selected.id, customSolutions);
+    const result = await deleteUserSolution(selected, customSolutions);
     const nextSelected =
       getFirstMatchingSolution({
         items: createSolutionIndex([...solutions, ...result.items]),
@@ -139,10 +183,86 @@ function App() {
         onlyPowerShell,
       }) ?? solutions[0];
 
-    setCustomSolutions(result.items);
-    setRepositoryMode(result.mode);
+    applyRepositoryResult(result);
     setSelected(nextSelected);
     setView("catalog");
+    showToast("Solución eliminada");
+  };
+
+  const handlePromoteSelected = async () => {
+    if (!selected || selected.source === "base") return;
+
+    const result = await publishSolutions([selected], customSolutions);
+    applyRepositoryResult(result);
+    setSelected(result.items.find((item) => item.id === selected.id) ?? selected);
+    showToast("Solución publicada en la base compartida");
+  };
+
+  const handlePublishBase = async () => {
+    const result = await publishSolutions(solutions, customSolutions);
+    applyRepositoryResult(result);
+    showToast("Base inicial publicada en Supabase");
+  };
+
+  const handleExport = () => {
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      solutions: solutionIndex.map((solution) => {
+        const exportableSolution = { ...solution };
+        delete exportableSolution.searchableText;
+        return exportableSolution;
+      }),
+    };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `soporte-toolkit-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast("Exportación generada");
+  };
+
+  const handleImport = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const parsed = JSON.parse(await file.text());
+      const items = Array.isArray(parsed) ? parsed : parsed.solutions;
+
+      if (!Array.isArray(items)) throw new Error("Formato inválido");
+
+      const result = await importUserSolutions(items, customSolutions);
+      applyRepositoryResult(result);
+      showToast(`${items.length} solución(es) importadas`);
+    } catch {
+      showToast("No se pudo importar el archivo");
+    } finally {
+      event.target.value = "";
+    }
+  };
+
+  const handleAuthSubmit = async (mode) => {
+    try {
+      const session =
+        mode === "signup" ? await signUp(authForm) : await signIn(authForm);
+
+      setAuthSession(session);
+      showToast(mode === "signup" ? "Usuario creado" : "Sesión iniciada");
+      syncSolutions();
+    } catch {
+      showToast("No se pudo completar la autenticación");
+    }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setAuthSession(null);
+    showToast("Sesión cerrada");
   };
 
   const toggleTheme = () => {
@@ -173,6 +293,48 @@ function App() {
           >
             Nueva
           </button>
+        </div>
+
+        <div className="auth-panel">
+          {authSession?.user ? (
+            <>
+              <span>{authSession.user.email}</span>
+              <button onClick={handleSignOut}>Salir</button>
+            </>
+          ) : (
+            <>
+              <input
+                type="email"
+                placeholder="Email"
+                value={authForm.email}
+                onChange={(event) =>
+                  setAuthForm((current) => ({
+                    ...current,
+                    email: event.target.value,
+                  }))
+                }
+              />
+              <input
+                type="password"
+                placeholder="Contraseña"
+                value={authForm.password}
+                onChange={(event) =>
+                  setAuthForm((current) => ({
+                    ...current,
+                    password: event.target.value,
+                  }))
+                }
+              />
+              <div>
+                <button onClick={() => handleAuthSubmit("signin")}>
+                  Entrar
+                </button>
+                <button onClick={() => handleAuthSubmit("signup")}>
+                  Crear
+                </button>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="search-panel">
@@ -213,6 +375,20 @@ function App() {
           <button className="theme-toggle" onClick={toggleTheme}>
             {theme === "dark" ? "Modo claro" : "Modo oscuro"}
           </button>
+        </div>
+
+        <div className="data-actions">
+          <button onClick={syncSolutions}>Sincronizar</button>
+          <button onClick={handleExport}>Exportar</button>
+          <button onClick={() => importInputRef.current?.click()}>Importar</button>
+          <button onClick={handlePublishBase}>Publicar base inicial</button>
+          <input
+            ref={importInputRef}
+            type="file"
+            accept="application/json"
+            hidden
+            onChange={handleImport}
+          />
         </div>
 
         <div className="solution-list">
@@ -272,14 +448,18 @@ function App() {
           </div>
         ) : selected ? (
           <SolutionCard
+            history={history}
             solution={selected}
             onDelete={handleDeleteSolution}
             onEdit={() => setView("edit")}
+            onPromote={handlePromoteSelected}
           />
         ) : (
           <div className="empty-card">Seleccioná una solución.</div>
         )}
       </section>
+
+      {toast && <div className="toast-message">{toast}</div>}
     </main>
   );
 }
