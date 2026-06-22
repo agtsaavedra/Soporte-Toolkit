@@ -10,14 +10,18 @@ const copyText = async (text) => {
   await navigator.clipboard.writeText(text);
 };
 
-const buildJiraResponse = (ticket, suggestion) =>
+const buildTicketSummary = (ticket) =>
   [
-    `Ticket: ${ticket.key}`,
-    `Resumen: ${ticket.summary}`,
-    suggestion ? `Solucion sugerida: ${suggestion.solution.title}` : "Solucion sugerida: pendiente de analisis",
-    "",
-    suggestion?.solution.jiraTemplate || suggestion?.solution.userMessage || "Se reviso el caso y se aplicaron las acciones correspondientes.",
-  ].join("\n");
+    `${ticket.key} - ${ticket.summary}`,
+    `Estado: ${ticket.status}`,
+    `Prioridad: ${ticket.priority}`,
+    `Asignado: ${ticket.assignee}`,
+    `Reporta: ${ticket.reporter}`,
+    `Creado: ${formatDate(ticket.created)}`,
+    ticket.url,
+  ]
+    .filter(Boolean)
+    .join("\n");
 
 const JiraTicketDetail = ({ ticket, suggestions, onOpenSolution }) => {
   if (!ticket) {
@@ -27,8 +31,6 @@ const JiraTicketDetail = ({ ticket, suggestions, onOpenSolution }) => {
       </section>
     );
   }
-
-  const bestSuggestion = suggestions[0];
 
   return (
     <section className="jira-detail">
@@ -40,11 +42,12 @@ const JiraTicketDetail = ({ ticket, suggestions, onOpenSolution }) => {
         <div className="jira-detail-actions">
           {ticket.url && (
             <a href={ticket.url} target="_blank" rel="noreferrer">
-              Abrir Jira
+              Abrir en Jira
             </a>
           )}
-          <button onClick={() => copyText(buildJiraResponse(ticket, bestSuggestion))}>
-            Copiar respuesta Jira
+          <button onClick={() => copyText(ticket.url)}>Copiar link</button>
+          <button onClick={() => copyText(buildTicketSummary(ticket))}>
+            Copiar resumen
           </button>
         </div>
       </div>
@@ -55,14 +58,9 @@ const JiraTicketDetail = ({ ticket, suggestions, onOpenSolution }) => {
         <span><strong>Asignado</strong>{ticket.assignee}</span>
         <span><strong>Reporta</strong>{ticket.reporter}</span>
         <span><strong>Creado</strong>{formatDate(ticket.created)}</span>
-        <span><strong>Resolucion</strong>{formatDate(ticket.resolutionDate)}</span>
+        <span><strong>Resolution date</strong>{formatDate(ticket.resolutionDate)}</span>
         <span><strong>Categoria detectada</strong>{ticket.detectedCategory}</span>
       </div>
-
-      <JiraSuggestedSolutions
-        suggestions={suggestions}
-        onOpenSolution={onOpenSolution}
-      />
 
       <section className="jira-section">
         <h3>Descripcion</h3>
@@ -79,12 +77,12 @@ const JiraTicketDetail = ({ ticket, suggestions, onOpenSolution }) => {
               <p>{comment.body}</p>
             </article>
           ))}
-          {ticket.comments.length === 0 && <p>Sin comentarios importados.</p>}
+          {ticket.comments.length === 0 && <p>Sin comentarios cargados.</p>}
         </div>
       </section>
 
       <section className="jira-section">
-        <h3>Resumen de cambios</h3>
+        <h3>Changelog resumido</h3>
         <div className="jira-changelog">
           {ticket.changelog.slice(0, 12).map((history) => (
             <article key={history.id || history.created}>
@@ -92,14 +90,20 @@ const JiraTicketDetail = ({ ticket, suggestions, onOpenSolution }) => {
               <time>{formatDate(history.created)}</time>
               {history.items.map((item) => (
                 <span key={`${item.field}-${item.from}-${item.to}`}>
-                  {item.field}: {item.from || "-"} → {item.to || "-"}
+                  {item.field}: {item.from || "-"} -&gt; {item.to || "-"}
                 </span>
               ))}
             </article>
           ))}
-          {ticket.changelog.length === 0 && <p>Sin changelog importado.</p>}
+          {ticket.changelog.length === 0 && <p>Sin changelog cargado.</p>}
         </div>
       </section>
+
+      <JiraSuggestedSolutions
+        ticket={ticket}
+        suggestions={suggestions}
+        onOpenSolution={onOpenSolution}
+      />
     </section>
   );
 };

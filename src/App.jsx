@@ -25,11 +25,11 @@ import {
   updateUserSolution,
 } from "./services/solutionsRepository";
 import {
-  clearTicketsFromStorage,
-  loadTicketsFromStorage,
-  parseJiraExportFiles,
-  saveTicketsToStorage,
-} from "./services/jiraImportService";
+  fetchHelpdeskTickets,
+  getTicketCacheMeta,
+  loadCachedHelpdeskTickets,
+  saveTicketsToCache,
+} from "./services/jiraService";
 import "./styles/app.css";
 
 const getInitialTheme = () => {
@@ -60,8 +60,13 @@ function App() {
   const [authForm, setAuthForm] = useState({ email: "", password: "" });
   const [history, setHistory] = useState([]);
   const [toast, setToast] = useState("");
-  const [jiraTickets, setJiraTickets] = useState(loadTicketsFromStorage);
+  const [jiraTickets, setJiraTickets] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [jiraNextPageToken, setJiraNextPageToken] = useState("");
+  const [jiraHasMore, setJiraHasMore] = useState(false);
+  const [jiraLoading, setJiraLoading] = useState(false);
+  const [jiraCacheMeta, setJiraCacheMeta] = useState(null);
+  const [jiraError, setJiraError] = useState("");
 
   const solutionIndex = useMemo(
     () => createSolutionIndex([...solutions, ...customSolutions]),
@@ -81,6 +86,11 @@ function App() {
     [solutionIndex, search, selectedCategory, onlyPowerShell]
   );
 
+
+  const templateSolutions = useMemo(
+    () => solutionIndex.filter((solution) => solution.category === "Plantillas Jira"),
+    [solutionIndex]
+  );
   const showToast = (message) => {
     setToast(message);
     window.setTimeout(() => setToast(""), 2600);
@@ -101,6 +111,25 @@ function App() {
     );
   };
 
+  useEffect(() => {
+    let isMounted = true;
+
+    Promise.all([loadCachedHelpdeskTickets(), getTicketCacheMeta()]).then(
+      ([cachedTickets, meta]) => {
+        if (!isMounted) return;
+
+        setJiraTickets(cachedTickets);
+        setJiraCacheMeta(meta);
+        setSelectedTicket(cachedTickets[0] ?? null);
+        setJiraNextPageToken(meta.nextPageToken ?? "");
+        setJiraHasMore(Boolean(meta.nextPageToken) && !meta.isLastPage);
+      }
+    );
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem("support-toolkit-theme", theme);
@@ -259,40 +288,86 @@ function App() {
     showToast("Exportación generada");
   };
 
-  const handleJiraImport = async (event) => {
-    const files = event.target.files;
-    if (!files?.length) return;
+  const mergeJiraTickets = async (incomingTickets, cacheOptions = {}) => {
+    const mergedTickets = await saveTicketsToCache(incomingTickets, cacheOptions);
+    const meta = await getTicketCacheMeta();
+
+    setJiraTickets(mergedTickets);
+    setJiraCacheMeta(meta);
+    setSelectedTicket((currentTicket) => currentTicket ?? mergedTickets[0] ?? null);
+
+    return mergedTickets;
+  };
+
+  const refreshJiraTickets = async () => {
+    setJiraLoading(true);
+    setJiraError("");
 
     try {
-      const importedTickets = await parseJiraExportFiles(files);
-      const merged = new Map(jiraTickets.map((ticket) => [ticket.key, ticket]));
-      importedTickets.forEach((ticket) => merged.set(ticket.key, ticket));
-      const nextTickets = [...merged.values()].sort(
-        (a, b) => new Date(b.created) - new Date(a.created)
-      );
+      const meta = await getTicketCacheMeta();
+      const result = await fetchHelpdeskTickets({
+        maxResults: 100,
+        filters: meta.latestCreated ? { createdAfter: meta.latestCreated } : {},
+      });
 
-      setJiraTickets(nextTickets);
-      setSelectedTicket(importedTickets[0] ?? nextTickets[0] ?? null);
-      saveTicketsToStorage(nextTickets);
-      showToast(`${importedTickets.length} ticket(s) de Jira importados`);
-    } catch {
-      showToast("No se pudo importar la exportacion de Jira");
+      const mergedTickets = await mergeJiraTickets(result.tickets, {
+        nextPageToken: meta.latestCreated ? undefined : result.nextPageToken,
+        isLastPage: meta.latestCreated ? undefined : result.isLast,
+      });
+      if (!meta.latestCreated) {
+        setJiraNextPageToken(result.nextPageToken);
+        setJiraHasMore(!result.isLast && Boolean(result.nextPageToken));
+      }
+
+      showToast(`${result.tickets.length} ticket(s) nuevos. Cache: ${mergedTickets.length}`);
+    } catch (error) {
+      setJiraError(
+        "No se pudo consultar Jira. Verifica que tengas sesion abierta en camuzzigas.atlassian.net y que el navegador permita la consulta."
+      );
+      showToast(error.message || "No se pudo consultar Jira");
     } finally {
-      event.target.value = "";
+      setJiraLoading(false);
     }
   };
 
-  const handleClearJiraTickets = () => {
-    clearTicketsFromStorage();
-    setJiraTickets([]);
-    setSelectedTicket(null);
-    showToast("Tickets Jira eliminados de este equipo");
+  const loadMoreJiraTickets = async () => {
+    if (!jiraHasMore || jiraLoading) return;
+
+    setJiraLoading(true);
+    setJiraError("");
+
+    try {
+      const result = await fetchHelpdeskTickets({
+        nextPageToken: jiraNextPageToken,
+        maxResults: 100,
+      });
+
+      await mergeJiraTickets(result.tickets, {
+        nextPageToken: result.nextPageToken,
+        isLastPage: result.isLast,
+      });
+      setJiraNextPageToken(result.nextPageToken);
+      setJiraHasMore(!result.isLast && Boolean(result.nextPageToken));
+      showToast(`${result.tickets.length} ticket(s) cargados`);
+    } catch (error) {
+      setJiraError("No se pudo cargar mas desde Jira.");
+      showToast(error.message || "No se pudo cargar mas");
+    } finally {
+      setJiraLoading(false);
+    }
   };
 
   const handleOpenSuggestedSolution = (solution) => {
     setSelected(solution);
     setSelectedCategory(solution.category);
     setView("catalog");
+  };
+
+  const openTemplates = () => {
+    const firstTemplate = templateSolutions[0];
+    if (firstTemplate) setSelected(firstTemplate);
+    setSelectedCategory("Plantillas Jira");
+    setView("templates");
   };
   const handleImport = async (event) => {
     const file = event.target.files?.[0];
@@ -405,21 +480,24 @@ function App() {
         <div className="view-tabs app-nav" aria-label="Vista">
           <button
             className={view === "catalog" ? "active" : ""}
-            onClick={() => setView("catalog")}
+            onClick={() => {
+              setSelectedCategory(ALL_CATEGORIES);
+              setView("catalog");
+            }}
           >
-            Catalogo
-          </button>
-          <button
-            className={view === "new" ? "active" : ""}
-            onClick={() => setView("new")}
-          >
-            Nueva
+            Soluciones
           </button>
           <button
             className={view === "jira" ? "active" : ""}
             onClick={() => setView("jira")}
           >
-            Jira
+            Jira Help Desk
+          </button>
+          <button
+            className={view === "templates" ? "active" : ""}
+            onClick={openTemplates}
+          >
+            Plantillas
           </button>
         </div>
         <div className="auth-panel">
@@ -508,6 +586,7 @@ function App() {
           <button onClick={syncSolutions}>Sincronizar</button>
           <button onClick={handleExport}>Exportar</button>
           <button onClick={() => importInputRef.current?.click()}>Importar</button>
+          <button onClick={() => setView("new")}>Nueva solucion</button>
           <button onClick={handlePublishBase}>Publicar base inicial</button>
           <input
             ref={importInputRef}
@@ -529,7 +608,7 @@ function App() {
               }
               onClick={() => {
                 setSelected(solution);
-                setView("catalog");
+                setView(view === "templates" ? "templates" : "catalog");
               }}
             >
               <strong>{solution.title}</strong>
@@ -557,10 +636,22 @@ function App() {
             tickets={jiraTickets}
             selectedTicket={selectedTicket}
             onSelectTicket={setSelectedTicket}
-            onImport={handleJiraImport}
-            onClear={handleClearJiraTickets}
+            onRefresh={refreshJiraTickets}
+            onLoadMore={loadMoreJiraTickets}
+            isLoading={jiraLoading}
+            hasMore={jiraHasMore}
+            cacheMeta={jiraCacheMeta}
+            error={jiraError}
             solutions={solutionIndex}
             onOpenSolution={handleOpenSuggestedSolution}
+          />
+        ) : view === "templates" && selected ? (
+          <SolutionCard
+            history={history}
+            solution={selected}
+            onDelete={handleDeleteSolution}
+            onEdit={() => setView("edit")}
+            onPromote={handlePromoteSelected}
           />
         ) : view === "new" ? (
           <div className="form-shell">

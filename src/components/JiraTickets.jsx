@@ -1,10 +1,14 @@
 ﻿import { useMemo, useState } from "react";
 import { getSuggestedSolutions } from "../services/solutionMatcher";
-import JiraImport from "./JiraImport";
 import JiraTicketDetail from "./JiraTicketDetail";
 import "../styles/jira-tickets.css";
 
 const ALL = "Todos";
+
+const formatDate = (value) => {
+  if (!value) return "-";
+  return new Date(value).toLocaleString("es-AR");
+};
 
 const uniqueValues = (tickets, field) => [
   ALL,
@@ -33,8 +37,12 @@ const JiraTickets = ({
   tickets,
   selectedTicket,
   onSelectTicket,
-  onImport,
-  onClear,
+  onRefresh,
+  onLoadMore,
+  isLoading,
+  hasMore,
+  cacheMeta,
+  error,
   solutions,
   onOpenSolution,
 }) => {
@@ -73,11 +81,27 @@ const JiraTickets = ({
 
   return (
     <div className="jira-shell">
-      <JiraImport
-        onImport={onImport}
-        onClear={onClear}
-        ticketCount={tickets.length}
-      />
+      <section className="jira-live-header">
+        <div>
+          <p className="eyebrow">Jira Help Desk</p>
+          <h2>Consola viva de tickets</h2>
+          <span>
+            {tickets.length} ticket(s) · ultima sync {cacheMeta?.lastSync ? formatDate(cacheMeta.lastSync) : "pendiente"}
+          </span>
+          {cacheMeta?.lastDiff > 0 && <small>Ultimo diff: {cacheMeta.lastDiff} ticket(s)</small>}
+        </div>
+
+        <div className="jira-live-actions">
+          <button type="button" onClick={onRefresh} disabled={isLoading}>
+            {isLoading ? "Actualizando..." : "Actualizar tickets"}
+          </button>
+          <button type="button" onClick={onLoadMore} disabled={isLoading || !hasMore}>
+            Cargar mas
+          </button>
+        </div>
+      </section>
+
+      {error && <div className="jira-error">{error}</div>}
 
       <div className="jira-workspace">
         <section className="jira-list-panel">
@@ -92,13 +116,13 @@ const JiraTickets = ({
                 <option key={item}>{item}</option>
               ))}
             </select>
-            <select value={assignee} onChange={(event) => setAssignee(event.target.value)}>
-              {filters.assignees.map((item) => (
+            <select value={priority} onChange={(event) => setPriority(event.target.value)}>
+              {filters.priorities.map((item) => (
                 <option key={item}>{item}</option>
               ))}
             </select>
-            <select value={priority} onChange={(event) => setPriority(event.target.value)}>
-              {filters.priorities.map((item) => (
+            <select value={assignee} onChange={(event) => setAssignee(event.target.value)}>
+              {filters.assignees.map((item) => (
                 <option key={item}>{item}</option>
               ))}
             </select>
@@ -111,21 +135,36 @@ const JiraTickets = ({
 
           <div className="jira-count">{filteredTickets.length} resultado(s)</div>
 
-          <div className="jira-ticket-list">
+          <div className="jira-ticket-table" role="table" aria-label="Tickets Jira Help Desk">
+            <div className="jira-ticket-row jira-ticket-head" role="row">
+              <span>Key</span>
+              <span>Summary</span>
+              <span>Status</span>
+              <span>Priority</span>
+              <span>Assignee</span>
+              <span>Reporter</span>
+              <span>Created</span>
+            </div>
+
             {filteredTickets.map((ticket) => (
               <button
                 key={ticket.key}
-                className={selectedTicket?.key === ticket.key ? "active" : ""}
+                className={selectedTicket?.key === ticket.key ? "jira-ticket-row active" : "jira-ticket-row"}
                 onClick={() => onSelectTicket(ticket)}
+                role="row"
               >
                 <span>{ticket.key}</span>
                 <strong>{ticket.summary}</strong>
-                <small>{ticket.status} · {ticket.assignee}</small>
+                <span>{ticket.status}</span>
+                <span>{ticket.priority}</span>
+                <span>{ticket.assignee}</span>
+                <span>{ticket.reporter}</span>
+                <time>{formatDate(ticket.created)}</time>
               </button>
             ))}
 
             {filteredTickets.length === 0 && (
-              <p className="jira-empty">Importa exportaciones JSON de Jira o cambia los filtros.</p>
+              <p className="jira-empty">Actualiza tickets o cambia los filtros.</p>
             )}
           </div>
         </section>

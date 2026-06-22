@@ -194,11 +194,13 @@
 }
 
 .view-tabs button {
-  min-height: 36px;
+  min-height: 40px;
+  padding: 7px 6px;
   color: var(--text-light);
   cursor: pointer;
   background: transparent;
   border-radius: var(--radius-sm);
+  font-size: 12px;
   font-weight: 760;
 }
 

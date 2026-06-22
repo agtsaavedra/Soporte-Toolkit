@@ -2,15 +2,22 @@
 
 const commandText = (command) => command.command ?? command;
 
-const copyCommands = async (solution) => {
-  await navigator.clipboard.writeText(solution.commands.map(commandText).join("\n"));
+const copyText = async (text) => {
+  await navigator.clipboard.writeText(text);
 };
 
-const copyTemplate = async (solution) => {
-  await navigator.clipboard.writeText(solution.jiraTemplate || solution.userMessage);
-};
+const buildJiraResponse = (ticket, solution) =>
+  [
+    `Hola, revisamos el ticket ${ticket.key} (${ticket.summary}).`,
+    "",
+    solution.jiraTemplate || solution.userMessage,
+    "",
+    `Solucion aplicada/sugerida: ${solution.title}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
 
-const JiraSuggestedSolutions = ({ suggestions, onOpenSolution }) => (
+const JiraSuggestedSolutions = ({ ticket, suggestions, onOpenSolution }) => (
   <section className="jira-section jira-suggestions">
     <h3>Soluciones sugeridas</h3>
     <div className="jira-suggestion-list">
@@ -23,16 +30,21 @@ const JiraSuggestedSolutions = ({ suggestions, onOpenSolution }) => (
           </div>
           <div className="jira-suggestion-actions">
             <button onClick={() => onOpenSolution(solution)}>Abrir ficha</button>
-            <button onClick={() => copyCommands(solution)} disabled={solution.commands.length === 0}>
+            <button
+              onClick={() => copyText(solution.commands.map(commandText).join("\n"))}
+              disabled={solution.commands.length === 0}
+            >
               Copiar comandos
             </button>
-            <button onClick={() => copyTemplate(solution)}>Copiar plantilla</button>
+            <button onClick={() => copyText(buildJiraResponse(ticket, solution))}>
+              Copiar respuesta Jira
+            </button>
           </div>
         </article>
       ))}
 
       {suggestions.length === 0 && (
-        <p>No hay sugerencias todavia. Revisa keywords o agrega una ficha mas especifica.</p>
+        <p>No hay sugerencias todavia. Ajusta keywords o agrega una ficha mas especifica.</p>
       )}
     </div>
   </section>

@@ -1,4 +1,17 @@
-﻿const EXACT_BOOST_TERMS = ["agserver", "sap", "forticlient", "wps", "power bi", "autocad", "outlook"];
+const EXACT_BOOST_TERMS = [
+  "agserver",
+  "sap",
+  "forticlient",
+  "outlook",
+  "wps",
+  "power bi",
+  "impresora",
+  "impresoras",
+  "scanner",
+  "debmedia",
+  "roots",
+  "proserlink",
+];
 
 export const normalizeText = (value = "") =>
   String(value)

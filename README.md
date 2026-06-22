@@ -21,25 +21,33 @@ Funciona como web local con Vite, como app de escritorio con Electron y también
 - Persistencia local por defecto y persistencia compartida opcional con Supabase.
 - Copia rápida de comandos, mensajes o ficha completa.
 
-## Importar tickets de Jira
+## Jira Help Desk live
 
-La app no guarda tokens ni credenciales de Jira. Por ahora trabaja con archivos JSON exportados previamente desde Jira Cloud.
+La vista `Jira Help Desk` consulta Jira Cloud directamente contra:
 
-Soporta exportaciones con forma:
-
-```json
-{ "issues": [] }
+```text
+https://camuzzigas.atlassian.net/rest/api/3/search/jql
 ```
 
-y tambien lotes paginados con `issues`, `nextPageToken` e `isLast`. Se pueden seleccionar varios archivos a la vez, por ejemplo `helpdesk_lote_0001.json`, `helpdesk_lote_0002.json`, etc. La app deduplica por `issue.key` y guarda los tickets importados en `localStorage` del equipo.
+Usa el JQL:
+
+```text
+cf[10212]=11239 ORDER BY created DESC
+```
+
+No se guardan tokens ni credenciales en `.env`. El fetch usa `credentials: "include"` para aprovechar la sesion activa de Jira en el navegador.
 
 Flujo recomendado:
 
-1. Entrar a la app.
-2. Abrir la vista `Jira`.
-3. Importar uno o varios JSON.
-4. Filtrar o buscar el ticket.
-5. Abrir el detalle, revisar sugerencias y copiar respuesta/comandos/plantilla.
+1. Iniciar sesion en `https://camuzzigas.atlassian.net` en el mismo navegador.
+2. Entrar a la app.
+3. Abrir `Jira Help Desk`.
+4. Usar `Actualizar tickets` para traer la primera tanda o tickets nuevos.
+5. Usar `Cargar mas` para paginar de a 100.
+6. Abrir un ticket, revisar sugerencias y copiar link, resumen, comandos o respuesta Jira.
+
+Los tickets se cachean en IndexedDB con ultima sync, cantidad y diff incremental. Si ya hay cache, la app intenta traer solo tickets nuevos usando la fecha del ultimo ticket creado.
+
 ## Desarrollo
 
 ```bash
@@ -156,7 +164,7 @@ En Supabase se puede agregar como Redirect URL permitida. Al confirmar email, el
 - `src/data/helpDeskSolutions.js`: fichas iniciales ampliadas para Help Desk y plantillas Jira.
 - `src/data/catalog.js`: normalización, búsqueda, categorías y descripción automática de comandos.
 - `src/services/solutionsRepository.js`: persistencia local o Supabase.
-- `src/services/jiraImportService.js`: parser de exportaciones Jira, ADF y persistencia local de tickets.
+- `src/services/jiraService.js`: integracion live con Jira, normalizacion ADF, paginacion e IndexedDB.
 - `src/services/solutionMatcher.js`: scoring de tickets contra soluciones del toolkit.
 - `src/components/SolutionCard.jsx`: visualización de fichas.
 - `src/components/SolutionForm.jsx`: alta de nuevas soluciones.
