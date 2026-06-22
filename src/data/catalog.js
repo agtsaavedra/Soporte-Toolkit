@@ -1,7 +1,10 @@
-import { solutions as rawSolutions } from "./baseSolutions";
+import { solutions as baseSolutions } from "./baseSolutions";
+import { helpDeskSolutions } from "./helpDeskSolutions";
 
 export const ALL_CATEGORIES = "Todas";
 export const CUSTOM_SOLUTIONS_STORAGE_KEY = "support-toolkit-custom-solutions";
+
+export const rawSolutions = [...baseSolutions, ...helpDeskSolutions];
 
 const BROKEN_TEXT_REPLACEMENTS = [
   ["Ã¡", "á"],
@@ -113,13 +116,24 @@ export const normalizeSolution = (solution) => ({
   tags: normalizeList(solution.tags),
   risk: normalizeBrokenText(solution.risk ?? "Bajo"),
   time: normalizeBrokenText(solution.time ?? "5-10 min"),
+  estimatedMinutes:
+    Number(solution.estimatedMinutes) ||
+    Number.parseInt(String(solution.time ?? "10"), 10) ||
+    10,
   powershell: Boolean(solution.powershell),
+  resolutionType:
+    normalizeBrokenText(solution.resolutionType ?? "") ||
+    (solution.powershell ? "powershell" : "procedimiento"),
+  requiresApproval: Boolean(solution.requiresApproval),
+  internalOnly: Boolean(solution.internalOnly),
   symptoms: normalizeList(solution.symptoms),
   causes: normalizeList(solution.causes),
   steps: normalizeList(solution.steps),
   commands: Array.isArray(solution.commands)
     ? solution.commands.map(normalizeCommand)
     : [],
+  jiraKeywords: normalizeList(solution.jiraKeywords),
+  jiraTemplate: normalizeBrokenText(solution.jiraTemplate ?? ""),
   userMessage: normalizeBrokenText(solution.userMessage ?? ""),
   internalNotes: normalizeBrokenText(solution.internalNotes ?? ""),
   source: solution.source ?? "base",
@@ -146,6 +160,9 @@ const toSearchableText = (solution) =>
     ...solution.steps,
     ...solution.commands.map((command) => command.command),
     ...solution.commands.map((command) => command.description),
+    ...solution.jiraKeywords,
+    solution.resolutionType,
+    solution.jiraTemplate,
     solution.userMessage,
     solution.internalNotes,
   ]

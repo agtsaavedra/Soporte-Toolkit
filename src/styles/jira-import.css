@@ -1,0 +1,65 @@
+﻿.jira-import {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--accent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.jira-import h2 {
+  color: var(--text-primary);
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+.jira-import span {
+  display: inline-block;
+  margin-top: 6px;
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.jira-import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.jira-file-button,
+.jira-import-actions button {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 13px;
+  color: #ffffff;
+  cursor: pointer;
+  background: var(--primary);
+  border-radius: var(--radius-sm);
+  font-weight: 800;
+}
+
+.jira-file-button input {
+  display: none;
+}
+
+.jira-import-actions button {
+  background: var(--bg-command);
+}
+
+.jira-import-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+@media (max-width: 760px) {
+  .jira-import {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

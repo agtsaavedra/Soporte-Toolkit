@@ -21,6 +21,25 @@ Funciona como web local con Vite, como app de escritorio con Electron y también
 - Persistencia local por defecto y persistencia compartida opcional con Supabase.
 - Copia rápida de comandos, mensajes o ficha completa.
 
+## Importar tickets de Jira
+
+La app no guarda tokens ni credenciales de Jira. Por ahora trabaja con archivos JSON exportados previamente desde Jira Cloud.
+
+Soporta exportaciones con forma:
+
+```json
+{ "issues": [] }
+```
+
+y tambien lotes paginados con `issues`, `nextPageToken` e `isLast`. Se pueden seleccionar varios archivos a la vez, por ejemplo `helpdesk_lote_0001.json`, `helpdesk_lote_0002.json`, etc. La app deduplica por `issue.key` y guarda los tickets importados en `localStorage` del equipo.
+
+Flujo recomendado:
+
+1. Entrar a la app.
+2. Abrir la vista `Jira`.
+3. Importar uno o varios JSON.
+4. Filtrar o buscar el ticket.
+5. Abrir el detalle, revisar sugerencias y copiar respuesta/comandos/plantilla.
 ## Desarrollo
 
 ```bash
@@ -134,8 +153,11 @@ En Supabase se puede agregar como Redirect URL permitida. Al confirmar email, el
 ## Estructura
 
 - `src/data/baseSolutions.js`: soluciones base incluidas en la app.
+- `src/data/helpDeskSolutions.js`: fichas iniciales ampliadas para Help Desk y plantillas Jira.
 - `src/data/catalog.js`: normalización, búsqueda, categorías y descripción automática de comandos.
 - `src/services/solutionsRepository.js`: persistencia local o Supabase.
+- `src/services/jiraImportService.js`: parser de exportaciones Jira, ADF y persistencia local de tickets.
+- `src/services/solutionMatcher.js`: scoring de tickets contra soluciones del toolkit.
 - `src/components/SolutionCard.jsx`: visualización de fichas.
 - `src/components/SolutionForm.jsx`: alta de nuevas soluciones.
 - `electron/main.cjs`: entrada de Electron.

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import JiraTickets from "./components/JiraTickets";
 import SolutionCard from "./components/SolutionCard";
 import SolutionForm from "./components/SolutionForm";
 import {
@@ -23,6 +24,12 @@ import {
   signUp,
   updateUserSolution,
 } from "./services/solutionsRepository";
+import {
+  clearTicketsFromStorage,
+  loadTicketsFromStorage,
+  parseJiraExportFiles,
+  saveTicketsToStorage,
+} from "./services/jiraImportService";
 import "./styles/app.css";
 
 const getInitialTheme = () => {
@@ -53,6 +60,8 @@ function App() {
   const [authForm, setAuthForm] = useState({ email: "", password: "" });
   const [history, setHistory] = useState([]);
   const [toast, setToast] = useState("");
+  const [jiraTickets, setJiraTickets] = useState(loadTicketsFromStorage);
+  const [selectedTicket, setSelectedTicket] = useState(null);
 
   const solutionIndex = useMemo(
     () => createSolutionIndex([...solutions, ...customSolutions]),
@@ -250,6 +259,41 @@ function App() {
     showToast("Exportación generada");
   };
 
+  const handleJiraImport = async (event) => {
+    const files = event.target.files;
+    if (!files?.length) return;
+
+    try {
+      const importedTickets = await parseJiraExportFiles(files);
+      const merged = new Map(jiraTickets.map((ticket) => [ticket.key, ticket]));
+      importedTickets.forEach((ticket) => merged.set(ticket.key, ticket));
+      const nextTickets = [...merged.values()].sort(
+        (a, b) => new Date(b.created) - new Date(a.created)
+      );
+
+      setJiraTickets(nextTickets);
+      setSelectedTicket(importedTickets[0] ?? nextTickets[0] ?? null);
+      saveTicketsToStorage(nextTickets);
+      showToast(`${importedTickets.length} ticket(s) de Jira importados`);
+    } catch {
+      showToast("No se pudo importar la exportacion de Jira");
+    } finally {
+      event.target.value = "";
+    }
+  };
+
+  const handleClearJiraTickets = () => {
+    clearTicketsFromStorage();
+    setJiraTickets([]);
+    setSelectedTicket(null);
+    showToast("Tickets Jira eliminados de este equipo");
+  };
+
+  const handleOpenSuggestedSolution = (solution) => {
+    setSelected(solution);
+    setSelectedCategory(solution.category);
+    setView("catalog");
+  };
   const handleImport = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -358,13 +402,12 @@ function App() {
             <p>Base de soluciones y comandos rápidos</p>
           </div>
         </div>
-
-        <div className="view-tabs" aria-label="Vista">
+        <div className="view-tabs app-nav" aria-label="Vista">
           <button
             className={view === "catalog" ? "active" : ""}
             onClick={() => setView("catalog")}
           >
-            Catálogo
+            Catalogo
           </button>
           <button
             className={view === "new" ? "active" : ""}
@@ -372,8 +415,13 @@ function App() {
           >
             Nueva
           </button>
+          <button
+            className={view === "jira" ? "active" : ""}
+            onClick={() => setView("jira")}
+          >
+            Jira
+          </button>
         </div>
-
         <div className="auth-panel">
           {authSession?.user ? (
             <>
@@ -504,7 +552,17 @@ function App() {
       </aside>
 
       <section className="content">
-        {view === "new" ? (
+        {view === "jira" ? (
+          <JiraTickets
+            tickets={jiraTickets}
+            selectedTicket={selectedTicket}
+            onSelectTicket={setSelectedTicket}
+            onImport={handleJiraImport}
+            onClear={handleClearJiraTickets}
+            solutions={solutionIndex}
+            onOpenSolution={handleOpenSuggestedSolution}
+          />
+        ) : view === "new" ? (
           <div className="form-shell">
             <div className="form-heading">
               <p className="eyebrow">Base de conocimiento</p>

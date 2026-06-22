@@ -1,0 +1,109 @@
+﻿.jira-shell {
+  display: flex;
+  max-width: 1440px;
+  flex-direction: column;
+  gap: 18px;
+  margin: 0 auto;
+}
+
+.jira-workspace {
+  display: grid;
+  grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.jira-list-panel {
+  position: sticky;
+  top: 18px;
+  max-height: calc(100vh - 72px);
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.jira-filters {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.jira-filters input,
+.jira-filters select {
+  min-height: 40px;
+  padding: 9px 11px;
+  color: var(--text-primary);
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.jira-count {
+  padding: 11px 14px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.jira-ticket-list {
+  display: flex;
+  max-height: calc(100vh - 370px);
+  min-height: 260px;
+  overflow-y: auto;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.jira-ticket-list button {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  padding: 12px;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.jira-ticket-list button.active {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  box-shadow: inset 4px 0 0 var(--primary);
+}
+
+.jira-ticket-list span {
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.jira-ticket-list strong {
+  line-height: 1.3;
+}
+
+.jira-ticket-list small,
+.jira-empty {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 1120px) {
+  .jira-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .jira-list-panel {
+    position: static;
+    max-height: none;
+  }
+
+  .jira-ticket-list {
+    max-height: 420px;
+  }
+}
