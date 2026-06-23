@@ -40,7 +40,12 @@ const hasJiraSession = async () => {
   if (!cookieHeader) return false;
 
   try {
-    const response = await fetch(`${JIRA_BASE_URL}/rest/api/3/myself`, {
+    const probeUrl = buildJiraUrl("/rest/api/3/search/jql", {
+      jql: "cf[10212]=11239 ORDER BY created DESC",
+      maxResults: 1,
+      fields: "summary",
+    });
+    const response = await fetch(probeUrl.toString(), {
       headers: {
         Accept: "application/json",
         Cookie: cookieHeader,

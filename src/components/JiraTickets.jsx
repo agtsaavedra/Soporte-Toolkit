@@ -78,6 +78,7 @@ const JiraTickets = ({
   const suggestions = selectedTicket
     ? getSuggestedSolutions(selectedTicket, solutions, 6)
     : [];
+  const hasSyncedTickets = tickets.length > 0 || Boolean(cacheMeta?.lastSync);
 
   return (
     <div className="jira-shell">
@@ -88,12 +89,15 @@ const JiraTickets = ({
           <span>
             {tickets.length} ticket(s) · ultima sync {cacheMeta?.lastSync ? formatDate(cacheMeta.lastSync) : "pendiente"}
           </span>
+          <small className={hasSyncedTickets ? "jira-session-ok" : "jira-session-pending"}>
+            {hasSyncedTickets ? "Jira conectado" : "Sesion Jira sin validar"}
+          </small>
           {cacheMeta?.lastDiff > 0 && <small>Ultimo diff: {cacheMeta.lastDiff} ticket(s)</small>}
         </div>
 
         <div className="jira-live-actions">
           <button type="button" onClick={onOpenJiraLogin}>
-            Login Jira
+            Verificar Jira
           </button>
           <button type="button" onClick={onRefresh} disabled={isLoading}>
             {isLoading ? "Actualizando..." : "Actualizar tickets"}

@@ -15,11 +15,14 @@
 
 .jira-suggestion-list {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .jira-suggestion-list article {
-  padding: 14px;
+  display: grid;
+  min-width: 0;
+  gap: 14px;
+  padding: 16px;
   background: var(--bg-muted);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -32,21 +35,26 @@
 
 .jira-suggestion-main {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 14px;
+  grid-template-columns: minmax(220px, 1fr) minmax(150px, auto);
+  gap: 16px;
   align-items: start;
+}
+
+.jira-suggestion-copy {
+  min-width: 0;
 }
 
 .jira-suggestion-main strong {
   display: block;
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
-.jira-suggestion-main span,
+.jira-suggestion-category,
 .jira-suggestion-main p,
-.jira-suggestion-meta small {
+.jira-suggestion-meta small span {
   display: block;
   margin-top: 5px;
   color: var(--text-secondary);
@@ -56,37 +64,61 @@
 
 .jira-suggestion-main p {
   max-width: 760px;
+  margin-top: 8px;
 }
 
 .jira-suggestion-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(72px, auto));
+  gap: 8px;
   justify-content: flex-end;
 }
 
 .jira-suggestion-meta small {
+  display: grid;
+  min-width: 76px;
+  gap: 2px;
   padding: 5px 8px;
   margin-top: 0;
+  color: var(--text-primary);
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-weight: 800;
+  line-height: 1.25;
+}
+
+.jira-suggestion-meta small span {
+  margin-top: 0;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .jira-suggestion-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 2px;
+}
+
+.jira-suggestion-actions button {
+  white-space: nowrap;
+}
+
+.jira-suggestion-actions .secondary-action {
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
 }
 
 .jira-inline-solution {
   display: grid;
   gap: 14px;
-  padding-top: 14px;
-  margin-top: 14px;
-  border-top: 1px solid var(--border);
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
 }
 
 .jira-inline-solution h4 {
@@ -97,12 +129,17 @@
 
 .jira-inline-solution ol {
   padding-left: 20px;
+  margin: 0;
 }
 
 .jira-inline-solution li,
 .jira-inline-solution p {
   color: var(--text-secondary);
   line-height: 1.5;
+}
+
+.jira-inline-solution li + li {
+  margin-top: 6px;
 }
 
 .jira-inline-commands {
@@ -141,6 +178,11 @@
   }
 
   .jira-suggestion-meta {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     justify-content: flex-start;
+  }
+
+  .jira-suggestion-actions button {
+    flex: 1 1 180px;
   }
 }

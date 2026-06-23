@@ -307,11 +307,22 @@ function App() {
   const openJiraLogin = async () => {
     if (!window.soporteToolkit?.openJiraLogin) {
       window.open("https://camuzzigas.atlassian.net", "_blank", "noreferrer");
+      showToast("Jira abierto en el navegador. En localhost puede haber bloqueo por CORS.");
       return;
     }
 
-    await window.soporteToolkit.openJiraLogin();
-    showToast("Inicia sesion en Jira y luego actualiza tickets");
+    const result = await window.soporteToolkit.openJiraLogin();
+    if (result?.alreadyAuthenticated) {
+      showToast("Sesion Jira activa. Ya podes actualizar tickets.");
+      return;
+    }
+
+    if (result?.alreadyOpen) {
+      showToast("La ventana de Jira ya esta abierta para validar sesion.");
+      return;
+    }
+
+    showToast("Completa el login de Jira; la ventana se cierra sola al detectar sesion.");
   };
   const refreshJiraTickets = async () => {
     setJiraLoading(true);

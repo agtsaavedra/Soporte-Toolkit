@@ -41,20 +41,23 @@ const JiraSuggestedSolutions = ({ ticket, suggestions }) => {
           return (
             <article key={solution.id} className={isFallback ? "fallback" : ""}>
               <div className="jira-suggestion-main">
-                <div>
+                <div className="jira-suggestion-copy">
                   <strong>{solution.title}</strong>
-                  <span>{solution.category}</span>
+                  <span className="jira-suggestion-category">{solution.category}</span>
                   <p>{reason}</p>
                 </div>
                 <div className="jira-suggestion-meta">
-                  <small>Score {score}</small>
-                  <small>Tiempo {solution.time}</small>
-                  <small>Riesgo {solution.risk}</small>
+                  <small><span>Score</span>{score}</small>
+                  <small><span>Tiempo</span>{solution.time}</small>
+                  <small><span>Riesgo</span>{solution.risk}</small>
                 </div>
               </div>
 
               <div className="jira-suggestion-actions">
-                <button onClick={() => setOpenSolutionId(isOpen ? "" : solution.id)}>
+                <button
+                  className="secondary-action"
+                  onClick={() => setOpenSolutionId(isOpen ? "" : solution.id)}
+                >
                   {isOpen ? "Cerrar ficha" : "Abrir ficha"}
                 </button>
                 <button onClick={() => copyText(buildJiraResponse(ticket, solution))}>

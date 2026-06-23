@@ -33,6 +33,27 @@
   font-weight: 700;
 }
 
+.jira-live-header .jira-session-ok,
+.jira-live-header .jira-session-pending {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.jira-live-header .jira-session-ok {
+  color: var(--success);
+  background: var(--success-soft);
+}
+
+.jira-live-header .jira-session-pending {
+  color: var(--text-secondary);
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+}
+
 .jira-live-actions {
   display: flex;
   flex-wrap: wrap;
