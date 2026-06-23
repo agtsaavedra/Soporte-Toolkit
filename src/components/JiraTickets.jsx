@@ -39,6 +39,7 @@ const JiraTickets = ({
   onSelectTicket,
   onRefresh,
   onLoadMore,
+  onOpenJiraLogin,
   isLoading,
   hasMore,
   cacheMeta,
@@ -92,6 +93,9 @@ const JiraTickets = ({
         </div>
 
         <div className="jira-live-actions">
+          <button type="button" onClick={onOpenJiraLogin}>
+            Login Jira
+          </button>
           <button type="button" onClick={onRefresh} disabled={isLoading}>
             {isLoading ? "Actualizando..." : "Actualizar tickets"}
           </button>

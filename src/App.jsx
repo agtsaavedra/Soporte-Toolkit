@@ -67,7 +67,6 @@ function App() {
   const [jiraLoading, setJiraLoading] = useState(false);
   const [jiraCacheMeta, setJiraCacheMeta] = useState(null);
   const [jiraError, setJiraError] = useState("");
-  const canOpenJiraLogin = Boolean(window.soporteToolkit?.openJiraLogin);
 
   const solutionIndex = useMemo(
     () => createSolutionIndex([...solutions, ...customSolutions]),
@@ -331,9 +330,7 @@ function App() {
 
       showToast(`${result.tickets.length} ticket(s) nuevos. Cache: ${mergedTickets.length}`);
     } catch (error) {
-      setJiraError(
-        "No se pudo consultar Jira. Verifica que tengas sesion abierta en camuzzigas.atlassian.net y que el navegador permita la consulta."
-      );
+      setJiraError(error.message || "No se pudo consultar Jira.");
       showToast(error.message || "No se pudo consultar Jira");
     } finally {
       setJiraLoading(false);
@@ -360,7 +357,7 @@ function App() {
       setJiraHasMore(!result.isLast && Boolean(result.nextPageToken));
       showToast(`${result.tickets.length} ticket(s) cargados`);
     } catch (error) {
-      setJiraError("No se pudo cargar mas desde Jira.");
+      setJiraError(error.message || "No se pudo cargar mas desde Jira.");
       showToast(error.message || "No se pudo cargar mas");
     } finally {
       setJiraLoading(false);
@@ -649,7 +646,6 @@ function App() {
             onRefresh={refreshJiraTickets}
             onLoadMore={loadMoreJiraTickets}
             onOpenJiraLogin={openJiraLogin}
-            canOpenJiraLogin={canOpenJiraLogin}
             isLoading={jiraLoading}
             hasMore={jiraHasMore}
             cacheMeta={jiraCacheMeta}
