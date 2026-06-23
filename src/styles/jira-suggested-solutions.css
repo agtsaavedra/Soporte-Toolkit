@@ -1,0 +1,146 @@
+﻿.jira-suggestions-heading {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.jira-suggestions-heading p {
+  max-width: 520px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.jira-suggestion-list {
+  display: grid;
+  gap: 12px;
+}
+
+.jira-suggestion-list article {
+  padding: 14px;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.jira-suggestion-list article.fallback {
+  border-style: dashed;
+  opacity: 0.92;
+}
+
+.jira-suggestion-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+}
+
+.jira-suggestion-main strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.jira-suggestion-main span,
+.jira-suggestion-main p,
+.jira-suggestion-meta small {
+  display: block;
+  margin-top: 5px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.jira-suggestion-main p {
+  max-width: 760px;
+}
+
+.jira-suggestion-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.jira-suggestion-meta small {
+  padding: 5px 8px;
+  margin-top: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-weight: 800;
+}
+
+.jira-suggestion-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.jira-inline-solution {
+  display: grid;
+  gap: 14px;
+  padding-top: 14px;
+  margin-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.jira-inline-solution h4 {
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.jira-inline-solution ol {
+  padding-left: 20px;
+}
+
+.jira-inline-solution li,
+.jira-inline-solution p {
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.jira-inline-commands {
+  display: grid;
+  gap: 8px;
+}
+
+.jira-inline-commands div {
+  padding: 10px;
+  color: #e5e7eb;
+  background: var(--bg-command);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.jira-inline-commands code {
+  display: block;
+  overflow-wrap: anywhere;
+  color: inherit;
+  font-family: Consolas, Monaco, "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.jira-inline-commands p {
+  margin-top: 6px;
+  color: #b8ccda;
+  font-size: 12px;
+}
+
+@media (max-width: 820px) {
+  .jira-suggestions-heading,
+  .jira-suggestion-main {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .jira-suggestion-meta {
+    justify-content: flex-start;
+  }
+}

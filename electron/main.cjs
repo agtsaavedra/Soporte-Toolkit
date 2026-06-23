@@ -1,8 +1,12 @@
-const { app, BrowserWindow, ipcMain, session } = require("electron");
+﻿const { app, BrowserWindow, ipcMain, session } = require("electron");
 const path = require("node:path");
 
 const APP_PROTOCOL = "soporte-toolkit";
 const JIRA_BASE_URL = "https://camuzzigas.atlassian.net";
+const APP_ICON = path.join(__dirname, "..", "public", "toolkit-icon.svg");
+
+let mainWindow;
+let jiraLoginWindow;
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
@@ -31,27 +35,72 @@ const getJiraCookieHeader = async () => {
   return cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join("; ");
 };
 
-const createJiraLoginWindow = () => {
-  const loginWindow = new BrowserWindow({
-    width: 1180,
-    height: 780,
-    minWidth: 980,
-    minHeight: 680,
+const hasJiraSession = async () => {
+  const cookieHeader = await getJiraCookieHeader();
+  if (!cookieHeader) return false;
+
+  try {
+    const response = await fetch(`${JIRA_BASE_URL}/rest/api/3/myself`, {
+      headers: {
+        Accept: "application/json",
+        Cookie: cookieHeader,
+      },
+    });
+
+    return response.ok;
+  } catch {
+    return false;
+  }
+};
+
+const closeJiraLoginIfAuthenticated = async () => {
+  if (!jiraLoginWindow || jiraLoginWindow.isDestroyed()) return;
+  if (!(await hasJiraSession())) return;
+
+  jiraLoginWindow.close();
+  jiraLoginWindow = null;
+  mainWindow?.webContents.send("jira-login-ready");
+};
+
+const createJiraLoginWindow = async () => {
+  if (await hasJiraSession()) {
+    mainWindow?.webContents.send("jira-login-ready");
+    return { ok: true, alreadyAuthenticated: true };
+  }
+
+  if (jiraLoginWindow && !jiraLoginWindow.isDestroyed()) {
+    jiraLoginWindow.focus();
+    return { ok: true, alreadyOpen: true };
+  }
+
+  jiraLoginWindow = new BrowserWindow({
+    width: 1040,
+    height: 720,
+    minWidth: 920,
+    minHeight: 640,
     title: "Jira Login",
+    parent: mainWindow,
     autoHideMenuBar: true,
+    icon: APP_ICON,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
     },
   });
 
-  loginWindow.loadURL(JIRA_BASE_URL);
+  jiraLoginWindow.on("closed", () => {
+    jiraLoginWindow = null;
+  });
+
+  jiraLoginWindow.webContents.on("did-finish-load", closeJiraLoginIfAuthenticated);
+  jiraLoginWindow.webContents.on("did-navigate", closeJiraLoginIfAuthenticated);
+  jiraLoginWindow.webContents.on("did-navigate-in-page", closeJiraLoginIfAuthenticated);
+
+  jiraLoginWindow.loadURL(JIRA_BASE_URL);
+  return { ok: true, alreadyAuthenticated: false };
 };
 
-ipcMain.handle("jira-open-login", () => {
-  createJiraLoginWindow();
-  return { ok: true };
-});
+ipcMain.handle("jira-open-login", () => createJiraLoginWindow());
 
 ipcMain.handle("jira-request", async (_event, { path: requestPath, params }) => {
   const url = buildJiraUrl(requestPath, params);
@@ -74,14 +123,16 @@ ipcMain.handle("jira-request", async (_event, { path: requestPath, params }) => 
 
   return response.json();
 });
+
 const createWindow = () => {
-  const window = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1280,
     height: 820,
     minWidth: 980,
     minHeight: 680,
     backgroundColor: "#f2f7fa",
     autoHideMenuBar: true,
+    icon: APP_ICON,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -90,11 +141,11 @@ const createWindow = () => {
   });
 
   if (process.env.VITE_DEV_SERVER_URL) {
-    window.loadURL(process.env.VITE_DEV_SERVER_URL);
+    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
     return;
   }
 
-  window.loadFile(path.join(__dirname, "..", "dist", "index.html"));
+  mainWindow.loadFile(path.join(__dirname, "..", "dist", "index.html"));
 };
 
 const handleProtocolUrl = (url) => {

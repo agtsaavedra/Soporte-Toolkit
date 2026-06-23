@@ -1,4 +1,4 @@
-﻿import JiraSuggestedSolutions from "./JiraSuggestedSolutions";
+import JiraSuggestedSolutions from "./JiraSuggestedSolutions";
 import "../styles/jira-ticket-detail.css";
 
 const formatDate = (value) => {
@@ -23,7 +23,7 @@ const buildTicketSummary = (ticket) =>
     .filter(Boolean)
     .join("\n");
 
-const JiraTicketDetail = ({ ticket, suggestions, onOpenSolution }) => {
+const JiraTicketDetail = ({ ticket, suggestions }) => {
   if (!ticket) {
     return (
       <section className="jira-detail empty-card">
@@ -102,7 +102,7 @@ const JiraTicketDetail = ({ ticket, suggestions, onOpenSolution }) => {
       <JiraSuggestedSolutions
         ticket={ticket}
         suggestions={suggestions}
-        onOpenSolution={onOpenSolution}
+
       />
     </section>
   );

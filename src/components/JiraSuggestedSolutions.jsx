@@ -1,4 +1,5 @@
-﻿import "../styles/jira-ticket-detail.css";
+﻿import { useState } from "react";
+import "../styles/jira-suggested-solutions.css";
 
 const commandText = (command) => command.command ?? command;
 
@@ -8,46 +9,109 @@ const copyText = async (text) => {
 
 const buildJiraResponse = (ticket, solution) =>
   [
-    `Hola, revisamos el ticket ${ticket.key} (${ticket.summary}).`,
-    "",
     solution.jiraTemplate || solution.userMessage,
     "",
-    `Solucion aplicada/sugerida: ${solution.title}`,
+    `Referencia interna: ${ticket.key} - ${ticket.summary}`,
   ]
     .filter(Boolean)
     .join("\n");
 
-const JiraSuggestedSolutions = ({ ticket, suggestions, onOpenSolution }) => (
-  <section className="jira-section jira-suggestions">
-    <h3>Soluciones sugeridas</h3>
-    <div className="jira-suggestion-list">
-      {suggestions.map(({ solution, score, reasons }) => (
-        <article key={solution.id}>
-          <div>
-            <strong>{solution.title}</strong>
-            <span>{solution.category} · score {score}</span>
-            {reasons.length > 0 && <small>{reasons.join(", ")}</small>}
-          </div>
-          <div className="jira-suggestion-actions">
-            <button onClick={() => onOpenSolution(solution)}>Abrir ficha</button>
-            <button
-              onClick={() => copyText(solution.commands.map(commandText).join("\n"))}
-              disabled={solution.commands.length === 0}
-            >
-              Copiar comandos
-            </button>
-            <button onClick={() => copyText(buildJiraResponse(ticket, solution))}>
-              Copiar respuesta Jira
-            </button>
-          </div>
-        </article>
-      ))}
+const numberedLines = (items) =>
+  items.map((item, index) => `${index + 1}. ${item}`).join("\n");
 
-      {suggestions.length === 0 && (
-        <p>No hay sugerencias todavia. Ajusta keywords o agrega una ficha mas especifica.</p>
-      )}
-    </div>
-  </section>
-);
+const JiraSuggestedSolutions = ({ ticket, suggestions }) => {
+  const [openSolutionId, setOpenSolutionId] = useState(suggestions[0]?.solution.id ?? "");
+  const hasUsefulSuggestions = suggestions.some((suggestion) => !suggestion.isFallback);
+
+  return (
+    <section className="jira-section jira-suggestions">
+      <div className="jira-suggestions-heading">
+        <h3>Soluciones sugeridas</h3>
+        {!hasUsefulSuggestions && (
+          <p>No hay una solucion confiable para este ticket. Usar diagnostico general o crear nueva ficha.</p>
+        )}
+      </div>
+
+      <div className="jira-suggestion-list">
+        {suggestions.map(({ solution, score, reason, isFallback }) => {
+          const isOpen = openSolutionId === solution.id;
+          const commandTextValue = solution.commands.map(commandText).join("\n");
+          const stepsTextValue = numberedLines(solution.steps);
+
+          return (
+            <article key={solution.id} className={isFallback ? "fallback" : ""}>
+              <div className="jira-suggestion-main">
+                <div>
+                  <strong>{solution.title}</strong>
+                  <span>{solution.category}</span>
+                  <p>{reason}</p>
+                </div>
+                <div className="jira-suggestion-meta">
+                  <small>Score {score}</small>
+                  <small>Tiempo {solution.time}</small>
+                  <small>Riesgo {solution.risk}</small>
+                </div>
+              </div>
+
+              <div className="jira-suggestion-actions">
+                <button onClick={() => setOpenSolutionId(isOpen ? "" : solution.id)}>
+                  {isOpen ? "Cerrar ficha" : "Abrir ficha"}
+                </button>
+                <button onClick={() => copyText(buildJiraResponse(ticket, solution))}>
+                  Copiar respuesta Jira
+                </button>
+                <button onClick={() => copyText(commandTextValue)} disabled={!commandTextValue}>
+                  Copiar comandos
+                </button>
+                <button onClick={() => copyText(stepsTextValue)} disabled={!stepsTextValue}>
+                  Copiar pasos
+                </button>
+              </div>
+
+              {isOpen && (
+                <div className="jira-inline-solution">
+                  <div>
+                    <h4>Pasos sugeridos</h4>
+                    <ol>
+                      {solution.steps.map((step) => (
+                        <li key={step}>{step}</li>
+                      ))}
+                    </ol>
+                  </div>
+
+                  {solution.commands.length > 0 && (
+                    <div>
+                      <h4>Comandos</h4>
+                      <div className="jira-inline-commands">
+                        {solution.commands.map((command) => (
+                          <div key={command.command}>
+                            <code>{command.command}</code>
+                            {command.description && <p>{command.description}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <h4>Respuesta Jira</h4>
+                    <p>{solution.jiraTemplate || solution.userMessage}</p>
+                  </div>
+
+                  {solution.internalNotes && (
+                    <div>
+                      <h4>Notas internas</h4>
+                      <p>{solution.internalNotes}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+};
 
 export default JiraSuggestedSolutions;

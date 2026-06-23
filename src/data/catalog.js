@@ -113,6 +113,8 @@ export const normalizeSolution = (solution) => ({
   id: solution.id,
   title: normalizeBrokenText(solution.title ?? ""),
   category: normalizeBrokenText(solution.category ?? "General"),
+  intent: normalizeBrokenText(solution.intent ?? ""),
+  product: normalizeBrokenText(solution.product ?? ""),
   tags: normalizeList(solution.tags),
   risk: normalizeBrokenText(solution.risk ?? "Bajo"),
   time: normalizeBrokenText(solution.time ?? "5-10 min"),
@@ -152,6 +154,8 @@ const toSearchableText = (solution) =>
   [
     solution.title,
     solution.category,
+    solution.intent,
+    solution.product,
     solution.risk,
     solution.time,
     ...solution.tags,

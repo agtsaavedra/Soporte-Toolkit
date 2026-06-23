@@ -112,6 +112,11 @@ function App() {
   };
 
   useEffect(() => {
+    window.soporteToolkit?.onJiraLoginReady?.(() => {
+      showToast("Sesion Jira lista. Ya podes actualizar tickets.");
+    });
+  }, []);
+  useEffect(() => {
     let isMounted = true;
 
     Promise.all([loadCachedHelpdeskTickets(), getTicketCacheMeta()]).then(
@@ -362,12 +367,6 @@ function App() {
     } finally {
       setJiraLoading(false);
     }
-  };
-
-  const handleOpenSuggestedSolution = (solution) => {
-    setSelected(solution);
-    setSelectedCategory(solution.category);
-    setView("catalog");
   };
 
   const openTemplates = () => {
@@ -651,7 +650,6 @@ function App() {
             cacheMeta={jiraCacheMeta}
             error={jiraError}
             solutions={solutionIndex}
-            onOpenSolution={handleOpenSuggestedSolution}
           />
         ) : view === "templates" && selected ? (
           <SolutionCard

@@ -1,4 +1,4 @@
-﻿const makeSolution = ({
+const makeSolution = ({
   id,
   title,
   category,
@@ -18,10 +18,14 @@
   userMessage,
   jiraTemplate,
   internalNotes,
+  intent,
+  product,
 }) => ({
   id,
   title,
   category,
+    intent,
+  product,
   tags,
   risk,
   time,
@@ -52,6 +56,78 @@
   internalNotes:
     internalNotes ??
     "Registrar evidencia, equipo, usuario y resultado. No incluir credenciales ni tokens en Jira.",
+});
+
+const SOLUTION_OVERRIDES = {
+  "hd-001": {
+    title: "Blanqueo / desbloqueo AGSERVER",
+    intent: "CLAVES_AGSERVER",
+    product: "AGSERVER",
+    tags: ["AGSERVER", "clave", "usuario", "bloqueado", "inhabilitado"],
+    jiraKeywords: ["ag", "agserver", "blanqueo", "desbloqueo", "usuario inhabilitado", "usuario bloqueado", "clave", "contrasena"],
+    jiraTemplate: "Hola, se reviso el caso sobre el usuario indicado en AGSERVER. Recordamos que los blanqueos/desbloqueos deben gestionarse desde el portal de autogestion; si corresponde una excepcion operativa, se deja registrada la intervencion realizada. Saludos.",
+  },
+  "hd-002": {
+    title: "Portal de autogestion de claves",
+    intent: "PORTAL_AUTOGESTION",
+    product: "Portal autogestion",
+    tags: ["autogestion", "portal", "clave", "AGSERVER", "SAP", "RED"],
+    jiraKeywords: ["portal autogestion", "portal de autogestion", "autogestion", "asociar usuario", "registrar portal", "recuperar clave"],
+    jiraTemplate: "Hola, Mesa de Ayuda ya no realiza desbloqueos ni blanqueos de contrasenas de AG, SAP y RED como circuito habitual. La gestion debe realizarse desde el portal de autogestion. Por favor validar el instructivo correspondiente. Saludos.",
+  },
+  "hd-003": { intent: "ESCALAMIENTO", product: "Call Center" },
+  "hd-008": { intent: "PLOTTER_AUTOCAD", product: "AutoCAD" },
+  "hd-009": { intent: "INSTALACION_SOFTWARE", product: "GNAT" },
+  "hd-010": { intent: "INSTALACION_SOFTWARE", product: "Drivers" },
+  "hd-012": { intent: "OUTLOOK", product: "PST" },
+  "hd-013": { intent: "OUTLOOK", product: "Casilla compartida" },
+  "hd-015": { intent: "EXCEL_OFFICE", product: "Excel" },
+  "hd-016": { intent: "EXCEL_OFFICE", product: "OneDrive" },
+  "hd-023": { intent: "RED_CONECTIVIDAD", product: "Puertos" },
+  "hd-026": { intent: "RED_CONECTIVIDAD", product: "WinRM" },
+  "hd-028": { intent: "SAP_CONFIG", product: "SAP PDF" },
+  "hd-034": { intent: "EQUIPO_HARDWARE", product: "Sesion Windows" },
+  "hd-041": { intent: "INSTALACION_SOFTWARE", product: "Software" },
+  "hd-004": { intent: "INSTALACION_SOFTWARE", product: "Software", title: "Instalacion estandar de software", jiraTemplate: "Hola, listo, se instalo la aplicacion solicitada sin inconvenientes. Por favor validar el funcionamiento. Saludos." },
+  "hd-005": { intent: "POWER_BI", product: "Power BI", title: "Instalacion Power BI Desktop", jiraKeywords: ["power bi", "powerbi", "power bi desktop", "pbix"], jiraTemplate: "Hola, se instalo Power BI Desktop y se realizo una prueba basica de apertura. Por favor validar si ya podes trabajar correctamente. Saludos." },
+  "hd-006": { intent: "GOOGLE_EARTH", product: "Google Earth", title: "Instalacion Google Earth Pro" },
+  "hd-007": { intent: "FLUKE", product: "Fluke", title: "Instalacion Fluke / camara termografica" },
+  "hd-011": { intent: "OUTLOOK", product: "Outlook", title: "Outlook lento / OST grande", jiraTemplate: "Hola, se reviso la configuracion de Outlook y se aplicaron ajustes para mejorar el funcionamiento. Por favor validar nuevamente. Saludos." },
+  "hd-014": { intent: "OUTLOOK", product: "Office", title: "Reparacion Office completa", jiraKeywords: ["outlook lento", "outlook se cuelga", "correo lento", "office", "reparacion office", "office no abre", "word", "excel", "microsoft 365"] },
+  "hd-017": { intent: "IMPRESORA", product: "Impresora", title: "Reiniciar spooler y limpiar cola", jiraKeywords: ["no imprime", "impresora", "cola", "spooler", "impresion bloqueada"], jiraTemplate: "Hola, se reviso la impresora indicada y se realizaron acciones de liberacion/validacion de cola. Por favor probar nuevamente la impresion. Saludos." },
+  "hd-018": { intent: "IMPRESORA", product: "Impresora", title: "Agregar impresora compartida" },
+  "hd-019": { intent: "IMPRESORA", product: "Impresora", title: "Probar puerto 9100 de impresora" },
+  "hd-020": { intent: "SCANNER", product: "Scanner", title: "Scanner HP / digitalizacion" },
+  "hd-021": { intent: "PLOTTER_AUTOCAD", product: "Plotter AutoCAD", title: "Plotter / HP Click / AutoCAD" },
+  "hd-022": { intent: "RED_CONECTIVIDAD", product: "Red" },
+  "hd-024": { intent: "FORTICLIENT", product: "FortiClient", title: "FortiClient no muestra Remote Access", jiraKeywords: ["forticlient", "forti", "vpn", "remote access"], jiraTemplate: "Hola, se reviso FortiClient y la conectividad asociada. Por favor intentar nuevamente la conexion VPN y avisarnos si persiste el inconveniente. Saludos." },
+  "hd-025": { intent: "FORTICLIENT", product: "FortiClient", title: "FortiClient EMS diagnostico", jiraKeywords: ["ems", "telemetria", "telemetry", "forticlient"], jiraTemplate: "Hola, se reviso el estado de FortiClient/EMS y la telemetria asociada. Por favor validar nuevamente la conexion. Saludos." },
+  "hd-027": { intent: "SAP_CONFIG", product: "SAP", title: "SAP GUI - Configuracion CGP", jiraKeywords: ["sap gui", "sap logon", "cgp", "produ_sap", "configurar sap"] },
+  "hd-029": { intent: "AS400_SESION", product: "AGSERVER AS400", title: "AGSERVER / AS400 - Nueva sesion", jiraKeywords: ["agserver", "as400", "ibm i access", "5250", "nueva sesion", "crear sesion"] },
+  "hd-030": { intent: "TICKETEADORA", product: "Epson TM-U220" },
+  "hd-031": { intent: "EQUIPO_HARDWARE", product: "Equipo" },
+  "hd-032": { intent: "DISCO_PERFIL", product: "Disco" },
+  "hd-033": { intent: "DISCO_PERFIL", product: "Perfil Windows" },
+  "hd-036": { intent: "DEBMEDIA", product: "DebMedia", title: "DebMedia Player - Configuracion", jiraKeywords: ["debmedia", "player", "turnos", "check-in", "dni", "pantalla"] },
+  "hd-037": { intent: "ROOTS", product: "ROOTS", title: "ROOTS / error de excepcion", jiraKeywords: ["roots", "excepcion", "exception", ".net"] },
+  "hd-038": { intent: "PROSERLINK", product: "Proserlink" },
+  "hd-039": { intent: "MODEL_5", product: "Model 5" },
+  "hd-040": { intent: "WPS", product: "WPS", title: "Quitar WPS Office por PowerShell", jiraKeywords: ["wps", "wps office", "documentos abren con wps", "kingsoft"], jiraTemplate: "Hola, se quito WPS Office y se valido que los documentos vuelvan a abrir con las aplicaciones de Office correspondientes. Por favor probar nuevamente. Saludos." },
+  "hd-042": { intent: "INV_GATE", product: "InvGate" },
+  "hd-044": { intent: "SOLICITAR_DATOS", product: "Jira", jiraTemplate: "Hola, para poder avanzar necesitamos que nos indiques equipo afectado, usuario, captura del error y horario aproximado en que ocurre. Saludos." },
+  "hd-045": { intent: "ESCALAMIENTO", product: "Jira", jiraTemplate: "Hola, derivamos el caso al area correspondiente para su analisis y resolucion. Saludos." },
+};
+
+const enrichSolution = (solution) => ({
+  ...solution,
+  ...(SOLUTION_OVERRIDES[solution.id] ?? {}),
+  tags: [...new Set([...(solution.tags ?? []), ...(SOLUTION_OVERRIDES[solution.id]?.tags ?? [])])],
+  jiraKeywords: [
+    ...new Set([
+      ...(solution.jiraKeywords ?? []),
+      ...(SOLUTION_OVERRIDES[solution.id]?.jiraKeywords ?? []),
+    ]),
+  ],
 });
 
 export const helpDeskSolutions = [
@@ -101,4 +177,4 @@ export const helpDeskSolutions = [
   makeSolution({ id: "hd-044", title: "Plantilla Jira falta informacion", category: "Plantillas Jira", tags: ["plantilla", "pendiente", "Jira"], jiraKeywords: ["falta informacion", "pendiente usuario"], resolutionType: "procedimiento", jiraTemplate: "Hola, para avanzar necesito que nos indiques usuario afectado, equipo, aplicacion, mensaje de error y captura sin datos sensibles. Con esa informacion continuamos la revision." }),
   makeSolution({ id: "hd-045", title: "Plantilla Jira derivacion a otra area", category: "Plantillas Jira", tags: ["plantilla", "derivacion", "Jira"], jiraKeywords: ["derivar", "escalamiento"], resolutionType: "escalamiento", jiraTemplate: "Hola, el caso requiere intervencion de otra area por permisos o administracion del servicio. Dejamos registrado el analisis inicial y derivamos con la informacion disponible." }),
   makeSolution({ id: "hd-046", title: "Plantilla Jira instalacion pendiente aprobacion", category: "Plantillas Jira", tags: ["plantilla", "aprobacion", "software"], jiraKeywords: ["aprobacion", "instalacion pendiente"], resolutionType: "instalacion", requiresApproval: true, jiraTemplate: "Hola, para instalar el software solicitado necesitamos aprobacion/autorizacion segun politica interna. Apenas este aprobada, coordinamos la instalacion." }),
-];
+].map(enrichSolution);

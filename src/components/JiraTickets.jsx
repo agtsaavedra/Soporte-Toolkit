@@ -45,7 +45,6 @@ const JiraTickets = ({
   cacheMeta,
   error,
   solutions,
-  onOpenSolution,
 }) => {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState(ALL);
@@ -176,7 +175,6 @@ const JiraTickets = ({
         <JiraTicketDetail
           ticket={selectedTicket}
           suggestions={suggestions}
-          onOpenSolution={onOpenSolution}
         />
       </div>
     </div>

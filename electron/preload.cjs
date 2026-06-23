@@ -10,4 +10,7 @@ contextBridge.exposeInMainWorld("soporteToolkit", {
   openJiraLogin() {
     return ipcRenderer.invoke("jira-open-login");
   },
+  onJiraLoginReady(callback) {
+    ipcRenderer.on("jira-login-ready", () => callback());
+  },
 });
