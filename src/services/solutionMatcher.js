@@ -2,8 +2,8 @@ export const INTENTS = {
   CLAVES_AGSERVER: {
     label: "AGSERVER + claves",
     category: "Claves y usuarios",
-    products: ["agserver", "ag", "as400"],
-    keywords: ["ag", "agserver", "as400", "blanqueo", "desbloqueo", "contrasena", "clave", "usuario inhabilitado", "usuario bloqueado"],
+    products: ["agserver", "ag server", "ag", "as400", "call center", "callcenter", "buscafugas", "budi"],
+    keywords: ["ag", "agserver", "ag server", "as400", "blanqueo ag", "desbloqueo ag", "contrasena ag", "clave ag", "usuario inhabilitado", "usuario bloqueado", "blanqueo call center", "callcenter", "buscafugas", "budi"],
   },
   CLAVES_SAP: {
     label: "SAP + claves",
@@ -27,8 +27,8 @@ export const INTENTS = {
     label: "instalacion de software",
     category: "Instalacion de software",
     generic: true,
-    products: ["software", "programa", "aplicacion"],
-    keywords: ["instalar", "instalacion", "software", "programa", "aplicacion", "setup", "instalador"],
+    products: ["software", "programa", "aplicacion", "gnat", "budi", "sic", "adobe", "afm", "buscafugas"],
+    keywords: ["instalar", "instalacion", "software", "programa", "aplicacion", "setup", "instalador", "actualizacion", "actualizar", "licencia", "gnat", "budi", "sic", "adobe", "afm monitor"],
   },
   POWER_BI: {
     label: "Power BI + instalacion",
@@ -73,13 +73,13 @@ export const INTENTS = {
     label: "impresora/impresion",
     category: "Impresoras y scanners",
     products: ["impresora", "spooler", "cola", "9100"],
-    keywords: ["impresora", "imprimir", "impresion", "cola", "spooler", "toner", "driver impresora"],
+    keywords: ["impresora", "imprimir", "impresion", "cola", "spooler", "toner", "driver impresora", "liberar", "liberar impresora"],
   },
   SCANNER: {
     label: "scanner/digitalizacion",
     category: "Impresoras y scanners",
-    products: ["scanner", "escaner", "hp scanjet", "twain", "wia"],
-    keywords: ["scanner", "escaner", "digitalizar", "hp scanjet", "twain", "wia"],
+    products: ["scanner", "escaner", "hp scanjet", "kodak", "scanmate", "smarttouch", "twain", "wia"],
+    keywords: ["scanner", "escaner", "scaner", "digitalizar", "hp scanjet", "kodak", "scanmate", "smarttouch", "twain", "wia"],
   },
   PLOTTER_AUTOCAD: {
     label: "plotter/AutoCAD",
@@ -90,14 +90,14 @@ export const INTENTS = {
   FORTICLIENT: {
     label: "FortiClient/VPN",
     category: "Red / VPN / FortiClient",
-    products: ["forticlient", "forti", "vpn", "remote access", "ems"],
-    keywords: ["forticlient", "forti", "vpn", "remote access", "ems", "telemetria"],
+    products: ["forticlient", "forti", "vpn", "remote access", "ems", "fortitoken"],
+    keywords: ["forticlient", "forti", "vpn", "remote access", "ems", "telemetria", "fortitoken", "vpnconnection"],
   },
   RED_CONECTIVIDAD: {
     label: "red/conectividad",
     category: "Red / VPN / FortiClient",
-    products: ["dns", "internet", "red", "wifi", "dhcp"],
-    keywords: ["dns", "internet", "red", "no conecta", "ping", "ethernet", "wifi", "wi-fi", "gateway", "dhcp"],
+    products: ["dns", "internet", "intranet", "red", "wifi", "dhcp", "pac", "certificado"],
+    keywords: ["dns", "internet", "intranet", "red", "no conecta", "ping", "ethernet", "wifi", "wi-fi", "gateway", "dhcp", "no navega", "certificado", "no segura", "err_cert"],
   },
   SAP_CONFIG: {
     label: "SAP GUI/CGP",
@@ -114,8 +114,8 @@ export const INTENTS = {
   TICKETEADORA: {
     label: "tickeadora Epson",
     category: "SAP / AGSERVER / AS400",
-    products: ["tickeadora", "epson", "tm-u220", "pc5250"],
-    keywords: ["tickeadora", "epson", "tm-u220", "ticket", "pc5250"],
+    products: ["tickeadora", "ticketera", "tiquetera", "epson", "bematech", "tm-u220", "pc5250"],
+    keywords: ["tickeadora", "ticketera", "tiquetera", "epson", "bematech", "tm-u220", "ticket", "fiscal", "caja", "pc5250"],
   },
   DEBMEDIA: {
     label: "DebMedia",
@@ -150,8 +150,8 @@ export const INTENTS = {
   EQUIPO_HARDWARE: {
     label: "equipo/hardware",
     category: "Equipos / hardware",
-    products: ["notebook", "pc", "equipo", "hardware"],
-    keywords: ["notebook", "pc", "equipo", "cambio de equipo", "reemplazo", "hardware", "memoria", "ram", "disco", "bateria"],
+    products: ["notebook", "pc", "equipo", "hardware", "monitor", "teclado", "mouse", "audio"],
+    keywords: ["notebook", "pc", "equipo", "cambio de equipo", "reemplazo", "hardware", "memoria", "ram", "disco", "bateria", "monitor", "teclado", "mouse", "parlante", "audio", "auricular", "lento", "formateo", "migracion"],
   },
   INV_GATE: {
     label: "InvGate",
@@ -164,6 +164,31 @@ export const INTENTS = {
 const MIN_SCORE = 30;
 const SPECIFIC_HIGH_SCORE = 95;
 const GENERIC_INTENTS = new Set(["INSTALACION_SOFTWARE", "SOLICITAR_DATOS", "ESCALAMIENTO"]);
+const PRODUCT_ALIASES = {
+  AGSERVER: ["ag", "agserver", "ag server", "as400"],
+  "CALL CENTER / BUSCAFUGAS": ["call center", "callcenter", "buscafugas"],
+  "PORTAL AUTOGESTION": ["portal autogestion", "portal de autogestion", "autogestion"],
+  SAP: ["sap"],
+  "POWER BI": ["power bi", "powerbi", "power bi desktop", "pbix"],
+  FORTICLIENT: ["forticlient", "forti", "vpn", "remote access"],
+  FORTITOKEN: ["fortitoken"],
+  WPS: ["wps", "wps office", "kingsoft"],
+  BUDI: ["budi"],
+  GNAT: ["gnat", "gnat escritorio"],
+  SIC: ["sic"],
+  "ADOBE ACROBAT": ["adobe", "acrobat"],
+  "SCANNER KODAK / HP": ["scanner", "escaner", "scaner", "kodak", "scanmate", "hp scanjet"],
+  "TICKETERA FISCAL": ["ticketera", "tiquetera", "fiscal", "bematech", "epson"],
+  PAC: ["pac", "certificado", "err_cert", "no segura"],
+  "AUDIO / PERIFERICOS": ["audio", "parlante", "parlantes", "auricular", "teclado", "mouse"],
+};
+const SOURCE_WEIGHTS = {
+  summary: 5,
+  description: 3,
+  comments: 1,
+  changelog: 0.35,
+  metadata: 0.75,
+};
 
 export const normalizeText = (value = "") =>
   String(value)
@@ -194,23 +219,33 @@ const getChangelogText = (issue) =>
     .map((item) => `${item.field ?? ""} ${item.from ?? ""} ${item.to ?? ""}`)
     .join(" ");
 
-export const getIssuePlainText = (issue = {}) => {
+const getIssueTextParts = (issue = {}) => {
   const fields = issue.fields ?? {};
   const comments = issue.comments ?? fields.comment?.comments ?? [];
   const changelog = issue.changelog?.histories ? { changelog: issue.changelog.histories } : issue;
 
-  return [
-    issue.key,
-    issue.summary ?? fields.summary,
-    issue.description ?? extractADFText(fields.description),
-    issue.status,
-    issue.priority,
-    issue.assignee,
-    issue.reporter,
-    issue.detectedCategory,
-    ...comments.map((comment) => comment.body ?? extractADFText(comment.body)),
-    getChangelogText(changelog),
-  ]
+  return {
+    summary: [
+      issue.key,
+      issue.summary ?? fields.summary,
+    ].filter(Boolean).join(" "),
+    description: issue.description ?? extractADFText(fields.description),
+    comments: comments.map((comment) => comment.body ?? extractADFText(comment.body)).join(" "),
+    changelog: getChangelogText(changelog),
+    metadata: [
+      issue.status,
+      issue.priority,
+      issue.assignee,
+      issue.reporter,
+      issue.detectedCategory,
+    ].filter(Boolean).join(" "),
+  };
+};
+
+export const getIssuePlainText = (issue = {}) => {
+  const parts = getIssueTextParts(issue);
+
+  return Object.values(parts)
     .filter(Boolean)
     .join(" ");
 };
@@ -221,9 +256,7 @@ const hasTerm = (text, value) => {
   const term = normalizeText(value);
   if (!term) return false;
 
-  if (/^[a-z0-9]{1,3}$/.test(term)) {
-    return new RegExp(`(^|\\s)${escapeRegExp(term)}($|\\s)`).test(text);
-  }
+  if (/^[a-z0-9]{1,3}$/.test(term)) return new RegExp(`(^|[^a-z0-9])${escapeRegExp(term)}(?=$|[^a-z0-9])`).test(text);
 
   return text.includes(term);
 };
@@ -239,29 +272,54 @@ const firstMatches = (text, values = [], limit = 3) =>
     .filter((value) => hasTerm(text, value))
     .slice(0, limit);
 
-export const detectIntent = (issueText) => {
-  const text = normalizeText(issueText);
+const getProductTerms = (solution, config) => {
+  const product = normalizeText(solution.product).toUpperCase();
+  const aliased = Object.entries(PRODUCT_ALIASES)
+    .filter(([key]) => product.includes(key))
+    .flatMap(([, values]) => values);
+
+  if (solution.product) return [...new Set([solution.product, ...aliased].filter(Boolean))];
+
+  return [...new Set([...(config?.products ?? [])].filter(Boolean))];
+};
+
+const scoreIntentInText = ({ intent, config, text, weight }) => {
+  const keywordMatches = countMatches(text, config.keywords);
+  const productMatches = countMatches(text, config.products);
+  const installBoost =
+    config.parent === "INSTALACION_SOFTWARE" && countMatches(text, INTENTS.INSTALACION_SOFTWARE.keywords) > 0
+      ? 2
+      : 0;
+  const sessionBoost =
+    intent === "AS400_SESION" && (countMatches(text, ["sesion", "nueva sesion", "5250"]) > 0 || text.includes("sesi"))
+      ? 40
+      : 0;
+
+  return (productMatches * 5 + keywordMatches * 2 + installBoost + sessionBoost) * weight;
+};
+
+const detectIntentFromParts = (parts) => {
+  const normalizedParts = Object.fromEntries(
+    Object.entries(parts).map(([key, value]) => [key, normalizeText(value)])
+  );
+  const fullText = Object.values(normalizedParts).join(" ");
   const detected = Object.entries(INTENTS)
     .map(([intent, config]) => {
-      const keywordMatches = countMatches(text, config.keywords);
-      const productMatches = countMatches(text, config.products);
-      const installBoost =
-        config.parent === "INSTALACION_SOFTWARE" && countMatches(text, INTENTS.INSTALACION_SOFTWARE.keywords) > 0
-          ? 2
-          : 0;
-
-      const sessionBoost =
-        intent === "AS400_SESION" && (countMatches(text, ["sesion", "nueva sesion", "5250"]) > 0 || text.includes("sesi"))
-          ? 40
-          : 0;
+      const score = Object.entries(normalizedParts).reduce(
+        (total, [source, text]) =>
+          total + scoreIntentInText({ intent, config, text, weight: SOURCE_WEIGHTS[source] ?? 1 }),
+        0
+      );
 
       return {
         intent,
         label: config.label,
         category: config.category,
-        products: firstMatches(text, config.products),
-        keywords: firstMatches(text, config.keywords),
-        score: productMatches * 5 + keywordMatches * 2 + installBoost + sessionBoost,
+        products: firstMatches(fullText, config.products),
+        keywords: firstMatches(fullText, config.keywords),
+        summaryProducts: firstMatches(normalizedParts.summary, config.products),
+        summaryKeywords: firstMatches(normalizedParts.summary, config.keywords),
+        score,
         generic: Boolean(config.generic),
       };
     })
@@ -277,6 +335,9 @@ export const detectIntent = (issueText) => {
     isSpecific: detected[0] ? !detected[0].generic : false,
   };
 };
+
+export const detectIntent = (issueText) =>
+  detectIntentFromParts({ summary: issueText, description: "", comments: "", changelog: "", metadata: "" });
 
 const inferSolutionIntent = (solution) => {
   if (solution.intent) return solution.intent;
@@ -308,12 +369,23 @@ const solutionText = (solution) =>
     ].join(" ")
   );
 
-const addFieldScore = ({ text, values, points, reason, reasons }) => {
-  const matches = firstMatches(text, values, 4);
-  if (matches.length === 0) return 0;
+const addWeightedFieldScore = ({ parts, values, points, reason, reasons }) => {
+  const found = new Map();
+  let score = 0;
 
-  reasons.push(`${reason}: ${matches.join(", ")}`);
-  return matches.length * points;
+  Object.entries(parts).forEach(([source, text]) => {
+    const matches = firstMatches(text, values, 4);
+    if (matches.length === 0) return;
+
+    matches.forEach((match) => found.set(match, source));
+    score += matches.length * points * (SOURCE_WEIGHTS[source] ?? 1);
+  });
+
+  if (found.size > 0) {
+    reasons.push(`${reason}: ${[...found.keys()].slice(0, 4).join(", ")}`);
+  }
+
+  return score;
 };
 
 const isRelatedCategory = (detectedIntent, solution) => {
@@ -332,21 +404,29 @@ const buildReason = ({ detectedIntent, solution, reasons, score }) => {
 };
 
 export const scoreSolutionsForIssue = (issue, solutions) => {
-  const issueText = normalizeText(issue.plainText || getIssuePlainText(issue));
-  const detectedIntent = detectIntent(issueText);
+  const rawParts = getIssueTextParts(issue);
+  const parts = Object.fromEntries(
+    Object.entries(rawParts).map(([key, value]) => [key, normalizeText(value)])
+  );
+  const issueText = Object.values(parts).join(" ");
+  const primaryText = [parts.summary, parts.description].join(" ");
+  const detectedIntent = detectIntentFromParts(rawParts);
 
   const scored = solutions
     .map((solution) => {
       const intent = inferSolutionIntent(solution);
       const config = INTENTS[intent];
       const text = solutionText(solution);
+      const productTerms = getProductTerms(solution, config);
+      const productMatches = firstMatches(primaryText, productTerms, 4).filter(Boolean);
+      const hasSolutionProductMatch = productMatches.length > 0 && productMatches.some((product) => hasTerm(text, product));
       const reasons = [];
       let score = 0;
 
       const directMatches = [
-        ...firstMatches(issueText, solution.jiraKeywords, 4),
-        ...firstMatches(issueText, solution.tags, 4),
-        ...firstMatches(issueText, [solution.title, solution.product], 4),
+        ...firstMatches(primaryText, solution.jiraKeywords, 4),
+        ...firstMatches(primaryText, solution.tags, 4),
+        ...firstMatches(primaryText, [solution.title, solution.product], 4),
       ];
 
       if (detectedIntent.primary !== "UNKNOWN" && intent === detectedIntent.primary) {
@@ -382,21 +462,40 @@ export const scoreSolutionsForIssue = (issue, solutions) => {
         score += 25;
         reasons.push("reparacion Office relacionada con Outlook");
       }
-      const productMatches = firstMatches(issueText, [solution.product, ...(config?.products ?? [])], 3).filter(Boolean);
-      if (productMatches.length > 0 && productMatches.some((product) => text.includes(product))) {
+      if (hasSolutionProductMatch) {
         score += 50;
         reasons.push(`producto/sistema exacto ${productMatches.join(", ")}`);
       }
 
-      score += addFieldScore({ text: issueText, values: solution.jiraKeywords, points: 15, reason: "keywords", reasons });
-      score += addFieldScore({ text: issueText, values: solution.tags, points: 10, reason: "tags", reasons });
-      score += addFieldScore({ text: issueText, values: [solution.title], points: 20, reason: "titulo", reasons });
-      score += addFieldScore({ text: issueText, values: [solution.category], points: 6, reason: "categoria", reasons });
-      score += addFieldScore({ text: issueText, values: solution.symptoms, points: 4, reason: "sintomas", reasons });
-      score += addFieldScore({ text: issueText, values: solution.causes, points: 4, reason: "causas", reasons });
-      score += addFieldScore({ text: issueText, values: solution.steps, points: 2, reason: "pasos", reasons });
-      score += addFieldScore({
-        text: issueText,
+      if (
+        detectedIntent.primary === intent &&
+        detectedIntent.products.length > 0 &&
+        !hasSolutionProductMatch &&
+        solution.product &&
+        !(detectedIntent.primary === "OUTLOOK" && solution.id === "hd-014") &&
+        !["AGSERVER", "Software"].includes(solution.product)
+      ) {
+        score -= 200;
+        reasons.push("penalizada por no coincidir con el producto detectado");
+      }
+
+      if (
+        intent === "PORTAL_AUTOGESTION" &&
+        !["CLAVES_AGSERVER", "CLAVES_SAP", "CLAVES_RED", "PORTAL_AUTOGESTION"].includes(detectedIntent.primary)
+      ) {
+        score -= 200;
+        reasons.push("penalizada porque autogestion solo aplica a gestion de claves");
+      }
+
+      score += addWeightedFieldScore({ parts, values: solution.jiraKeywords, points: 15, reason: "keywords", reasons });
+      score += addWeightedFieldScore({ parts, values: solution.tags, points: 10, reason: "tags", reasons });
+      score += addWeightedFieldScore({ parts, values: [solution.title], points: 20, reason: "titulo", reasons });
+      score += addWeightedFieldScore({ parts, values: [solution.category], points: 6, reason: "categoria", reasons });
+      score += addWeightedFieldScore({ parts, values: solution.symptoms, points: 4, reason: "sintomas", reasons });
+      score += addWeightedFieldScore({ parts, values: solution.causes, points: 4, reason: "causas", reasons });
+      score += addWeightedFieldScore({ parts, values: solution.steps, points: 2, reason: "pasos", reasons });
+      score += addWeightedFieldScore({
+        parts,
         values: (solution.commands ?? []).flatMap((command) => [command.command, command.description]),
         points: 1,
         reason: "comandos",
@@ -413,7 +512,7 @@ export const scoreSolutionsForIssue = (issue, solutions) => {
       }
 
       if (!isRelatedCategory(detectedIntent, solution)) {
-        score -= 20;
+        score -= 70;
       }
 
       if (solution.internalOnly && !issueText.includes("interno")) score -= 8;
@@ -431,11 +530,23 @@ export const scoreSolutionsForIssue = (issue, solutions) => {
     .sort((a, b) => b.score - a.score);
 
   const hasSpecificHigh = scored.some((item) => !item.isGeneric && item.score >= SPECIFIC_HIGH_SCORE);
-  const filtered = hasSpecificHigh
+  const filteredGenerics = hasSpecificHigh
     ? scored.filter((item, index) => !item.isGeneric || scored.slice(0, index).filter((candidate) => candidate.isGeneric).length < 1)
     : scored;
 
-  return filtered;
+  const topScore = filteredGenerics[0]?.score ?? 0;
+  if (topScore >= 300) {
+    return filteredGenerics.filter((item) => {
+      const isKeyPortal =
+        item.solution.intent === "PORTAL_AUTOGESTION" &&
+        ["CLAVES_AGSERVER", "CLAVES_SAP", "CLAVES_RED"].includes(item.detectedIntent.primary);
+      const isParentGeneric = INTENTS[item.detectedIntent.primary]?.parent === item.solution.intent;
+
+      return item.score >= Math.max(100, topScore * 0.35) || isKeyPortal || isParentGeneric;
+    });
+  }
+
+  return filteredGenerics;
 };
 
 export const getSuggestedSolutions = (issue, solutions, limit = 5) => {
