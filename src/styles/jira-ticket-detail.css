@@ -7,6 +7,7 @@
   padding: 24px;
   background: rgba(3, 18, 34, 0.62);
   backdrop-filter: blur(4px);
+  animation: jira-backdrop-in 0.18s ease-out;
 }
 
 .jira-detail {
@@ -23,6 +24,25 @@
   max-height: min(88vh, 900px);
   overflow: auto;
   border-top: 4px solid var(--accent);
+  animation: jira-modal-in 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-origin: center top;
+}
+
+@keyframes jira-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes jira-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .jira-detail-top {
@@ -205,5 +225,12 @@
 
   .jira-meta-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jira-modal-backdrop,
+  .jira-ticket-modal {
+    animation: none;
   }
 }

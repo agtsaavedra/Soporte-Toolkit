@@ -25,9 +25,11 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
+      "public/toolkit-icon.ico",
       "package.json"
     ],
     "win": {
+      "icon": "public/toolkit-icon.ico",
       "target": [
         "nsis",
         "portable"

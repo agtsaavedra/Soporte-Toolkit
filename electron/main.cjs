@@ -3,10 +3,12 @@ const path = require("node:path");
 
 const APP_PROTOCOL = "soporte-toolkit";
 const JIRA_BASE_URL = "https://camuzzigas.atlassian.net";
-const APP_ICON = path.join(__dirname, "..", "public", "toolkit-icon.svg");
+const APP_ICON = path.join(__dirname, "..", "public", "toolkit-icon.ico");
 
 let mainWindow;
 let jiraLoginWindow;
+
+app.setAppUserModelId("com.camuzzi.soporte-toolkit");
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {

@@ -506,6 +506,7 @@ function App() {
         <div className="view-tabs app-nav" aria-label="Vista">
           <button
             className={view === "catalog" ? "active" : ""}
+            data-short="ST"
             title="Soluciones"
             onClick={() => {
               setSelectedCategory(ALL_CATEGORIES);
@@ -516,6 +517,7 @@ function App() {
           </button>
           <button
             className={view === "jira" ? "active" : ""}
+            data-short="JD"
             title="Jira Help Desk"
             onClick={() => setView("jira")}
           >
@@ -523,6 +525,7 @@ function App() {
           </button>
           <button
             className={view === "templates" ? "active" : ""}
+            data-short="PL"
             title="Plantillas"
             onClick={openTemplates}
           >
