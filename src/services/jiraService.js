@@ -156,16 +156,27 @@ const jiraRequest = async (path, params) => {
     }
   });
 
-  const response = await fetch(url.toString(), {
-    credentials: "include",
-    headers: { Accept: "application/json" },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Jira respondio ${response.status}`);
+  if (window.soporteToolkit?.jiraRequest) {
+    return window.soporteToolkit.jiraRequest({ path, params });
   }
 
-  return response.json();
+  try {
+    const response = await fetch(url.toString(), {
+      credentials: "include",
+      headers: { Accept: "application/json" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Jira respondio ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    throw new Error(
+      `${error.message}. En localhost el navegador puede bloquear Jira por CORS. Para live sin token usa npm run desktop:dev y abri Jira desde la app.`,
+      { cause: error }
+    );
+  }
 };
 
 export const fetchHelpdeskTickets = async ({

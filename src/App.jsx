@@ -67,6 +67,7 @@ function App() {
   const [jiraLoading, setJiraLoading] = useState(false);
   const [jiraCacheMeta, setJiraCacheMeta] = useState(null);
   const [jiraError, setJiraError] = useState("");
+  const canOpenJiraLogin = Boolean(window.soporteToolkit?.openJiraLogin);
 
   const solutionIndex = useMemo(
     () => createSolutionIndex([...solutions, ...customSolutions]),
@@ -299,6 +300,15 @@ function App() {
     return mergedTickets;
   };
 
+  const openJiraLogin = async () => {
+    if (!window.soporteToolkit?.openJiraLogin) {
+      window.open("https://camuzzigas.atlassian.net", "_blank", "noreferrer");
+      return;
+    }
+
+    await window.soporteToolkit.openJiraLogin();
+    showToast("Inicia sesion en Jira y luego actualiza tickets");
+  };
   const refreshJiraTickets = async () => {
     setJiraLoading(true);
     setJiraError("");
@@ -638,6 +648,8 @@ function App() {
             onSelectTicket={setSelectedTicket}
             onRefresh={refreshJiraTickets}
             onLoadMore={loadMoreJiraTickets}
+            onOpenJiraLogin={openJiraLogin}
+            canOpenJiraLogin={canOpenJiraLogin}
             isLoading={jiraLoading}
             hasMore={jiraHasMore}
             cacheMeta={jiraCacheMeta}

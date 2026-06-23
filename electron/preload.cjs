@@ -4,4 +4,10 @@ contextBridge.exposeInMainWorld("soporteToolkit", {
   onAuthCallback(callback) {
     ipcRenderer.on("auth-callback-url", (_event, url) => callback(url));
   },
+  jiraRequest(request) {
+    return ipcRenderer.invoke("jira-request", request);
+  },
+  openJiraLogin() {
+    return ipcRenderer.invoke("jira-open-login");
+  },
 });

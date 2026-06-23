@@ -1,7 +1,8 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain, session } = require("electron");
 const path = require("node:path");
 
 const APP_PROTOCOL = "soporte-toolkit";
+const JIRA_BASE_URL = "https://camuzzigas.atlassian.net";
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
@@ -13,6 +14,66 @@ if (process.defaultApp) {
   app.setAsDefaultProtocolClient(APP_PROTOCOL);
 }
 
+const buildJiraUrl = (requestPath, params = {}) => {
+  const url = new URL(requestPath, JIRA_BASE_URL);
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      url.searchParams.set(key, value);
+    }
+  });
+
+  return url;
+};
+
+const getJiraCookieHeader = async () => {
+  const cookies = await session.defaultSession.cookies.get({ url: JIRA_BASE_URL });
+  return cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join("; ");
+};
+
+const createJiraLoginWindow = () => {
+  const loginWindow = new BrowserWindow({
+    width: 1180,
+    height: 780,
+    minWidth: 980,
+    minHeight: 680,
+    title: "Jira Login",
+    autoHideMenuBar: true,
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+
+  loginWindow.loadURL(JIRA_BASE_URL);
+};
+
+ipcMain.handle("jira-open-login", () => {
+  createJiraLoginWindow();
+  return { ok: true };
+});
+
+ipcMain.handle("jira-request", async (_event, { path: requestPath, params }) => {
+  const url = buildJiraUrl(requestPath, params);
+  const cookieHeader = await getJiraCookieHeader();
+
+  if (!cookieHeader) {
+    throw new Error("No hay sesion de Jira en Electron. Abri el login Jira desde la app.");
+  }
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      Accept: "application/json",
+      Cookie: cookieHeader,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Jira respondio ${response.status}`);
+  }
+
+  return response.json();
+});
 const createWindow = () => {
   const window = new BrowserWindow({
     width: 1280,

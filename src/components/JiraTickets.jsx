@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { getSuggestedSolutions } from "../services/solutionMatcher";
 import JiraTicketDetail from "./JiraTicketDetail";
 import "../styles/jira-tickets.css";
