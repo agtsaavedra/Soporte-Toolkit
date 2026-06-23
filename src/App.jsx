@@ -55,6 +55,7 @@ function App() {
   const [onlyPowerShell, setOnlyPowerShell] = useState(false);
   const [theme, setTheme] = useState(getInitialTheme);
   const [view, setView] = useState("catalog");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [repositoryMode, setRepositoryMode] = useState("local");
   const [authSession, setAuthSession] = useState(readStoredSession);
   const [authForm, setAuthForm] = useState({ email: "", password: "" });
@@ -485,8 +486,16 @@ function App() {
   }
 
   return (
-    <main className="app">
+    <main className={sidebarCollapsed ? "app sidebar-collapsed" : "app"}>
       <aside className="sidebar">
+        <button
+          className="sidebar-toggle"
+          onClick={() => setSidebarCollapsed((current) => !current)}
+          title={sidebarCollapsed ? "Expandir sidebar" : "Contraer sidebar"}
+          aria-label={sidebarCollapsed ? "Expandir sidebar" : "Contraer sidebar"}
+        >
+          {sidebarCollapsed ? "›" : "‹"}
+        </button>
         <div className="brand">
           <img className="brand-icon" src="/toolkit-icon.svg" alt="" />
           <div>
@@ -497,6 +506,7 @@ function App() {
         <div className="view-tabs app-nav" aria-label="Vista">
           <button
             className={view === "catalog" ? "active" : ""}
+            title="Soluciones"
             onClick={() => {
               setSelectedCategory(ALL_CATEGORIES);
               setView("catalog");
@@ -506,12 +516,14 @@ function App() {
           </button>
           <button
             className={view === "jira" ? "active" : ""}
+            title="Jira Help Desk"
             onClick={() => setView("jira")}
           >
             Jira Help Desk
           </button>
           <button
             className={view === "templates" ? "active" : ""}
+            title="Plantillas"
             onClick={openTemplates}
           >
             Plantillas

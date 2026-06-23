@@ -51,6 +51,7 @@ const JiraTickets = ({
   const [assignee, setAssignee] = useState(ALL);
   const [priority, setPriority] = useState(ALL);
   const [category, setCategory] = useState(ALL);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const filters = useMemo(
     () => ({
@@ -79,6 +80,11 @@ const JiraTickets = ({
     ? getSuggestedSolutions(selectedTicket, solutions, 6)
     : [];
   const hasSyncedTickets = tickets.length > 0 || Boolean(cacheMeta?.lastSync);
+
+  const openTicket = (ticket) => {
+    onSelectTicket(ticket);
+    setIsDetailOpen(true);
+  };
 
   return (
     <div className="jira-shell">
@@ -149,15 +155,15 @@ const JiraTickets = ({
               <span>Status</span>
               <span>Priority</span>
               <span>Assignee</span>
-              <span>Reporter</span>
               <span>Created</span>
+              <span>Accion</span>
             </div>
 
             {filteredTickets.map((ticket) => (
               <button
                 key={ticket.key}
                 className={selectedTicket?.key === ticket.key ? "jira-ticket-row active" : "jira-ticket-row"}
-                onClick={() => onSelectTicket(ticket)}
+                onClick={() => openTicket(ticket)}
                 role="row"
               >
                 <span>{ticket.key}</span>
@@ -165,8 +171,8 @@ const JiraTickets = ({
                 <span>{ticket.status}</span>
                 <span>{ticket.priority}</span>
                 <span>{ticket.assignee}</span>
-                <span>{ticket.reporter}</span>
                 <time>{formatDate(ticket.created)}</time>
+                <span className="jira-row-action">Abrir</span>
               </button>
             ))}
 
@@ -175,12 +181,15 @@ const JiraTickets = ({
             )}
           </div>
         </section>
+      </div>
 
+      {isDetailOpen && selectedTicket && (
         <JiraTicketDetail
           ticket={selectedTicket}
           suggestions={suggestions}
+          onClose={() => setIsDetailOpen(false)}
         />
-      </div>
+      )}
     </div>
   );
 };

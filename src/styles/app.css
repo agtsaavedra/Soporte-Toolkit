@@ -7,6 +7,10 @@
     var(--bg-main);
 }
 
+.app.sidebar-collapsed {
+  grid-template-columns: 76px minmax(0, 1fr);
+}
+
 .login-screen {
   display: grid;
   min-height: 100vh;
@@ -86,6 +90,7 @@
 .sidebar {
   position: sticky;
   top: 0;
+  z-index: 10;
   height: 100vh;
   overflow-y: auto;
   padding: 24px;
@@ -94,6 +99,24 @@
     linear-gradient(180deg, rgba(0, 163, 224, 0.14), transparent 34%),
     linear-gradient(180deg, var(--bg-sidebar), #052f5c);
   border-right: 1px solid rgba(0, 163, 224, 0.26);
+}
+
+.sidebar-toggle {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  margin: 0 0 14px auto;
+  place-items: center;
+  color: var(--text-white);
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(210, 239, 250, 0.24);
+  border-radius: var(--radius-sm);
+  font-size: 22px;
+  font-weight: 900;
 }
 
 .brand {
@@ -378,6 +401,67 @@
   min-width: 0;
   padding: 36px;
   overflow-y: auto;
+}
+
+.sidebar-collapsed .sidebar {
+  padding: 16px 10px;
+  overflow: hidden;
+}
+
+.sidebar-collapsed .sidebar-toggle {
+  margin: 0 auto 16px;
+}
+
+.sidebar-collapsed .brand {
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.sidebar-collapsed .brand-icon {
+  width: 42px;
+  height: 42px;
+}
+
+.sidebar-collapsed .brand div,
+.sidebar-collapsed .auth-panel,
+.sidebar-collapsed .search-panel,
+.sidebar-collapsed .sidebar-tools,
+.sidebar-collapsed .data-actions,
+.sidebar-collapsed .solution-list {
+  display: none;
+}
+
+.sidebar-collapsed .view-tabs {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+.sidebar-collapsed .view-tabs button {
+  width: 54px;
+  min-height: 46px;
+  padding: 0 4px;
+  overflow: hidden;
+  color: transparent;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(210, 239, 250, 0.18);
+  position: relative;
+}
+
+.sidebar-collapsed .view-tabs button::first-letter {
+  color: var(--text-white);
+}
+
+.sidebar-collapsed .view-tabs button.active {
+  color: transparent;
+  background: #ffffff;
+}
+
+.sidebar-collapsed .view-tabs button.active::first-letter {
+  color: #06213d;
 }
 
 .empty-results {

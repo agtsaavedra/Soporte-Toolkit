@@ -20,7 +20,7 @@ const numberedLines = (items) =>
   items.map((item, index) => `${index + 1}. ${item}`).join("\n");
 
 const JiraSuggestedSolutions = ({ ticket, suggestions }) => {
-  const [openSolutionId, setOpenSolutionId] = useState(suggestions[0]?.solution.id ?? "");
+  const [openSolutionId, setOpenSolutionId] = useState("");
   const hasUsefulSuggestions = suggestions.some((suggestion) => !suggestion.isFallback);
 
   return (

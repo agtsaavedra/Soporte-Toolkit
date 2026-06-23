@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import JiraSuggestedSolutions from "./JiraSuggestedSolutions";
 import "../styles/jira-ticket-detail.css";
 
@@ -23,7 +24,16 @@ const buildTicketSummary = (ticket) =>
     .filter(Boolean)
     .join("\n");
 
-const JiraTicketDetail = ({ ticket, suggestions }) => {
+const JiraTicketDetail = ({ ticket, suggestions, onClose }) => {
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") onClose?.();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   if (!ticket) {
     return (
       <section className="jira-detail empty-card">
@@ -33,78 +43,86 @@ const JiraTicketDetail = ({ ticket, suggestions }) => {
   }
 
   return (
-    <section className="jira-detail">
-      <div className="jira-detail-top">
-        <div>
-          <p className="eyebrow">{ticket.key}</p>
-          <h2>{ticket.summary}</h2>
+    <div className="jira-modal-backdrop" role="presentation" onMouseDown={onClose}>
+      <section
+        className="jira-detail jira-ticket-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="jira-ticket-title"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <div className="jira-detail-top">
+          <div>
+            <p className="eyebrow">{ticket.key}</p>
+            <h2 id="jira-ticket-title">{ticket.summary}</h2>
+          </div>
+          <div className="jira-detail-actions">
+            {ticket.url && (
+              <a href={ticket.url} target="_blank" rel="noreferrer">
+                Abrir en Jira
+              </a>
+            )}
+            <button onClick={() => copyText(ticket.url)}>Copiar link</button>
+            <button onClick={() => copyText(buildTicketSummary(ticket))}>
+              Copiar resumen
+            </button>
+            <button className="secondary-action" onClick={onClose}>Cerrar</button>
+          </div>
         </div>
-        <div className="jira-detail-actions">
-          {ticket.url && (
-            <a href={ticket.url} target="_blank" rel="noreferrer">
-              Abrir en Jira
-            </a>
-          )}
-          <button onClick={() => copyText(ticket.url)}>Copiar link</button>
-          <button onClick={() => copyText(buildTicketSummary(ticket))}>
-            Copiar resumen
-          </button>
+
+        <div className="jira-meta-grid">
+          <span><strong>Estado</strong>{ticket.status}</span>
+          <span><strong>Prioridad</strong>{ticket.priority}</span>
+          <span><strong>Asignado</strong>{ticket.assignee}</span>
+          <span><strong>Reporta</strong>{ticket.reporter}</span>
+          <span><strong>Creado</strong>{formatDate(ticket.created)}</span>
+          <span><strong>Resolution date</strong>{formatDate(ticket.resolutionDate)}</span>
+          <span><strong>Categoria</strong>{ticket.detectedCategory}</span>
         </div>
-      </div>
 
-      <div className="jira-meta-grid">
-        <span><strong>Estado</strong>{ticket.status}</span>
-        <span><strong>Prioridad</strong>{ticket.priority}</span>
-        <span><strong>Asignado</strong>{ticket.assignee}</span>
-        <span><strong>Reporta</strong>{ticket.reporter}</span>
-        <span><strong>Creado</strong>{formatDate(ticket.created)}</span>
-        <span><strong>Resolution date</strong>{formatDate(ticket.resolutionDate)}</span>
-        <span><strong>Categoria detectada</strong>{ticket.detectedCategory}</span>
-      </div>
+        <section className="jira-section jira-summary-section">
+          <h3>Resumen del pedido</h3>
+          <p>{ticket.description || "Sin descripcion."}</p>
+        </section>
 
-      <section className="jira-section">
-        <h3>Descripcion</h3>
-        <p>{ticket.description || "Sin descripcion."}</p>
+        <JiraSuggestedSolutions
+          ticket={ticket}
+          suggestions={suggestions}
+        />
+
+        <details className="jira-section jira-collapsible-section">
+          <summary>Comentarios ({ticket.comments.length})</summary>
+          <div className="jira-comments">
+            {ticket.comments.map((comment) => (
+              <article key={comment.id || `${comment.author}-${comment.created}`}>
+                <strong>{comment.author}</strong>
+                <time>{formatDate(comment.created)}</time>
+                <p>{comment.body}</p>
+              </article>
+            ))}
+            {ticket.comments.length === 0 && <p>Sin comentarios cargados.</p>}
+          </div>
+        </details>
+
+        <details className="jira-section jira-collapsible-section">
+          <summary>Changelog resumido ({ticket.changelog.length})</summary>
+          <div className="jira-changelog">
+            {ticket.changelog.slice(0, 12).map((history) => (
+              <article key={history.id || history.created}>
+                <strong>{history.author}</strong>
+                <time>{formatDate(history.created)}</time>
+                {history.items.map((item) => (
+                  <span key={`${item.field}-${item.from}-${item.to}`}>
+                    {item.field}: {item.from || "-"} -&gt; {item.to || "-"}
+                  </span>
+                ))}
+              </article>
+            ))}
+            {ticket.changelog.length === 0 && <p>Sin changelog cargado.</p>}
+          </div>
+        </details>
       </section>
-
-      <section className="jira-section">
-        <h3>Comentarios</h3>
-        <div className="jira-comments">
-          {ticket.comments.map((comment) => (
-            <article key={comment.id || `${comment.author}-${comment.created}`}>
-              <strong>{comment.author}</strong>
-              <time>{formatDate(comment.created)}</time>
-              <p>{comment.body}</p>
-            </article>
-          ))}
-          {ticket.comments.length === 0 && <p>Sin comentarios cargados.</p>}
-        </div>
-      </section>
-
-      <section className="jira-section">
-        <h3>Changelog resumido</h3>
-        <div className="jira-changelog">
-          {ticket.changelog.slice(0, 12).map((history) => (
-            <article key={history.id || history.created}>
-              <strong>{history.author}</strong>
-              <time>{formatDate(history.created)}</time>
-              {history.items.map((item) => (
-                <span key={`${item.field}-${item.from}-${item.to}`}>
-                  {item.field}: {item.from || "-"} -&gt; {item.to || "-"}
-                </span>
-              ))}
-            </article>
-          ))}
-          {ticket.changelog.length === 0 && <p>Sin changelog cargado.</p>}
-        </div>
-      </section>
-
-      <JiraSuggestedSolutions
-        ticket={ticket}
-        suggestions={suggestions}
-
-      />
-    </section>
+    </div>
   );
 };
 
