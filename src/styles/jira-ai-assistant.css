@@ -45,6 +45,16 @@
   line-height: 1.45;
 }
 
+.jira-ai-mode-note {
+  padding: 10px 11px;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .jira-ai-actions,
 .jira-ai-answer-top {
   display: flex;
@@ -62,6 +72,40 @@
   border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 750;
+}
+
+.jira-ai-prompt-box {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.jira-ai-prompt-top {
+  display: grid;
+  gap: 2px;
+}
+
+.jira-ai-prompt-top strong {
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.jira-ai-prompt-top small {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.jira-ai-prompt-box textarea {
+  min-height: 220px;
+  max-height: 360px;
+  resize: vertical;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .jira-ai-answer {
