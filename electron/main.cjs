@@ -1,4 +1,4 @@
-﻿const { app, BrowserWindow, ipcMain, session } = require("electron");
+const { app, BrowserWindow, ipcMain, session, shell } = require("electron");
 const path = require("node:path");
 
 const APP_PROTOCOL = "soporte-toolkit";
@@ -108,6 +108,14 @@ const createJiraLoginWindow = async () => {
 };
 
 ipcMain.handle("jira-open-login", () => createJiraLoginWindow());
+
+ipcMain.handle("open-external-url", (_event, url) => {
+  if (!/^https:\/\/(chatgpt\.com|chat\.openai\.com)\//.test(url)) {
+    throw new Error("URL externa no permitida");
+  }
+
+  return shell.openExternal(url);
+});
 
 ipcMain.handle("jira-request", async (_event, { path: requestPath, params }) => {
   const url = buildJiraUrl(requestPath, params);

@@ -1,5 +1,3 @@
-const DEFAULT_AI_ENDPOINT = "/api/ai/helpdesk";
-
 const formatList = (items = []) =>
   items
     .filter(Boolean)
@@ -69,8 +67,15 @@ export const buildHelpdeskAiPrompt = ({ ticket, suggestions, question }) => {
   ].join("\n");
 };
 
+export const getAiAssistantEndpoint = () =>
+  import.meta.env.VITE_AI_ASSISTANT_ENDPOINT || "";
+
 export const requestAiAdvice = async ({ prompt, ticket, question }) => {
-  const endpoint = import.meta.env.VITE_AI_ASSISTANT_ENDPOINT || DEFAULT_AI_ENDPOINT;
+  const endpoint = getAiAssistantEndpoint();
+  if (!endpoint) {
+    throw new Error("No hay backend IA configurado");
+  }
+
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

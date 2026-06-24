@@ -54,11 +54,11 @@
   justify-content: space-between;
 }
 
-.jira-ai-error {
+.jira-ai-notice {
   padding: 10px;
-  color: var(--danger);
-  background: var(--danger-soft);
-  border: 1px solid rgba(185, 28, 28, 0.2);
+  color: var(--text-primary);
+  background: var(--primary-soft);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 750;

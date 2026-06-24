@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   buildHelpdeskAiPrompt,
+  getAiAssistantEndpoint,
   requestAiAdvice,
 } from "../services/aiAssistantService";
 import "../styles/jira-ai-assistant.css";
@@ -15,8 +16,9 @@ const copyText = async (text) => {
 const JiraAiAssistant = ({ ticket, suggestions }) => {
   const [question, setQuestion] = useState(DEFAULT_QUESTION);
   const [answer, setAnswer] = useState("");
-  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const hasBackendAssistant = Boolean(getAiAssistantEndpoint());
 
   const prompt = useMemo(
     () => buildHelpdeskAiPrompt({ ticket, suggestions, question }),
@@ -24,19 +26,31 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
   );
 
   const askAssistant = async () => {
+    if (!hasBackendAssistant) return;
+
     setIsLoading(true);
-    setError("");
+    setNotice("");
 
     try {
       const result = await requestAiAdvice({ prompt, ticket, question });
       setAnswer(result);
     } catch (requestError) {
-      setError(
-        `${requestError.message}. Configura un backend en /api/ai/helpdesk o VITE_AI_ASSISTANT_ENDPOINT. Mientras tanto podes copiar el prompt y pegarlo en ChatGPT.`
-      );
+      setNotice(`${requestError.message}. Copie el prompt o abra ChatGPT para continuar.`);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const openChatGpt = async () => {
+    await copyText(prompt);
+    setNotice("Prompt copiado. Se abrio ChatGPT para pegarlo y consultar.");
+
+    if (window.soporteToolkit?.openExternalUrl) {
+      await window.soporteToolkit.openExternalUrl("https://chatgpt.com/");
+      return;
+    }
+
+    window.open("https://chatgpt.com/", "_blank", "noreferrer");
   };
 
   return (
@@ -57,15 +71,20 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
       />
 
       <div className="jira-ai-actions">
-        <button onClick={askAssistant} disabled={isLoading}>
-          {isLoading ? "Consultando..." : "Consultar IA"}
+        {hasBackendAssistant && (
+          <button onClick={askAssistant} disabled={isLoading}>
+            {isLoading ? "Consultando..." : "Consultar IA"}
+          </button>
+        )}
+        <button onClick={openChatGpt}>
+          Abrir ChatGPT
         </button>
         <button className="secondary-action" onClick={() => copyText(prompt)}>
           Copiar prompt
         </button>
       </div>
 
-      {error && <p className="jira-ai-error">{error}</p>}
+      {notice && <p className="jira-ai-notice">{notice}</p>}
 
       <div className="jira-ai-answer">
         {answer ? (
@@ -80,8 +99,8 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
           </>
         ) : (
           <p>
-            La consulta usa el texto del ticket y las soluciones sugeridas. No envia
-            credenciales ni tokens desde el frontend.
+            El prompt incluye el ticket y las soluciones sugeridas. Usar Abrir
+            ChatGPT copia el prompt y abre ChatGPT sin mostrar errores tecnicos.
           </p>
         )}
       </div>
