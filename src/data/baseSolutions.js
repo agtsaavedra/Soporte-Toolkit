@@ -31,8 +31,6 @@ export const solutions = [
       "control mlcfg32.cpl",
       "Get-ChildItem $env:LOCALAPPDATA\\Microsoft\\Outlook -Filter *.ost | Select Name,@{Name='GB';Expression={[math]::Round($_.Length/1GB,2)}}"
     ],
-    userMessage:
-      "Vamos a revisar el tamaño del archivo local de Outlook y ajustar la sincronización para que no descargue tantos correos en la PC.",
     internalNotes:
       "Antes de crear perfil nuevo, validar si el usuario tiene PST locales o reglas importantes."
   },
@@ -71,8 +69,6 @@ export const solutions = [
       "$wps = Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*,HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Where-Object {$_.DisplayName -like '*WPS*'}; $wps | Select DisplayName,UninstallString",
       "ms-settings:defaultapps"
     ],
-    userMessage:
-      "Voy a quitar WPS y dejar Office como aplicación predeterminada para evitar problemas al abrir documentos.",
     internalNotes:
       "Ojo: muchas veces WPS se instala por usuario. Revisar también AppData si no aparece en HKLM."
   },
@@ -108,8 +104,6 @@ export const solutions = [
       "msiexec /x {GUID} /qn /norestart",
       "Get-AppxPackage *NOMBRE* | Remove-AppxPackage"
     ],
-    userMessage:
-      "Voy a revisar cómo está instalado el programa para quitarlo de forma segura.",
     internalNotes:
       "Evitar Win32_Product salvo último recurso porque puede disparar reparaciones MSI."
   },
@@ -150,8 +144,6 @@ export const solutions = [
       "ipconfig /renew",
       "Resolve-DnsName NOMBRE_EQUIPO"
     ],
-    userMessage:
-      "Voy a revisar la configuración DNS del equipo y dejarla automática si quedó pegada manualmente.",
     internalNotes:
       "Cambiar InterfaceAlias según corresponda: Wi-Fi, Ethernet, Ethernet 3, etc."
   },
@@ -188,8 +180,6 @@ export const solutions = [
       "Remove-Item \"$env:TEMP\\*\" -Recurse -Force -ErrorAction SilentlyContinue",
       "rd /s /q C:\\$Recycle.Bin"
     ],
-    userMessage:
-      "Vamos a revisar qué carpetas están ocupando más espacio antes de borrar nada, para evitar eliminar información importante.",
     internalNotes:
       "Cuidado con borrar perfiles activos o carpetas sincronizadas."
   },
@@ -226,8 +216,6 @@ export const solutions = [
       "Get-CimInstance Win32_UserProfile | Where-Object {$_.LocalPath -like '*NOMBRE_PERFIL*'} | Remove-CimInstance",
       "Remove-Item 'C:\\Users\\NOMBRE_PERFIL' -Recurse -Force"
     ],
-    userMessage:
-      "Voy a revisar perfiles antiguos antes de borrar, para evitar eliminar información de un usuario activo.",
     internalNotes:
       "Preferir Remove-CimInstance sobre borrar carpeta a mano cuando se pueda. Confirmar siempre antes."
   },
@@ -263,8 +251,6 @@ export const solutions = [
       "logoff ID_SESION",
       "shutdown /l"
     ],
-    userMessage:
-      "Voy a cerrar la sesión que quedó abierta. Es posible que se cierren programas que estén abiertos en esa sesión.",
     internalNotes:
       "No usar logoff sin confirmar ID. Cuidado con cerrar sesión equivocada."
   },
@@ -302,8 +288,6 @@ export const solutions = [
       "Start-Service Spooler",
       "Get-Printer"
     ],
-    userMessage:
-      "Voy a reiniciar el servicio de impresión y limpiar la cola para destrabar los trabajos pendientes.",
     internalNotes:
       "Esto borra trabajos pendientes de impresión. Avisar si había documentos importantes en cola."
   },
@@ -338,8 +322,6 @@ export const solutions = [
       "Get-Printer",
       "Test-NetConnection srv-prs01 -Port 445"
     ],
-    userMessage:
-      "Voy a agregar la impresora compartida desde el servidor de impresión.",
     internalNotes:
       "Cambiar srv-prs01 y NOMBRE_IMPRESORA según el caso."
   },
@@ -377,8 +359,6 @@ export const solutions = [
       "Test-NetConnection fems.camuzzigas.com.ar -Port 10443",
       "\"C:\\Program Files\\Fortinet\\FortiClient\\FortiESNAC.exe\" -d"
     ],
-    userMessage:
-      "Voy a revisar si FortiClient está instalado completo, si sus servicios están activos y si comunica con EMS.",
     internalNotes:
       "Si el equipo está fuera de red corporativa, las pruebas contra EMS pueden fallar."
   },
@@ -414,8 +394,6 @@ export const solutions = [
       "Test-NetConnection camuzzi.is.cloud.invgate.net -Port 443",
       "Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*,HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Where-Object {$_.DisplayName -like '*InvGate*'} | Select DisplayName,DisplayVersion,UninstallString"
     ],
-    userMessage:
-      "Voy a revisar si el agente de inventario está instalado, si el servicio está activo y si puede comunicarse con la nube.",
     internalNotes:
       "Si requiere reinstalación, usar el MSI corporativo y validar comunicación 443."
   },
@@ -452,8 +430,6 @@ export const solutions = [
       "Get-CimInstance Win32_OperatingSystem | Select Caption,Version,LastBootUpTime",
       "Get-PSDrive C"
     ],
-    userMessage:
-      "Voy a tomar algunos datos básicos del equipo para completar el diagnóstico.",
     internalNotes:
       "Ideal para copiar datos al ticket antes de escalar."
   },
@@ -495,8 +471,6 @@ export const solutions = [
       "Test-NetConnection NOMBRE_EQUIPO -Port 3389",
       "Test-NetConnection NOMBRE_EQUIPO -Port 5985"
     ],
-    userMessage:
-      "Voy a probar conectividad básica contra el equipo para ver si está accesible desde esta red.",
     internalNotes:
       "Si falla todo pero el equipo está encendido, revisar IP real, VPN, VLAN o DNS stale."
   },
@@ -533,8 +507,6 @@ export const solutions = [
       "excel.exe /safe",
       "\"C:\\Program Files\\Microsoft Office\\root\\Office16\\EXCEL.EXE\" /regserver"
     ],
-    userMessage:
-      "Vamos a reparar la instalación de Office. Puede demorar unos minutos y conviene cerrar Word, Excel y Outlook antes de empezar.",
     internalNotes:
       "Si el equipo está con poca conexión, advertir que reparación online puede tardar bastante."
   },
@@ -569,8 +541,6 @@ export const solutions = [
       "Get-PSDrive C",
       "cleanmgr"
     ],
-    userMessage:
-      "Vamos a liberar espacio dejando archivos de OneDrive solo en la nube cuando no sea necesario tenerlos descargados en la PC.",
     internalNotes:
       "No desincronizar ni borrar sin confirmar con el usuario qué carpetas usa."
   },
@@ -605,8 +575,6 @@ export const solutions = [
       "Probar conexión."
     ],
     commands: ["saplogon.exe"],
-    userMessage:
-      "Voy a configurar la entrada de SAP CGP para que puedas acceder desde SAP Logon.",
     internalNotes:
       "Datos usados: Descripción CGP, ID CGP, instancia 00, servidor PRODU_SAP."
   },
@@ -641,8 +609,6 @@ export const solutions = [
       "Buscar 'IBM i Access' en Inicio",
       "Buscar archivos .ws existentes en el perfil del usuario si hay que copiar una sesión previa"
     ],
-    userMessage:
-      "Voy a crear una nueva sesión de AS400 para que puedas acceder al sistema AGSERVER desde este equipo.",
     internalNotes:
       "Si hay una sesión funcional en otra PC, conviene copiar el .ws y ajustar acceso directo."
   },
@@ -692,8 +658,6 @@ export const solutions = [
       "control printers",
       "Get-Printer | Where-Object {$_.Name -like '*EPSON*'}"
     ],
-    userMessage:
-      "Voy a instalar y configurar la tickeadora Epson para que quede asociada a la sesión de impresión del AS400.",
     internalNotes:
       "Importante: no encender la tickeadora antes de terminar el driver. En PC5250 el ID de estación usado en la guía es EPSONTM."
   },
@@ -735,8 +699,6 @@ export const solutions = [
       "Recordar que solo debe quedar activo en una máquina."
     ],
     commands: ["CTRL + Q para abrir configuración", "ESC para salir de pantalla completa"],
-    userMessage:
-      "Voy a configurar DebMedia Player para que quede funcionando la pantalla de check-in de clientes.",
     internalNotes:
       "Solo puede estar activo en una máquina. No dejar varias PCs haciendo check-in a la vez."
   },
@@ -775,8 +737,6 @@ export const solutions = [
       "General Roca: Screen ID 2375 / televisor.generalroca@camuzzi.com",
       "Villa Regina: Screen ID 3759 / televisor.villaregina@camuzzi.com"
     ],
-    userMessage:
-      "Voy a revisar la sucursal y cargar el Screen ID correcto para que la pantalla quede asociada a la oficina correspondiente.",
     internalNotes:
       "No incluir contraseñas en la base pública del proyecto. Mantenerlas en procedimiento interno seguro."
   },
@@ -817,9 +777,8 @@ export const solutions = [
       "whoami /groups",
       "Get-ChildItem 'C:\\Program Files' -Directory | Where-Object {$_.Name -like '*ROOTS*'}"
     ],
-    userMessage:
-      "Voy a revisar si el error viene por permisos, configuración del usuario o alguna dependencia de la aplicación.",
     internalNotes:
       "Ficha genérica para ROOTS/excepción. Completar luego con ruta exacta y captura específica."
   }
 ];
+

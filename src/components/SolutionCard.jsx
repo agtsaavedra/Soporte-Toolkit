@@ -35,9 +35,6 @@ const buildProcedure = (solution) =>
         }`
     ),
     "",
-    "Mensaje para usuario:",
-    solution.userMessage,
-    "",
     "Notas internas:",
     solution.internalNotes,
   ].join("\n");
@@ -156,16 +153,6 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
               </button>
             </div>
           ))}
-        </div>
-      </section>
-
-      <section>
-        <h3>Mensaje para usuario</h3>
-        <div className="user-message">
-          <p>{solution.userMessage}</p>
-          <button onClick={() => copyText(solution.userMessage, "Mensaje")}>
-            Copiar mensaje
-          </button>
         </div>
       </section>
 

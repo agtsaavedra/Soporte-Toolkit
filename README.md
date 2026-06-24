@@ -9,7 +9,7 @@ Funciona como web local con Vite, como app de escritorio con Electron y también
 - Búsqueda por título, categoría, síntomas, pasos, comandos y notas.
 - Filtro por categoría y por soluciones con PowerShell.
 - Modo claro/oscuro persistente.
-- Fichas con síntomas, causas, pasos, comandos, mensaje al usuario y notas internas.
+- Fichas con s�ntomas, causas, pasos, comandos y notas internas.
 - Cada comando muestra una sección de `Descripción` con el objetivo del comando.
 - Alta de nuevas soluciones desde la interfaz.
 - Edición y eliminación de soluciones agregadas o compartidas.
@@ -19,7 +19,7 @@ Funciona como web local con Vite, como app de escritorio con Electron y también
 - Historial reciente de cambios por solución.
 - Login simple con Supabase Auth para registrar quién modifica.
 - Persistencia local por defecto y persistencia compartida opcional con Supabase.
-- Copia rápida de comandos, mensajes o ficha completa.
+- Copia r�pida de comandos, pasos o ficha completa.
 
 ## Jira Help Desk live
 
@@ -63,15 +63,30 @@ Flujo recomendado:
 3. Abrir `Jira Help Desk`.
 4. Usar `Actualizar tickets` para traer la primera tanda o tickets nuevos.
 5. Usar `Cargar mas` para paginar de a 100.
-6. Abrir un ticket, revisar sugerencias y copiar link, resumen, comandos o respuesta Jira.
+6. Abrir un ticket, revisar sugerencias y copiar link, resumen, comandos o pasos.
 
 Los tickets se cachean en IndexedDB con ultima sync, cantidad y diff incremental. Si ya hay cache, la app intenta traer solo tickets nuevos usando la fecha del ultimo ticket creado.
 
 ## Asistente IA en tickets
 
-El modal de Jira incluye un panel `Asistente IA` para consultar el requerimiento con contexto del ticket y las soluciones sugeridas.
+El modal de Jira incluye un panel `Asistente IA` para consultar el requerimiento con contexto del ticket y las soluciones sugeridas, sin salir de la aplicacion.
 
-La app no guarda ni expone API keys en el frontend. Para usar ChatGPT integrado, publicar un endpoint backend propio que reciba:
+En Electron, la consulta integrada usa la API de OpenAI desde el proceso principal. La clave no se guarda en el repo ni se expone al frontend: se lee desde la variable de entorno local `OPENAI_API_KEY`.
+
+PowerShell:
+
+```powershell
+$env:OPENAI_API_KEY="tu_api_key"
+npm run desktop:dev
+```
+
+Opcionalmente se puede elegir modelo:
+
+```powershell
+$env:OPENAI_MODEL="gpt-5-mini"
+```
+
+Si se necesita usar un backend propio en lugar de Electron, se puede publicar un endpoint que reciba:
 
 ```http
 POST /api/ai/helpdesk
@@ -93,11 +108,11 @@ Body esperado:
 }
 ```
 
-Respuesta esperada:
+Resultado esperado:
 
 ```json
 {
-  "text": "respuesta del asistente"
+  "text": "analisis tecnico del asistente"
 }
 ```
 
@@ -107,7 +122,7 @@ Tambien se puede configurar otra URL con:
 VITE_AI_ASSISTANT_ENDPOINT=https://tu-backend.com/api/ai/helpdesk
 ```
 
-Si no hay backend configurado, el panel permite copiar el prompt listo para pegarlo manualmente en ChatGPT.
+Si no hay `OPENAI_API_KEY` ni backend configurado, el panel permite revisar y copiar la consulta preparada.
 
 Para produccion web, Jira Cloud requiere backend/proxy con OAuth, API token de servicio o un flujo autorizado por Atlassian, manteniendo siempre las credenciales fuera del navegador.
 
@@ -239,3 +254,4 @@ En Supabase se puede agregar como Redirect URL permitida. Al confirmar email, el
 npm run lint
 npm run build
 ```
+

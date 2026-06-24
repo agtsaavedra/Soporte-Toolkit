@@ -27,7 +27,6 @@ const initialForm = {
   causes: "",
   steps: "",
   commands: [emptyCommand],
-  userMessage: "",
   internalNotes: "",
 };
 
@@ -45,7 +44,6 @@ const solutionToForm = (solution) => {
     causes: solution.causes.join("\n"),
     steps: solution.steps.join("\n"),
     commands: solution.commands.length > 0 ? solution.commands : [emptyCommand],
-    userMessage: solution.userMessage,
     internalNotes: solution.internalNotes,
   };
 };
@@ -101,7 +99,6 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
       commands: form.commands
         .filter((command) => command.command.trim())
         .map(normalizeCommand),
-      userMessage: form.userMessage,
       internalNotes: form.internalNotes,
       source: initialSolution?.source ?? "custom",
     });
@@ -232,15 +229,6 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
           </div>
         ))}
       </div>
-
-      <label>
-        Mensaje para usuario
-        <textarea
-          required
-          value={form.userMessage}
-          onChange={(event) => updateField("userMessage", event.target.value)}
-        />
-      </label>
 
       <label>
         Notas internas

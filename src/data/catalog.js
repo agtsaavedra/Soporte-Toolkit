@@ -135,8 +135,6 @@ export const normalizeSolution = (solution) => ({
     ? solution.commands.map(normalizeCommand)
     : [],
   jiraKeywords: normalizeList(solution.jiraKeywords),
-  jiraTemplate: normalizeBrokenText(solution.jiraTemplate ?? ""),
-  userMessage: normalizeBrokenText(solution.userMessage ?? ""),
   internalNotes: normalizeBrokenText(solution.internalNotes ?? ""),
   source: solution.source ?? "base",
 });
@@ -166,8 +164,6 @@ const toSearchableText = (solution) =>
     ...solution.commands.map((command) => command.description),
     ...solution.jiraKeywords,
     solution.resolutionType,
-    solution.jiraTemplate,
-    solution.userMessage,
     solution.internalNotes,
   ]
     .join(" ")

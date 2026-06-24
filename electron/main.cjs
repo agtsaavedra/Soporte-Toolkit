@@ -1,9 +1,11 @@
-const { app, BrowserWindow, ipcMain, session, shell } = require("electron");
+const { app, BrowserWindow, ipcMain, session } = require("electron");
 const path = require("node:path");
 
 const APP_PROTOCOL = "soporte-toolkit";
 const JIRA_BASE_URL = "https://camuzzigas.atlassian.net";
 const APP_ICON = path.join(__dirname, "..", "public", "toolkit-icon.ico");
+const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
+const DEFAULT_OPENAI_MODEL = "gpt-5-mini";
 
 let mainWindow;
 let jiraLoginWindow;
@@ -109,12 +111,56 @@ const createJiraLoginWindow = async () => {
 
 ipcMain.handle("jira-open-login", () => createJiraLoginWindow());
 
-ipcMain.handle("open-external-url", (_event, url) => {
-  if (!/^https:\/\/(chatgpt\.com|chat\.openai\.com)\//.test(url)) {
-    throw new Error("URL externa no permitida");
+const extractOpenAiText = (payload) => {
+  if (typeof payload.output_text === "string" && payload.output_text.trim()) {
+    return payload.output_text.trim();
   }
 
-  return shell.openExternal(url);
+  const outputItems = Array.isArray(payload.output) ? payload.output : [];
+  return outputItems
+    .flatMap((item) => (Array.isArray(item.content) ? item.content : []))
+    .filter((content) => content.type === "output_text" && content.text)
+    .map((content) => content.text)
+    .join("\n")
+    .trim();
+};
+
+ipcMain.handle("ai-chat-request", async (_event, { prompt }) => {
+  const apiKey = process.env.OPENAI_API_KEY;
+
+  if (!apiKey) {
+    throw new Error(
+      "Falta OPENAI_API_KEY. Configurala en las variables de entorno y reinicia Electron."
+    );
+  }
+
+  const response = await fetch(OPENAI_RESPONSES_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: process.env.OPENAI_MODEL || DEFAULT_OPENAI_MODEL,
+      reasoning: { effort: "low" },
+      max_output_tokens: 900,
+      instructions:
+        "Sos un asistente senior de Mesa de Ayuda IT. Responde en espanol rioplatense neutro, con diagnostico, acciones tecnicas y datos faltantes. No redactes mensajes para el solicitante ni respuestas para Jira.",
+      input: prompt,
+    }),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const detail = payload.error?.message || response.statusText;
+    throw new Error(`OpenAI respondio ${response.status}: ${detail}`);
+  }
+
+  const text = extractOpenAiText(payload);
+  if (!text) throw new Error("OpenAI no devolvio texto util.");
+
+  return { text };
 });
 
 ipcMain.handle("jira-request", async (_event, { path: requestPath, params }) => {

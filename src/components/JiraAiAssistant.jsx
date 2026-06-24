@@ -7,7 +7,7 @@ import {
 import "../styles/jira-ai-assistant.css";
 
 const DEFAULT_QUESTION =
-  "Analiza el requerimiento, elegi la mejor solucion sugerida y redacta una respuesta Jira concreta.";
+  "Analiza el requerimiento, elegi la mejor solucion sugerida y dame acciones tecnicas concretas.";
 
 const copyText = async (text) => {
   await navigator.clipboard.writeText(text);
@@ -19,7 +19,8 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
   const [notice, setNotice] = useState("");
   const [isPromptVisible, setIsPromptVisible] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const hasBackendAssistant = Boolean(getAiAssistantEndpoint());
+  const hasBuiltInAssistant = Boolean(window.soporteToolkit?.askAi);
+  const hasBackendAssistant = hasBuiltInAssistant || Boolean(getAiAssistantEndpoint());
 
   const prompt = useMemo(
     () => buildHelpdeskAiPrompt({ ticket, suggestions, question }),
@@ -27,8 +28,6 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
   );
 
   const askAssistant = async () => {
-    if (!hasBackendAssistant) return;
-
     setIsLoading(true);
     setNotice("");
 
@@ -44,19 +43,7 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
 
   const copyPrompt = async () => {
     await copyText(prompt);
-    setNotice("Consulta lista copiada. Pegala en ChatGPT cuando quieras usarla.");
-  };
-
-  const openChatGpt = async () => {
-    await copyText(prompt);
-    setNotice("Consulta copiada. Se abrio ChatGPT como accion opcional.");
-
-    if (window.soporteToolkit?.openExternalUrl) {
-      await window.soporteToolkit.openExternalUrl("https://chatgpt.com/");
-      return;
-    }
-
-    window.open("https://chatgpt.com/", "_blank", "noreferrer");
+    setNotice("Consulta lista copiada.");
   };
 
   return (
@@ -64,15 +51,15 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
       <div className="jira-ai-heading">
         <div>
           <p className="eyebrow">Asistente IA</p>
-          <h3>Consulta con ChatGPT</h3>
+          <h3>Consulta IA del ticket</h3>
         </div>
         <span>Beta</span>
       </div>
 
       {!hasBackendAssistant && (
         <p className="jira-ai-mode-note">
-          La consulta se arma dentro del ticket. Copiala cuando quieras usar
-          ChatGPT; no se abre ninguna ventana automaticamente.
+          Para consultar desde la app, configurar OPENAI_API_KEY en el entorno
+          y reiniciar Electron. La consulta queda lista para revisar o copiar.
         </p>
       )}
 
@@ -84,11 +71,9 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
       />
 
       <div className="jira-ai-actions">
-        {hasBackendAssistant && (
-          <button onClick={askAssistant} disabled={isLoading}>
-            {isLoading ? "Consultando..." : "Consultar IA"}
-          </button>
-        )}
+        <button onClick={askAssistant} disabled={isLoading}>
+          {isLoading ? "Consultando..." : "Consultar IA"}
+        </button>
         <button onClick={copyPrompt}>
           Copiar consulta lista
         </button>
@@ -97,9 +82,6 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
           onClick={() => setIsPromptVisible((currentValue) => !currentValue)}
         >
           {isPromptVisible ? "Ocultar consulta" : "Ver consulta"}
-        </button>
-        <button className="secondary-action" onClick={openChatGpt}>
-          Abrir ChatGPT
         </button>
       </div>
 
@@ -116,7 +98,7 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
             readOnly
             rows={12}
             onFocus={(event) => event.target.select()}
-            aria-label="Consulta preparada para ChatGPT"
+            aria-label="Consulta preparada para IA"
           />
         </div>
       )}
@@ -135,8 +117,8 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
         ) : (
           <p>
             {hasBackendAssistant
-              ? "Si configuras un backend IA, la respuesta va a aparecer aca."
-              : "Sin backend IA activo, este panel funciona como preparador profesional de consulta: revisas, copias y pegas en ChatGPT sin perder el contexto del ticket."}
+              ? "La respuesta tecnica de la IA va a aparecer aca sin salir del ticket."
+              : "Sin OPENAI_API_KEY, este panel deja la consulta preparada dentro del ticket para que puedas revisarla o copiarla."}
           </p>
         )}
       </div>

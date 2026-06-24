@@ -7,19 +7,10 @@ const copyText = async (text) => {
   await navigator.clipboard.writeText(text);
 };
 
-const buildJiraResponse = (ticket, solution) =>
-  [
-    solution.jiraTemplate || solution.userMessage,
-    "",
-    `Referencia interna: ${ticket.key} - ${ticket.summary}`,
-  ]
-    .filter(Boolean)
-    .join("\n");
-
 const numberedLines = (items) =>
   items.map((item, index) => `${index + 1}. ${item}`).join("\n");
 
-const JiraSuggestedSolutions = ({ ticket, suggestions }) => {
+const JiraSuggestedSolutions = ({ suggestions }) => {
   const [openSolutionId, setOpenSolutionId] = useState("");
   const hasUsefulSuggestions = suggestions.some((suggestion) => !suggestion.isFallback);
 
@@ -60,9 +51,6 @@ const JiraSuggestedSolutions = ({ ticket, suggestions }) => {
                 >
                   {isOpen ? "Cerrar ficha" : "Abrir ficha"}
                 </button>
-                <button onClick={() => copyText(buildJiraResponse(ticket, solution))}>
-                  Copiar respuesta Jira
-                </button>
                 <button onClick={() => copyText(commandTextValue)} disabled={!commandTextValue}>
                   Copiar comandos
                 </button>
@@ -95,11 +83,6 @@ const JiraSuggestedSolutions = ({ ticket, suggestions }) => {
                       </div>
                     </div>
                   )}
-
-                  <div>
-                    <h4>Respuesta Jira</h4>
-                    <p>{solution.jiraTemplate || solution.userMessage}</p>
-                  </div>
 
                   {solution.internalNotes && (
                     <div>

@@ -363,8 +363,6 @@ const solutionText = (solution) =>
       ...(solution.steps ?? []),
       ...(solution.commands ?? []).map((command) => command.command),
       ...(solution.commands ?? []).map((command) => command.description),
-      solution.userMessage,
-      solution.jiraTemplate,
       solution.internalNotes,
     ].join(" ")
   );

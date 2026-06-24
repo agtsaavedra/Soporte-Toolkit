@@ -22,7 +22,6 @@ export const buildHelpdeskAiPrompt = ({ ticket, suggestions, question }) => {
     reason,
     steps: solution.steps,
     commands: solution.commands,
-    jiraTemplate: solution.jiraTemplate || solution.userMessage,
   }));
 
   return [
@@ -54,7 +53,6 @@ export const buildHelpdeskAiPrompt = ({ ticket, suggestions, question }) => {
             `  Motivo: ${item.reason}`,
             `  Pasos:\n${formatList(item.steps)}`,
             `  Comandos:\n${formatCommands(item.commands) || "Sin comandos."}`,
-            `  Respuesta Jira sugerida: ${item.jiraTemplate}`,
           ].join("\n")
       )
       .join("\n\n") || "Sin soluciones confiables.",
@@ -62,8 +60,8 @@ export const buildHelpdeskAiPrompt = ({ ticket, suggestions, question }) => {
     "Devolve una respuesta breve con este formato:",
     "Diagnostico probable:",
     "Acciones recomendadas:",
-    "Respuesta para pegar en Jira:",
     "Datos faltantes si aplica:",
+    "Riesgos o validaciones antes de ejecutar:",
   ].join("\n");
 };
 
@@ -71,9 +69,14 @@ export const getAiAssistantEndpoint = () =>
   import.meta.env.VITE_AI_ASSISTANT_ENDPOINT || "";
 
 export const requestAiAdvice = async ({ prompt, ticket, question }) => {
+  if (window.soporteToolkit?.askAi) {
+    const result = await window.soporteToolkit.askAi({ prompt, ticket, question });
+    return result.text;
+  }
+
   const endpoint = getAiAssistantEndpoint();
   if (!endpoint) {
-    throw new Error("No hay backend IA configurado");
+    throw new Error("No hay asistente IA configurado");
   }
 
   const response = await fetch(endpoint, {
