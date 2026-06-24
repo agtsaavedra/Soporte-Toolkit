@@ -116,6 +116,7 @@ function App() {
             onRefresh={jira.refreshJiraTickets}
             onLoadMore={jira.loadMoreJiraTickets}
             onOpenJiraLogin={jira.openJiraLogin}
+            onTicketLoaded={jira.replaceTicket}
             isLoading={jira.jiraLoading}
             hasMore={jira.jiraHasMore}
             cacheMeta={jira.jiraCacheMeta}

@@ -1,4 +1,9 @@
-import { JIRA_BASE_URL, JIRA_FIELDS, JIRA_PAGE_SIZE } from "../../config/jiraConfig";
+import {
+  JIRA_BASE_URL,
+  JIRA_DETAIL_FIELDS,
+  JIRA_LIST_FIELDS,
+  JIRA_PAGE_SIZE,
+} from "../../config/jiraConfig";
 import { normalizeJiraIssue } from "./jiraNormalizer";
 
 const formatJiraDate = (value) => {
@@ -64,8 +69,7 @@ export const fetchHelpdeskTickets = async ({
     jql: buildJql(filters),
     maxResults,
     nextPageToken,
-    fields: JIRA_FIELDS,
-    expand: "changelog",
+    fields: JIRA_LIST_FIELDS,
   });
 
   return {
@@ -78,7 +82,7 @@ export const fetchHelpdeskTickets = async ({
 
 export const fetchTicketByKey = async (key) => {
   const payload = await jiraRequest(`/rest/api/3/issue/${encodeURIComponent(key)}`, {
-    fields: JIRA_FIELDS,
+    fields: JIRA_DETAIL_FIELDS,
     expand: "changelog",
   });
 

@@ -106,7 +106,7 @@ export const saveTicketsToCache = async (
   const currentMeta = await getTicketCacheMeta();
 
   await runStore(TICKETS_STORE, "readwrite", (store) => {
-    mergedTickets.forEach((ticket) => store.put(ticket));
+    tickets.forEach((ticket) => store.put(ticket));
   });
 
   await runStore(META_STORE, "readwrite", (store) =>

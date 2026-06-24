@@ -1,11 +1,15 @@
 import { useDeferredValue, useMemo, useState } from "react";
+import { fetchTicketByKey } from "../services/jiraService";
 import { getSuggestedSolutions } from "../services/solutionMatcher";
 import { EmptyState, ErrorState, LoadingState } from "../shared/ui/StateBlock";
 import JiraTicketDetail from "./JiraTicketDetail";
 import "../styles/jira-tickets.css";
 
 const ALL = "Todos";
-const MAX_RENDERED_TICKETS = 350;
+const MAX_RENDERED_TICKETS = 150;
+
+const hasCompleteTicketDetail = (ticket) =>
+  Boolean(ticket.description || ticket.comments.length > 0 || ticket.changelog.length > 0);
 
 const formatDate = (value) => {
   if (!value) return "-";
@@ -44,6 +48,7 @@ const JiraTickets = ({
   onRefresh,
   onLoadMore,
   onOpenJiraLogin,
+  onTicketLoaded,
   isLoading,
   hasMore,
   cacheMeta,
@@ -56,14 +61,19 @@ const JiraTickets = ({
   const [priority, setPriority] = useState(ALL);
   const [category, setCategory] = useState(ALL);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [detailLoadingKey, setDetailLoadingKey] = useState("");
+  const [detailError, setDetailError] = useState("");
   const deferredQuery = useDeferredValue(query);
 
   const indexedTickets = useMemo(
     () =>
-      tickets.map((ticket) => ({
-        ...ticket,
-        searchText: ticket.searchText ?? buildTicketSearchText(ticket),
-      })),
+      tickets.map((ticket) => {
+        if (ticket.searchText) return ticket;
+        return {
+          ...ticket,
+          searchText: buildTicketSearchText(ticket),
+        };
+      }),
     [tickets]
   );
 
@@ -95,14 +105,29 @@ const JiraTickets = ({
     [filteredTickets]
   );
 
-  const suggestions = selectedTicket
-    ? getSuggestedSolutions(selectedTicket, solutions, 6)
-    : [];
+  const suggestions = useMemo(
+    () => (selectedTicket ? getSuggestedSolutions(selectedTicket, solutions, 6) : []),
+    [selectedTicket, solutions]
+  );
   const hasSyncedTickets = tickets.length > 0 || Boolean(cacheMeta?.lastSync);
 
-  const openTicket = (ticket) => {
-    onSelectTicket(ticket);
+  const openTicket = async (ticket) => {
+    setDetailError("");
     setIsDetailOpen(true);
+    onSelectTicket(ticket);
+
+    if (hasCompleteTicketDetail(ticket)) return;
+
+    setDetailLoadingKey(ticket.key);
+    try {
+      const detail = await fetchTicketByKey(ticket.key);
+      if (onTicketLoaded) await onTicketLoaded(detail);
+      else onSelectTicket(detail);
+    } catch (fetchError) {
+      setDetailError(fetchError.message || "No se pudo cargar el detalle del ticket.");
+    } finally {
+      setDetailLoadingKey("");
+    }
   };
 
   return (
@@ -134,6 +159,7 @@ const JiraTickets = ({
       </section>
 
       {error && <ErrorState title="No se pudo consultar Jira" description={error} />}
+      {detailError && <ErrorState title="No se pudo cargar el detalle" description={detailError} />}
 
       <div className="jira-workspace">
         <section className="jira-list-panel">
@@ -192,6 +218,7 @@ const JiraTickets = ({
                 key={ticket.key}
                 className={selectedTicket?.key === ticket.key ? "jira-ticket-row active" : "jira-ticket-row"}
                 onClick={() => openTicket(ticket)}
+                disabled={detailLoadingKey === ticket.key}
                 role="row"
               >
                 <span>{ticket.key}</span>
@@ -200,7 +227,9 @@ const JiraTickets = ({
                 <span>{ticket.priority}</span>
                 <span>{ticket.assignee}</span>
                 <time>{formatDate(ticket.created)}</time>
-                <span className="jira-row-action">Abrir</span>
+                <span className="jira-row-action">
+                  {detailLoadingKey === ticket.key ? "Cargando" : "Abrir"}
+                </span>
               </button>
             ))}
 
@@ -226,6 +255,7 @@ const JiraTickets = ({
         <JiraTicketDetail
           ticket={selectedTicket}
           suggestions={suggestions}
+          isLoading={Boolean(detailLoadingKey)}
           onClose={() => setIsDetailOpen(false)}
         />
       )}

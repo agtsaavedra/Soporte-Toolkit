@@ -130,6 +130,19 @@ export const useJiraTickets = ({ showToast }) => {
     }
   };
 
+  const replaceTicket = async (ticket) => {
+    setJiraTickets((currentTickets) =>
+      currentTickets.map((currentTicket) =>
+        currentTicket.key === ticket.key ? ticket : currentTicket
+      )
+    );
+    setSelectedTicket(ticket);
+    await saveTicketsToCache([ticket], {
+      nextPageToken: jiraNextPageToken,
+      isLastPage: !jiraHasMore,
+    });
+  };
+
   return {
     jiraCacheMeta,
     jiraError,
@@ -139,6 +152,7 @@ export const useJiraTickets = ({ showToast }) => {
     loadMoreJiraTickets,
     openJiraLogin,
     refreshJiraTickets,
+    replaceTicket,
     selectedTicket,
     setSelectedTicket,
   };

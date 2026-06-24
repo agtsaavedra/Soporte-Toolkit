@@ -25,7 +25,7 @@ const buildTicketSummary = (ticket) =>
     .filter(Boolean)
     .join("\n");
 
-const JiraTicketDetail = ({ ticket, suggestions, onClose }) => {
+const JiraTicketDetail = ({ ticket, suggestions, isLoading = false, onClose }) => {
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "Escape") onClose?.();
@@ -83,6 +83,12 @@ const JiraTicketDetail = ({ ticket, suggestions, onClose }) => {
 
         <div className="jira-resolution-grid">
           <div className="jira-resolution-main">
+            {isLoading && (
+              <section className="jira-section">
+                <p>Cargando detalle completo, comentarios y changelog...</p>
+              </section>
+            )}
+
             <section className="jira-section jira-summary-section">
               <h3>Resumen del pedido</h3>
               <p>{ticket.description || "Sin descripcion."}</p>

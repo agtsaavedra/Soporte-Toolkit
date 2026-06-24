@@ -84,6 +84,19 @@ export const normalizeJiraIssue = (issue) => {
 
   normalized.plainText = getIssuePlainText(normalized);
   normalized.detectedCategory = detectJiraCategory(normalized.plainText);
+  normalized.searchText = [
+    normalized.key,
+    normalized.summary,
+    normalized.description,
+    normalized.reporter,
+    normalized.assignee,
+    normalized.status,
+    normalized.priority,
+    normalized.detectedCategory,
+    normalized.plainText,
+  ]
+    .join(" ")
+    .toLocaleLowerCase("es-AR");
 
   return normalized;
 };
