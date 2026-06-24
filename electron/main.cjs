@@ -5,7 +5,7 @@ const APP_PROTOCOL = "soporte-toolkit";
 const JIRA_BASE_URL = "https://camuzzigas.atlassian.net";
 const APP_ICON = path.join(__dirname, "..", "public", "toolkit-icon.ico");
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
-const DEFAULT_OPENAI_MODEL = "gpt-5-mini";
+const DEFAULT_OPENAI_MODEL = "gpt-5.5";
 
 let mainWindow;
 let jiraLoginWindow;

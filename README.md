@@ -83,7 +83,7 @@ npm run desktop:dev
 Opcionalmente se puede elegir modelo:
 
 ```powershell
-$env:OPENAI_MODEL="gpt-5-mini"
+$env:OPENAI_MODEL="gpt-5.5"
 ```
 
 Si se necesita usar un backend propio en lugar de Electron, se puede publicar un endpoint que reciba:
@@ -254,4 +254,5 @@ En Supabase se puede agregar como Redirect URL permitida. Al confirmar email, el
 npm run lint
 npm run build
 ```
+
 
