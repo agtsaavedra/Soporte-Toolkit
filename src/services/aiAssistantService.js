@@ -13,6 +13,8 @@ const formatCommands = (commands = []) =>
     })
     .join("\n");
 
+// Construye un prompt tecnico y autocontenido para pegar en ChatGPT.
+// No genera mensajes para el solicitante: solo pide diagnostico, acciones y riesgos.
 export const buildHelpdeskAiPrompt = ({ ticket, suggestions, question }) => {
   const compactSuggestions = suggestions.slice(0, 4).map(({ solution, score, reason }) => ({
     title: solution.title,
@@ -63,49 +65,4 @@ export const buildHelpdeskAiPrompt = ({ ticket, suggestions, question }) => {
     "Datos faltantes si aplica:",
     "Riesgos o validaciones antes de ejecutar:",
   ].join("\n");
-};
-
-export const getAiAssistantEndpoint = () =>
-  import.meta.env.VITE_AI_ASSISTANT_ENDPOINT || "";
-
-export const requestAiAdvice = async ({ prompt, ticket, question }) => {
-  if (window.soporteToolkit?.askAi) {
-    const result = await window.soporteToolkit.askAi({ prompt, ticket, question });
-    return result.text;
-  }
-
-  const endpoint = getAiAssistantEndpoint();
-  if (!endpoint) {
-    throw new Error("No hay asistente IA configurado");
-  }
-
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      prompt,
-      question,
-      ticket: {
-        key: ticket.key,
-        summary: ticket.summary,
-        status: ticket.status,
-        priority: ticket.priority,
-      },
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`El asistente IA respondio ${response.status}`);
-  }
-
-  const data = await response.json();
-
-  return (
-    data.text ||
-    data.answer ||
-    data.message ||
-    data.output_text ||
-    data.choices?.[0]?.message?.content ||
-    "La IA no devolvio contenido util."
-  );
 };

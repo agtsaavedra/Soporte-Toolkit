@@ -69,60 +69,17 @@ Los tickets se cachean en IndexedDB con ultima sync, cantidad y diff incremental
 
 ## Asistente IA en tickets
 
-El modal de Jira incluye un panel `Asistente IA` para consultar el requerimiento con contexto del ticket y las soluciones sugeridas, sin salir de la aplicacion.
+El modal de Jira incluye un panel `Asistente IA` para preparar una consulta tecnica con contexto del ticket y las soluciones sugeridas.
 
-En Electron, la consulta integrada usa la API de OpenAI desde el proceso principal. La clave no se guarda en el repo ni se expone al frontend: se lee desde la variable de entorno local `OPENAI_API_KEY`.
+La app no usa API paga de OpenAI ni guarda credenciales. El flujo es:
 
-PowerShell:
+1. Abrir el ticket.
+2. Revisar o ajustar la consulta preparada.
+3. Usar `Abrir ChatGPT`.
+4. La consulta queda copiada al portapapeles y ChatGPT se abre en una ventana externa.
+5. Pegar la consulta en ChatGPT y continuar el analisis.
 
-```powershell
-$env:OPENAI_API_KEY="tu_api_key"
-npm run desktop:dev
-```
-
-Opcionalmente se puede elegir modelo:
-
-```powershell
-$env:OPENAI_MODEL="gpt-5.5"
-```
-
-Si se necesita usar un backend propio en lugar de Electron, se puede publicar un endpoint que reciba:
-
-```http
-POST /api/ai/helpdesk
-Content-Type: application/json
-```
-
-Body esperado:
-
-```json
-{
-  "prompt": "texto armado por la app",
-  "question": "consulta del tecnico",
-  "ticket": {
-    "key": "REQ-00000",
-    "summary": "Resumen",
-    "status": "Estado",
-    "priority": "Prioridad"
-  }
-}
-```
-
-Resultado esperado:
-
-```json
-{
-  "text": "analisis tecnico del asistente"
-}
-```
-
-Tambien se puede configurar otra URL con:
-
-```env
-VITE_AI_ASSISTANT_ENDPOINT=https://tu-backend.com/api/ai/helpdesk
-```
-
-Si no hay `OPENAI_API_KEY` ni backend configurado, el panel permite revisar y copiar la consulta preparada.
+Este enfoque aprovecha la sesion normal de ChatGPT y evita costos de API dentro de la app.
 
 Para produccion web, Jira Cloud requiere backend/proxy con OAuth, API token de servicio o un flujo autorizado por Atlassian, manteniendo siempre las credenciales fuera del navegador.
 

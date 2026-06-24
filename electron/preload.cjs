@@ -10,8 +10,8 @@ contextBridge.exposeInMainWorld("soporteToolkit", {
   openJiraLogin() {
     return ipcRenderer.invoke("jira-open-login");
   },
-  askAi(request) {
-    return ipcRenderer.invoke("ai-chat-request", request);
+  openExternalUrl(url) {
+    return ipcRenderer.invoke("open-external-url", url);
   },
   onJiraLoginReady(callback) {
     ipcRenderer.on("jira-login-ready", () => callback());

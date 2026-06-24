@@ -1,9 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-  buildHelpdeskAiPrompt,
-  getAiAssistantEndpoint,
-  requestAiAdvice,
-} from "../services/aiAssistantService";
+import { buildHelpdeskAiPrompt } from "../services/aiAssistantService";
 import "../styles/jira-ai-assistant.css";
 
 const DEFAULT_QUESTION =
@@ -15,35 +11,28 @@ const copyText = async (text) => {
 
 const JiraAiAssistant = ({ ticket, suggestions }) => {
   const [question, setQuestion] = useState(DEFAULT_QUESTION);
-  const [answer, setAnswer] = useState("");
   const [notice, setNotice] = useState("");
   const [isPromptVisible, setIsPromptVisible] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const hasBuiltInAssistant = Boolean(window.soporteToolkit?.askAi);
-  const hasBackendAssistant = hasBuiltInAssistant || Boolean(getAiAssistantEndpoint());
 
   const prompt = useMemo(
     () => buildHelpdeskAiPrompt({ ticket, suggestions, question }),
     [question, suggestions, ticket]
   );
 
-  const askAssistant = async () => {
-    setIsLoading(true);
-    setNotice("");
-
-    try {
-      const result = await requestAiAdvice({ prompt, ticket, question });
-      setAnswer(result);
-    } catch (requestError) {
-      setNotice(`${requestError.message}. La consulta quedo lista para copiar.`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const copyPrompt = async () => {
     await copyText(prompt);
     setNotice("Consulta lista copiada.");
+  };
+
+  const openChatGpt = async () => {
+    await copyPrompt();
+
+    if (window.soporteToolkit?.openExternalUrl) {
+      await window.soporteToolkit.openExternalUrl("https://chatgpt.com/");
+      return;
+    }
+
+    window.open("https://chatgpt.com/", "_blank", "noreferrer");
   };
 
   return (
@@ -51,17 +40,15 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
       <div className="jira-ai-heading">
         <div>
           <p className="eyebrow">Asistente IA</p>
-          <h3>Consulta IA del ticket</h3>
+          <h3>Consulta para ChatGPT</h3>
         </div>
-        <span>Beta</span>
+        <span>Copiar y pegar</span>
       </div>
 
-      {!hasBackendAssistant && (
-        <p className="jira-ai-mode-note">
-          Para consultar desde la app, configurar OPENAI_API_KEY en el entorno
-          y reiniciar Electron. La consulta queda lista para revisar o copiar.
-        </p>
-      )}
+      <p className="jira-ai-mode-note">
+        La app copia el contexto completo del ticket y abre ChatGPT. No usa API
+        paga ni guarda credenciales.
+      </p>
 
       <textarea
         value={question}
@@ -71,8 +58,8 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
       />
 
       <div className="jira-ai-actions">
-        <button onClick={askAssistant} disabled={isLoading}>
-          {isLoading ? "Consultando..." : "Consultar IA"}
+        <button onClick={openChatGpt}>
+          Abrir ChatGPT
         </button>
         <button onClick={copyPrompt}>
           Copiar consulta lista
@@ -98,29 +85,16 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
             readOnly
             rows={12}
             onFocus={(event) => event.target.select()}
-            aria-label="Consulta preparada para IA"
+            aria-label="Consulta preparada para ChatGPT"
           />
         </div>
       )}
 
       <div className="jira-ai-answer">
-        {answer ? (
-          <>
-            <div className="jira-ai-answer-top">
-              <strong>Respuesta IA</strong>
-              <button className="secondary-action" onClick={() => copyText(answer)}>
-                Copiar
-              </button>
-            </div>
-            <pre>{answer}</pre>
-          </>
-        ) : (
-          <p>
-            {hasBackendAssistant
-              ? "La respuesta tecnica de la IA va a aparecer aca sin salir del ticket."
-              : "Sin OPENAI_API_KEY, este panel deja la consulta preparada dentro del ticket para que puedas revisarla o copiarla."}
-          </p>
-        )}
+        <p>
+          Despues de abrir ChatGPT, pega la consulta copiada y pedi el analisis.
+          El texto incluye descripcion, comentarios recientes y soluciones sugeridas.
+        </p>
       </div>
     </aside>
   );

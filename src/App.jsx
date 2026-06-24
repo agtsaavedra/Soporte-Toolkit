@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import AppSidebar from "./components/AppSidebar";
 import JiraTickets from "./components/JiraTickets";
+import LoginScreen from "./components/LoginScreen";
 import SolutionCard from "./components/SolutionCard";
 import SolutionForm from "./components/SolutionForm";
 import {
@@ -47,6 +49,7 @@ const REPOSITORY_LABELS = {
   "local-fallback": "Local sin conexión",
 };
 
+// App coordina estado global y delega UI pesada a componentes especializados.
 function App() {
   const importInputRef = useRef(null);
   const [search, setSearch] = useState("");
@@ -117,6 +120,7 @@ function App() {
       showToast("Sesion Jira lista. Ya podes actualizar tickets.");
     });
   }, []);
+  // Recupera tickets cacheados para que Jira sea util apenas abre la app.
   useEffect(() => {
     let isMounted = true;
 
@@ -136,11 +140,13 @@ function App() {
       isMounted = false;
     };
   }, []);
+  // El tema vive en localStorage porque es una preferencia por equipo.
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem("support-toolkit-theme", theme);
   }, [theme]);
 
+  // Supabase puede devolver tokens por callback web o por protocolo de Electron.
   useEffect(() => {
     const handleAuthCallback = async (url) => {
       try {
@@ -162,6 +168,7 @@ function App() {
     window.soporteToolkit?.onAuthCallback?.(handleAuthCallback);
   }, []);
 
+  // Cuando hay sesion autenticada, intenta usar la base compartida.
   useEffect(() => {
     if (!authSession?.access_token) return undefined;
 
@@ -179,6 +186,7 @@ function App() {
     };
   }, [authSession?.access_token]);
 
+  // El historial se carga por ficha seleccionada para evitar traer todo de entrada.
   useEffect(() => {
     let isMounted = true;
 
@@ -436,231 +444,61 @@ function App() {
     setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"));
   };
 
+  const updateAuthForm = (field, value) => {
+    setAuthForm((currentForm) => ({
+      ...currentForm,
+      [field]: value,
+    }));
+  };
+
   if (!authSession?.access_token) {
     return (
-      <main className="login-screen">
-        <section className="login-card">
-          <img className="login-icon" src="/toolkit-icon.svg" alt="" />
-          <p className="eyebrow">Soporte Toolkit</p>
-          <h1>Acceso requerido</h1>
-          <p>
-            Iniciá sesión para consultar, editar y sincronizar la base de
-            soluciones.
-          </p>
-
-          <div className="login-form">
-            <input
-              type="email"
-              placeholder="Email"
-              value={authForm.email}
-              onChange={(event) =>
-                setAuthForm((current) => ({
-                  ...current,
-                  email: event.target.value,
-                }))
-              }
-            />
-            <input
-              type="password"
-              placeholder="Contraseña"
-              value={authForm.password}
-              onChange={(event) =>
-                setAuthForm((current) => ({
-                  ...current,
-                  password: event.target.value,
-                }))
-              }
-            />
-            <div>
-              <button onClick={() => handleAuthSubmit("signin")}>Entrar</button>
-              <button className="secondary-login" onClick={() => handleAuthSubmit("signup")}>
-                Crear usuario
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {toast && <div className="toast-message">{toast}</div>}
-      </main>
+      <LoginScreen
+        authForm={authForm}
+        onAuthSubmit={handleAuthSubmit}
+        onUpdateAuthForm={updateAuthForm}
+        toast={toast}
+      />
     );
   }
 
   return (
     <main className={sidebarCollapsed ? "app sidebar-collapsed" : "app"}>
-      <aside className="sidebar">
-        <button
-          className="sidebar-toggle"
-          onClick={() => setSidebarCollapsed((current) => !current)}
-          title={sidebarCollapsed ? "Expandir sidebar" : "Contraer sidebar"}
-          aria-label={sidebarCollapsed ? "Expandir sidebar" : "Contraer sidebar"}
-        >
-          {sidebarCollapsed ? "›" : "‹"}
-        </button>
-        <div className="brand">
-          <img className="brand-icon" src="/toolkit-icon.svg" alt="" />
-          <div>
-            <h1>Soporte Toolkit</h1>
-            <p>Base de soluciones y comandos rápidos</p>
-          </div>
-        </div>
-        <div className="view-tabs app-nav" aria-label="Vista">
-          <button
-            className={view === "catalog" ? "active" : ""}
-            data-short="ST"
-            title="Soluciones"
-            onClick={() => {
-              setSelectedCategory(ALL_CATEGORIES);
-              setView("catalog");
-            }}
-          >
-            Soluciones
-          </button>
-          <button
-            className={view === "jira" ? "active" : ""}
-            data-short="JD"
-            title="Jira Help Desk"
-            onClick={() => setView("jira")}
-          >
-            Jira Help Desk
-          </button>
-          <button
-            className={view === "templates" ? "active" : ""}
-            data-short="PL"
-            title="Plantillas"
-            onClick={openTemplates}
-          >
-            Plantillas
-          </button>
-        </div>
-        <div className="auth-panel">
-          {authSession?.user ? (
-            <>
-              <span>{authSession.user.email}</span>
-              <button onClick={handleSignOut}>Salir</button>
-            </>
-          ) : (
-            <>
-              <input
-                type="email"
-                placeholder="Email"
-                value={authForm.email}
-                onChange={(event) =>
-                  setAuthForm((current) => ({
-                    ...current,
-                    email: event.target.value,
-                  }))
-                }
-              />
-              <input
-                type="password"
-                placeholder="Contraseña"
-                value={authForm.password}
-                onChange={(event) =>
-                  setAuthForm((current) => ({
-                    ...current,
-                    password: event.target.value,
-                  }))
-                }
-              />
-              <div>
-                <button onClick={() => handleAuthSubmit("signin")}>
-                  Entrar
-                </button>
-                <button onClick={() => handleAuthSubmit("signup")}>
-                  Crear
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-
-        <div className="search-panel">
-          <input
-            type="text"
-            placeholder="Buscar problema, síntoma, comando..."
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            disabled={view !== "catalog"}
-          />
-
-          <select
-            value={selectedCategory}
-            onChange={(event) => handleCategoryChange(event.target.value)}
-            disabled={view !== "catalog"}
-          >
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-
-          <button
-            className={onlyPowerShell ? "filter-btn active" : "filter-btn"}
-            onClick={handleOnlyPowerShell}
-            disabled={view !== "catalog"}
-          >
-            {onlyPowerShell ? "✓ Solo PowerShell" : "Solo PowerShell"}
-          </button>
-        </div>
-
-        <div className="sidebar-tools">
-          <p className="result-count">{filteredSolutions.length} resultado(s)</p>
-          <span className={`repository-mode repository-${repositoryMode}`}>
-            {REPOSITORY_LABELS[repositoryMode]}
-          </span>
-          <button className="theme-toggle" onClick={toggleTheme}>
-            {theme === "dark" ? "Modo claro" : "Modo oscuro"}
-          </button>
-        </div>
-
-        <div className="data-actions">
-          <button onClick={syncSolutions}>Sincronizar</button>
-          <button onClick={handleExport}>Exportar</button>
-          <button onClick={() => importInputRef.current?.click()}>Importar</button>
-          <button onClick={() => setView("new")}>Nueva solucion</button>
-          <button onClick={handlePublishBase}>Publicar base inicial</button>
-          <input
-            ref={importInputRef}
-            type="file"
-            accept="application/json"
-            hidden
-            onChange={handleImport}
-          />
-        </div>
-
-        <div className="solution-list">
-          {filteredSolutions.map((solution) => (
-            <button
-              key={solution.id}
-              className={
-                selected?.id === solution.id
-                  ? "solution-item active"
-                  : "solution-item"
-              }
-              onClick={() => {
-                setSelected(solution);
-                setView(view === "templates" ? "templates" : "catalog");
-              }}
-            >
-              <strong>{solution.title}</strong>
-              <span>{solution.category}</span>
-
-              <div className="mini-tags">
-                {solution.powershell && <small>PowerShell</small>}
-                {solution.source !== "base" && <small>Agregada</small>}
-                {solution.tags.slice(0, 3).map((tag) => (
-                  <small key={tag}>{tag}</small>
-                ))}
-              </div>
-            </button>
-          ))}
-
-          {filteredSolutions.length === 0 && (
-            <p className="empty-results">No encontré soluciones.</p>
-          )}
-        </div>
-      </aside>
+      <AppSidebar
+        authSession={authSession}
+        categories={categories}
+        filteredSolutions={filteredSolutions}
+        importInputRef={importInputRef}
+        onlyPowerShell={onlyPowerShell}
+        onCategoryChange={handleCategoryChange}
+        onExport={handleExport}
+        onImport={handleImport}
+        onNavigate={(nextView) => {
+          if (nextView === "catalog") setSelectedCategory(ALL_CATEGORIES);
+          setView(nextView);
+        }}
+        onNewSolution={() => setView("new")}
+        onOpenTemplates={openTemplates}
+        onPublishBase={handlePublishBase}
+        onSelectSolution={(solution, nextView = "catalog") => {
+          if (solution) setSelected(solution);
+          setView(nextView);
+        }}
+        onSignOut={handleSignOut}
+        onSyncSolutions={syncSolutions}
+        onThemeToggle={toggleTheme}
+        onTogglePowerShell={handleOnlyPowerShell}
+        onToggleSidebar={() => setSidebarCollapsed((current) => !current)}
+        repositoryLabel={REPOSITORY_LABELS[repositoryMode]}
+        repositoryMode={repositoryMode}
+        search={search}
+        selected={selected}
+        selectedCategory={selectedCategory}
+        setSearch={setSearch}
+        sidebarCollapsed={sidebarCollapsed}
+        theme={theme}
+        view={view}
+      />
 
       <section className="content">
         {view === "jira" ? (
