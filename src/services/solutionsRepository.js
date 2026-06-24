@@ -2,6 +2,7 @@ import {
   CUSTOM_SOLUTIONS_STORAGE_KEY,
   normalizeSolution,
 } from "../data/catalog";
+import { validateSolutionShape } from "../data/solutionSchema";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -389,6 +390,11 @@ export const deleteUserSolution = async (solution, currentSolutions) => {
 };
 
 export const importUserSolutions = async (items, currentSolutions) => {
+  const invalidItem = items.find((item) => validateSolutionShape(item).length > 0);
+  if (invalidItem) {
+    throw new Error("El archivo contiene soluciones con formato invalido.");
+  }
+
   const normalizedItems = items.map((item) =>
     normalizeSolution({
       ...item,

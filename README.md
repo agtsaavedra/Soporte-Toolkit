@@ -96,6 +96,25 @@ Luego abrir:
 http://127.0.0.1:5173
 ```
 
+
+## Arquitectura
+
+- `src/App.jsx`: composicion de alto nivel y seleccion de vista.
+- `src/hooks`: estado de dominio (`useAuthSession`, `useSolutionsCatalog`, `useJiraTickets`, `useTheme`, `useToast`).
+- `src/components`: piezas visuales reutilizables.
+- `src/config`: constantes compartidas de app y Jira.
+- `src/data`: catalogo, normalizacion y schema de soluciones.
+- `src/services`: integraciones externas y utilidades de persistencia.
+- `src/styles`: CSS separado por responsabilidad.
+
+Validaciones recomendadas antes de publicar cambios:
+
+```bash
+npm run lint
+npm run build
+npm run test:matcher
+```
+
 ## Escritorio
 
 Modo desarrollo con Electron:

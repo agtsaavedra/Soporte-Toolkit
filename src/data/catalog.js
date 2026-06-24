@@ -1,5 +1,5 @@
-import { solutions as baseSolutions } from "./baseSolutions";
-import { helpDeskSolutions } from "./helpDeskSolutions";
+import { solutions as baseSolutions } from "./baseSolutions.js";
+import { helpDeskSolutions } from "./helpDeskSolutions.js";
 
 export const ALL_CATEGORIES = "Todas";
 export const CUSTOM_SOLUTIONS_STORAGE_KEY = "support-toolkit-custom-solutions";

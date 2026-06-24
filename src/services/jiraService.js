@@ -1,6 +1,4 @@
-export const JIRA_BASE_URL = "https://camuzzigas.atlassian.net";
-export const JIRA_HELPDESK_JQL = "cf[10212]=11239 ORDER BY created DESC";
-export const JIRA_PAGE_SIZE = 100;
+import { JIRA_BASE_URL, JIRA_FIELDS, JIRA_PAGE_SIZE } from "../config/jiraConfig";
 
 const DB_NAME = "soporte-toolkit-jira";
 const DB_VERSION = 1;
@@ -18,20 +16,6 @@ const DETECTED_CATEGORIES = [
   ["Equipos / hardware", ["equipo", "notebook", "pc", "disco", "hardware", "perfil"]],
   ["Aplicaciones internas", ["debmedia", "roots", "proserlink", "model 5"]],
 ];
-
-const JIRA_FIELDS = [
-  "summary",
-  "description",
-  "comment",
-  "status",
-  "resolution",
-  "priority",
-  "issuetype",
-  "created",
-  "resolutiondate",
-  "assignee",
-  "reporter",
-].join(",");
 
 export const extractADFText = (value) => {
   if (!value) return "";

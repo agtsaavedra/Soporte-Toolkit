@@ -1,0 +1,15 @@
+/* Mensajes efimeros de estado. */
+.toast-message {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 20;
+  max-width: 360px;
+  padding: 13px 15px;
+  color: #ffffff;
+  background: #0b2238;
+  border: 1px solid rgba(0, 163, 224, 0.38);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-weight: 760;
+}

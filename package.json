@@ -15,6 +15,7 @@
     "dist:portable": "npm run build && electron-builder --win portable",
     "build": "vite build",
     "lint": "eslint .",
+    "test:matcher": "node scripts/test-solution-matcher.mjs",
     "preview": "vite preview"
   },
   "build": {
