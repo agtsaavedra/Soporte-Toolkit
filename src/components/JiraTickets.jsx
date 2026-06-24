@@ -1,9 +1,11 @@
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { getSuggestedSolutions } from "../services/solutionMatcher";
+import { EmptyState, ErrorState, LoadingState } from "../shared/ui/StateBlock";
 import JiraTicketDetail from "./JiraTicketDetail";
 import "../styles/jira-tickets.css";
 
 const ALL = "Todos";
+const MAX_RENDERED_TICKETS = 350;
 
 const formatDate = (value) => {
   if (!value) return "-";
@@ -15,9 +17,8 @@ const uniqueValues = (tickets, field) => [
   ...new Set(tickets.map((ticket) => ticket[field]).filter(Boolean)),
 ];
 
-const matchesQuery = (ticket, query) => {
-  if (!query) return true;
-  const text = [
+const buildTicketSearchText = (ticket) =>
+  [
     ticket.key,
     ticket.summary,
     ticket.description,
@@ -26,11 +27,14 @@ const matchesQuery = (ticket, query) => {
     ticket.status,
     ticket.priority,
     ticket.detectedCategory,
+    ticket.plainText,
   ]
     .join(" ")
     .toLocaleLowerCase("es-AR");
 
-  return text.includes(query.toLocaleLowerCase("es-AR"));
+const matchesQuery = (ticket, query) => {
+  if (!query) return true;
+  return ticket.searchText.includes(query.toLocaleLowerCase("es-AR"));
 };
 
 const JiraTickets = ({
@@ -52,28 +56,43 @@ const JiraTickets = ({
   const [priority, setPriority] = useState(ALL);
   const [category, setCategory] = useState(ALL);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const deferredQuery = useDeferredValue(query);
+
+  const indexedTickets = useMemo(
+    () =>
+      tickets.map((ticket) => ({
+        ...ticket,
+        searchText: ticket.searchText ?? buildTicketSearchText(ticket),
+      })),
+    [tickets]
+  );
 
   const filters = useMemo(
     () => ({
-      statuses: uniqueValues(tickets, "status"),
-      assignees: uniqueValues(tickets, "assignee"),
-      priorities: uniqueValues(tickets, "priority"),
-      categories: uniqueValues(tickets, "detectedCategory"),
+      statuses: uniqueValues(indexedTickets, "status"),
+      assignees: uniqueValues(indexedTickets, "assignee"),
+      priorities: uniqueValues(indexedTickets, "priority"),
+      categories: uniqueValues(indexedTickets, "detectedCategory"),
     }),
-    [tickets]
+    [indexedTickets]
   );
 
   const filteredTickets = useMemo(
     () =>
-      tickets.filter(
+      indexedTickets.filter(
         (ticket) =>
-          matchesQuery(ticket, query) &&
+          matchesQuery(ticket, deferredQuery) &&
           (status === ALL || ticket.status === status) &&
           (assignee === ALL || ticket.assignee === assignee) &&
           (priority === ALL || ticket.priority === priority) &&
           (category === ALL || ticket.detectedCategory === category)
       ),
-    [assignee, category, priority, query, status, tickets]
+    [assignee, category, deferredQuery, indexedTickets, priority, status]
+  );
+
+  const visibleTickets = useMemo(
+    () => filteredTickets.slice(0, MAX_RENDERED_TICKETS),
+    [filteredTickets]
   );
 
   const suggestions = selectedTicket
@@ -114,7 +133,7 @@ const JiraTickets = ({
         </div>
       </section>
 
-      {error && <div className="jira-error">{error}</div>}
+      {error && <ErrorState title="No se pudo consultar Jira" description={error} />}
 
       <div className="jira-workspace">
         <section className="jira-list-panel">
@@ -159,7 +178,16 @@ const JiraTickets = ({
               <span>Accion</span>
             </div>
 
-            {filteredTickets.map((ticket) => (
+            {isLoading && (
+              <div className="jira-loader-row">
+                <LoadingState
+                  title="Cargando tickets"
+                  description="Consultando Jira y actualizando cache local..."
+                />
+              </div>
+            )}
+
+            {visibleTickets.map((ticket) => (
               <button
                 key={ticket.key}
                 className={selectedTicket?.key === ticket.key ? "jira-ticket-row active" : "jira-ticket-row"}
@@ -176,8 +204,19 @@ const JiraTickets = ({
               </button>
             ))}
 
+            {filteredTickets.length > visibleTickets.length && (
+              <p className="jira-empty">
+                Mostrando {visibleTickets.length} de {filteredTickets.length}. Usa filtros para acotar la lista.
+              </p>
+            )}
+
             {filteredTickets.length === 0 && (
-              <p className="jira-empty">Actualiza tickets o cambia los filtros.</p>
+              <div className="jira-empty">
+                <EmptyState
+                  title="Sin tickets para mostrar"
+                  description="Actualiza tickets o cambia los filtros."
+                />
+              </div>
             )}
           </div>
         </section>

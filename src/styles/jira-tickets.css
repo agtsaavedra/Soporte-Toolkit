@@ -85,6 +85,11 @@
   font-weight: 750;
 }
 
+.jira-loader-row {
+  padding: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
 .jira-workspace {
   display: block;
 }

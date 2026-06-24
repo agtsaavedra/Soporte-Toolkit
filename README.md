@@ -105,13 +105,16 @@ http://127.0.0.1:5173
 - `src/config`: constantes compartidas de app y Jira.
 - `src/data`: catalogo, normalizacion y schema de soluciones.
 - `src/services`: integraciones externas y utilidades de persistencia.
+- `src/shared/ui`: estados reutilizables como loading, error y empty.
 - `src/styles`: CSS separado por responsabilidad.
+- `.github/workflows/ci.yml`: validacion automatica en GitHub Actions.
 
 Validaciones recomendadas antes de publicar cambios:
 
 ```bash
 npm run lint
 npm run build
+npm test
 npm run test:matcher
 ```
 
