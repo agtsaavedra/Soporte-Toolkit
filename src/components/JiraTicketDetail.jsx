@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import JiraAiAssistant from "./JiraAiAssistant";
 import JiraSuggestedSolutions from "./JiraSuggestedSolutions";
 import "../styles/jira-ticket-detail.css";
 
@@ -80,47 +81,53 @@ const JiraTicketDetail = ({ ticket, suggestions, onClose }) => {
           <span><strong>Categoria</strong>{ticket.detectedCategory}</span>
         </div>
 
-        <section className="jira-section jira-summary-section">
-          <h3>Resumen del pedido</h3>
-          <p>{ticket.description || "Sin descripcion."}</p>
-        </section>
+        <div className="jira-resolution-grid">
+          <div className="jira-resolution-main">
+            <section className="jira-section jira-summary-section">
+              <h3>Resumen del pedido</h3>
+              <p>{ticket.description || "Sin descripcion."}</p>
+            </section>
 
-        <JiraSuggestedSolutions
-          ticket={ticket}
-          suggestions={suggestions}
-        />
+            <JiraSuggestedSolutions
+              ticket={ticket}
+              suggestions={suggestions}
+            />
 
-        <details className="jira-section jira-collapsible-section">
-          <summary>Comentarios ({ticket.comments.length})</summary>
-          <div className="jira-comments">
-            {ticket.comments.map((comment) => (
-              <article key={comment.id || `${comment.author}-${comment.created}`}>
-                <strong>{comment.author}</strong>
-                <time>{formatDate(comment.created)}</time>
-                <p>{comment.body}</p>
-              </article>
-            ))}
-            {ticket.comments.length === 0 && <p>Sin comentarios cargados.</p>}
-          </div>
-        </details>
-
-        <details className="jira-section jira-collapsible-section">
-          <summary>Changelog resumido ({ticket.changelog.length})</summary>
-          <div className="jira-changelog">
-            {ticket.changelog.slice(0, 12).map((history) => (
-              <article key={history.id || history.created}>
-                <strong>{history.author}</strong>
-                <time>{formatDate(history.created)}</time>
-                {history.items.map((item) => (
-                  <span key={`${item.field}-${item.from}-${item.to}`}>
-                    {item.field}: {item.from || "-"} -&gt; {item.to || "-"}
-                  </span>
+            <details className="jira-section jira-collapsible-section">
+              <summary>Comentarios ({ticket.comments.length})</summary>
+              <div className="jira-comments">
+                {ticket.comments.map((comment) => (
+                  <article key={comment.id || `${comment.author}-${comment.created}`}>
+                    <strong>{comment.author}</strong>
+                    <time>{formatDate(comment.created)}</time>
+                    <p>{comment.body}</p>
+                  </article>
                 ))}
-              </article>
-            ))}
-            {ticket.changelog.length === 0 && <p>Sin changelog cargado.</p>}
+                {ticket.comments.length === 0 && <p>Sin comentarios cargados.</p>}
+              </div>
+            </details>
+
+            <details className="jira-section jira-collapsible-section">
+              <summary>Changelog resumido ({ticket.changelog.length})</summary>
+              <div className="jira-changelog">
+                {ticket.changelog.slice(0, 12).map((history) => (
+                  <article key={history.id || history.created}>
+                    <strong>{history.author}</strong>
+                    <time>{formatDate(history.created)}</time>
+                    {history.items.map((item) => (
+                      <span key={`${item.field}-${item.from}-${item.to}`}>
+                        {item.field}: {item.from || "-"} -&gt; {item.to || "-"}
+                      </span>
+                    ))}
+                  </article>
+                ))}
+                {ticket.changelog.length === 0 && <p>Sin changelog cargado.</p>}
+              </div>
+            </details>
           </div>
-        </details>
+
+          <JiraAiAssistant ticket={ticket} suggestions={suggestions} />
+        </div>
       </section>
     </div>
   );

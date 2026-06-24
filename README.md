@@ -48,6 +48,50 @@ Flujo recomendado:
 
 Los tickets se cachean en IndexedDB con ultima sync, cantidad y diff incremental. Si ya hay cache, la app intenta traer solo tickets nuevos usando la fecha del ultimo ticket creado.
 
+## Asistente IA en tickets
+
+El modal de Jira incluye un panel `Asistente IA` para consultar el requerimiento con contexto del ticket y las soluciones sugeridas.
+
+La app no guarda ni expone API keys en el frontend. Para usar ChatGPT integrado, publicar un endpoint backend propio que reciba:
+
+```http
+POST /api/ai/helpdesk
+Content-Type: application/json
+```
+
+Body esperado:
+
+```json
+{
+  "prompt": "texto armado por la app",
+  "question": "consulta del tecnico",
+  "ticket": {
+    "key": "REQ-00000",
+    "summary": "Resumen",
+    "status": "Estado",
+    "priority": "Prioridad"
+  }
+}
+```
+
+Respuesta esperada:
+
+```json
+{
+  "text": "respuesta del asistente"
+}
+```
+
+Tambien se puede configurar otra URL con:
+
+```env
+VITE_AI_ASSISTANT_ENDPOINT=https://tu-backend.com/api/ai/helpdesk
+```
+
+Si no hay backend configurado, el panel permite copiar el prompt listo para pegarlo manualmente en ChatGPT.
+
+Para produccion web, Jira Cloud puede bloquear llamadas directas desde dominios no permitidos por CORS. En ese caso conviene usar un backend/proxy con OAuth o un flujo autorizado por Atlassian, manteniendo las credenciales fuera del navegador.
+
 ## Desarrollo
 
 ```bash

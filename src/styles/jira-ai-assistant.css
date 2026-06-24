@@ -1,0 +1,99 @@
+.jira-ai-panel {
+  position: sticky;
+  top: 88px;
+  display: grid;
+  gap: 12px;
+  align-self: start;
+  padding: 16px;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.jira-ai-heading {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.jira-ai-heading h3 {
+  color: var(--text-primary);
+  font-size: 18px;
+}
+
+.jira-ai-heading span {
+  padding: 4px 8px;
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.jira-ai-panel textarea {
+  width: 100%;
+  min-height: 116px;
+  resize: vertical;
+  padding: 11px;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  line-height: 1.45;
+}
+
+.jira-ai-actions,
+.jira-ai-answer-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.jira-ai-error {
+  padding: 10px;
+  color: var(--danger);
+  background: var(--danger-soft);
+  border: 1px solid rgba(185, 28, 28, 0.2);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.jira-ai-answer {
+  min-height: 160px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.jira-ai-answer p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.jira-ai-answer strong {
+  color: var(--text-primary);
+}
+
+.jira-ai-answer pre {
+  margin-top: 10px;
+  overflow: auto;
+  white-space: pre-wrap;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@media (max-width: 1100px) {
+  .jira-ai-panel {
+    position: static;
+  }
+}
