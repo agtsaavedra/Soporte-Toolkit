@@ -37,9 +37,28 @@ cf[10212]=11239 ORDER BY created DESC
 
 No se guardan tokens ni credenciales en `.env`. El fetch usa `credentials: "include"` para aprovechar la sesion activa de Jira en el navegador.
 
+En navegador web, Jira Cloud puede bloquear la llamada directa por CORS aunque la sesion este iniciada. Para usar la app como web local con Jira live, usar el proxy local:
+
+```bash
+npm run web:dev
+```
+
+El proxy lee credenciales solo del backend local (`.env.local`) y no las expone al frontend:
+
+```env
+JIRA_EMAIL=tu.email@camuzzigas.com.ar
+JIRA_API_TOKEN=token_api_atlassian
+```
+
+Luego abrir:
+
+```text
+http://127.0.0.1:5173
+```
+
 Flujo recomendado:
 
-1. Iniciar sesion en `https://camuzzigas.atlassian.net` en el mismo navegador.
+1. Ejecutar `npm run web:dev` si se usa navegador, o `npm run desktop:dev` si se usa Electron.
 2. Entrar a la app.
 3. Abrir `Jira Help Desk`.
 4. Usar `Actualizar tickets` para traer la primera tanda o tickets nuevos.
@@ -90,7 +109,7 @@ VITE_AI_ASSISTANT_ENDPOINT=https://tu-backend.com/api/ai/helpdesk
 
 Si no hay backend configurado, el panel permite copiar el prompt listo para pegarlo manualmente en ChatGPT.
 
-Para produccion web, Jira Cloud puede bloquear llamadas directas desde dominios no permitidos por CORS. En ese caso conviene usar un backend/proxy con OAuth o un flujo autorizado por Atlassian, manteniendo las credenciales fuera del navegador.
+Para produccion web, Jira Cloud requiere backend/proxy con OAuth, API token de servicio o un flujo autorizado por Atlassian, manteniendo siempre las credenciales fuera del navegador.
 
 ## Desarrollo
 

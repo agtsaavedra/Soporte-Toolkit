@@ -149,7 +149,8 @@ const buildJql = (filters = {}) => {
 };
 
 const jiraRequest = async (path, params) => {
-  const url = new URL(path, JIRA_BASE_URL);
+  const proxyUrl = import.meta.env.VITE_JIRA_PROXY_URL;
+  const url = new URL(path, proxyUrl || JIRA_BASE_URL);
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
       url.searchParams.set(key, value);
@@ -162,18 +163,21 @@ const jiraRequest = async (path, params) => {
 
   try {
     const response = await fetch(url.toString(), {
-      credentials: "include",
+      credentials: proxyUrl ? "same-origin" : "include",
       headers: { Accept: "application/json" },
     });
 
     if (!response.ok) {
-      throw new Error(`Jira respondio ${response.status}`);
+      const detail = await response.text();
+      throw new Error(`Jira respondio ${response.status}${detail ? `: ${detail}` : ""}`);
     }
 
     return response.json();
   } catch (error) {
     throw new Error(
-      `${error.message}. En localhost el navegador puede bloquear Jira por CORS. Para live sin token usa npm run desktop:dev y abri Jira desde la app.`,
+      proxyUrl
+        ? `${error.message}. Revisa el proxy local de Jira y las variables JIRA_EMAIL/JIRA_API_TOKEN.`
+        : `${error.message}. El navegador bloquea Jira por CORS aunque tengas sesion iniciada. Usa npm run web:dev con proxy local, o npm run desktop:dev.`,
       { cause: error }
     );
   }
