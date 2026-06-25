@@ -133,8 +133,38 @@
 .jira-ticket-table {
   max-height: calc(100vh - 430px);
   min-height: 360px;
-  overflow: auto;
+  overflow-x: scroll;
+  overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-color: rgba(0, 163, 224, 0.68) rgba(14, 55, 86, 0.22);
+  scrollbar-gutter: stable both-edges;
+  scrollbar-width: thin;
+}
+
+.jira-ticket-table::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.jira-ticket-table::-webkit-scrollbar-track {
+  background: rgba(14, 55, 86, 0.22);
+  border-radius: 999px;
+}
+
+.jira-ticket-table::-webkit-scrollbar-thumb {
+  background: rgba(0, 163, 224, 0.68);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+.jira-ticket-table::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 163, 224, 0.92);
+  background-clip: padding-box;
+}
+
+.jira-ticket-table::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 .jira-ticket-row {
