@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { normalizeCommand, normalizeSolution } from "../data/catalog";
-import "../styles/solution-form.css";
+import "../styles/features/solutions/form.css";
 
 const emptyCommand = { command: "", description: "" };
 

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import JiraAiAssistant from "./JiraAiAssistant";
 import JiraSuggestedSolutions from "./JiraSuggestedSolutions";
-import "../styles/jira-ticket-detail.css";
+import "../styles/features/jira/ticket-detail.css";
 
 const formatDate = (value) => {
   if (!value) return "Sin fecha";

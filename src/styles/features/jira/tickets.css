@@ -140,12 +140,20 @@
   grid-template-columns: 88px minmax(260px, 1.7fr) 130px 110px minmax(130px, 0.8fr) 150px 86px;
   gap: 10px;
   width: 100%;
+  min-height: 56px;
   align-items: center;
   padding: 10px 12px;
   color: var(--text-secondary);
   text-align: left;
   background: transparent;
   border-bottom: 1px solid var(--border);
+  content-visibility: auto;
+  contain-intrinsic-size: 56px;
+}
+
+.jira-ticket-spacer {
+  height: var(--ticket-spacer-height);
+  pointer-events: none;
 }
 
 button.jira-ticket-row {

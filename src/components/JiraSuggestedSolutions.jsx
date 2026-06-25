@@ -1,5 +1,5 @@
 ﻿import { useState } from "react";
-import "../styles/jira-suggested-solutions.css";
+import "../styles/features/jira/suggested-solutions.css";
 
 const commandText = (command) => command.command ?? command;
 

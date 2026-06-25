@@ -1,13 +1,11 @@
-import "../styles/app.css";
-
 const NAV_ITEMS = [
   { id: "catalog", label: "Soluciones", shortLabel: "S" },
   { id: "jira", label: "Jira Help Desk", shortLabel: "J" },
   { id: "templates", label: "Plantillas", shortLabel: "P" },
 ];
 
-// La sidebar concentra navegación, filtros y acciones de base de conocimiento.
-// Mantenerla separada evita que App.jsx crezca con detalles puramente visuales.
+// La sidebar concentra navegación, filtros y acciones de la base de conocimiento.
+// App.jsx queda enfocado en componer vistas y conectar hooks.
 const AppSidebar = ({
   authSession,
   categories,

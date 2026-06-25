@@ -10,7 +10,7 @@ import { useJiraTickets } from "./hooks/useJiraTickets";
 import { useSolutionsCatalog } from "./hooks/useSolutionsCatalog";
 import { useTheme } from "./hooks/useTheme";
 import { useToast } from "./hooks/useToast";
-import "./styles/app.css";
+import "./styles/layout/app.css";
 
 // App queda como composicion de alto nivel: layout + vistas + conexion entre hooks.
 function App() {

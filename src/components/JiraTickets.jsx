@@ -1,12 +1,14 @@
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { fetchTicketByKey } from "../services/jiraService";
 import { getSuggestedSolutions } from "../services/solutionMatcher";
 import { EmptyState, ErrorState, LoadingState } from "../shared/ui/StateBlock";
 import JiraTicketDetail from "./JiraTicketDetail";
-import "../styles/jira-tickets.css";
+import "../styles/features/jira/tickets.css";
 
 const ALL = "Todos";
-const MAX_RENDERED_TICKETS = 150;
+const ROW_HEIGHT = 56;
+const VISIBLE_ROWS = 20;
+const OVERSCAN_ROWS = 8;
 
 const hasCompleteTicketDetail = (ticket) =>
   Boolean(ticket.description || ticket.comments.length > 0 || ticket.changelog.length > 0);
@@ -63,7 +65,17 @@ const JiraTickets = ({
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [detailLoadingKey, setDetailLoadingKey] = useState("");
   const [detailError, setDetailError] = useState("");
+  const [scrollTop, setScrollTop] = useState(0);
+  const tableRef = useRef(null);
+  const scrollFrameRef = useRef(0);
   const deferredQuery = useDeferredValue(query);
+
+  useEffect(
+    () => () => {
+      if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
+    },
+    []
+  );
 
   const indexedTickets = useMemo(
     () =>
@@ -100,16 +112,38 @@ const JiraTickets = ({
     [assignee, category, deferredQuery, indexedTickets, priority, status]
   );
 
-  const visibleTickets = useMemo(
-    () => filteredTickets.slice(0, MAX_RENDERED_TICKETS),
-    [filteredTickets]
-  );
+  const virtualRows = useMemo(() => {
+    const start = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN_ROWS);
+    const end = Math.min(filteredTickets.length, start + VISIBLE_ROWS + OVERSCAN_ROWS * 2);
+
+    return {
+      start,
+      end,
+      tickets: filteredTickets.slice(start, end),
+      topSpacer: start * ROW_HEIGHT,
+      bottomSpacer: Math.max(0, (filteredTickets.length - end) * ROW_HEIGHT),
+    };
+  }, [filteredTickets, scrollTop]);
 
   const suggestions = useMemo(
     () => (selectedTicket ? getSuggestedSolutions(selectedTicket, solutions, 6) : []),
     [selectedTicket, solutions]
   );
   const hasSyncedTickets = tickets.length > 0 || Boolean(cacheMeta?.lastSync);
+
+  const handleTableScroll = (event) => {
+    const nextScrollTop = event.currentTarget.scrollTop;
+
+    if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
+    scrollFrameRef.current = requestAnimationFrame(() => {
+      setScrollTop(nextScrollTop);
+    });
+  };
+
+  const resetVirtualScroll = () => {
+    setScrollTop(0);
+    tableRef.current?.scrollTo({ top: 0 });
+  };
 
   const openTicket = async (ticket) => {
     setDetailError("");
@@ -137,12 +171,12 @@ const JiraTickets = ({
           <p className="eyebrow">Jira Help Desk</p>
           <h2>Consola viva de tickets</h2>
           <span>
-            {tickets.length} ticket(s) · ultima sync {cacheMeta?.lastSync ? formatDate(cacheMeta.lastSync) : "pendiente"}
+            {tickets.length} ticket(s) · última sync {cacheMeta?.lastSync ? formatDate(cacheMeta.lastSync) : "pendiente"}
           </span>
           <small className={hasSyncedTickets ? "jira-session-ok" : "jira-session-pending"}>
-            {hasSyncedTickets ? "Jira conectado" : "Sesion Jira sin validar"}
+            {hasSyncedTickets ? "Jira conectado" : "Sesión Jira sin validar"}
           </small>
-          {cacheMeta?.lastDiff > 0 && <small>Ultimo diff: {cacheMeta.lastDiff} ticket(s)</small>}
+          {cacheMeta?.lastDiff > 0 && <small>Último diff: {cacheMeta.lastDiff} ticket(s)</small>}
         </div>
 
         <div className="jira-live-actions">
@@ -166,25 +200,52 @@ const JiraTickets = ({
           <div className="jira-filters">
             <input
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Buscar key, resumen, descripcion, usuario..."
+              onChange={(event) => {
+                setQuery(event.target.value);
+                resetVirtualScroll();
+              }}
+              placeholder="Buscar key, resumen, descripción, usuario..."
             />
-            <select value={status} onChange={(event) => setStatus(event.target.value)}>
+            <select
+              value={status}
+              onChange={(event) => {
+                setStatus(event.target.value);
+                resetVirtualScroll();
+              }}
+            >
               {filters.statuses.map((item) => (
                 <option key={item}>{item}</option>
               ))}
             </select>
-            <select value={priority} onChange={(event) => setPriority(event.target.value)}>
+            <select
+              value={priority}
+              onChange={(event) => {
+                setPriority(event.target.value);
+                resetVirtualScroll();
+              }}
+            >
               {filters.priorities.map((item) => (
                 <option key={item}>{item}</option>
               ))}
             </select>
-            <select value={assignee} onChange={(event) => setAssignee(event.target.value)}>
+            <select
+              value={assignee}
+              onChange={(event) => {
+                setAssignee(event.target.value);
+                resetVirtualScroll();
+              }}
+            >
               {filters.assignees.map((item) => (
                 <option key={item}>{item}</option>
               ))}
             </select>
-            <select value={category} onChange={(event) => setCategory(event.target.value)}>
+            <select
+              value={category}
+              onChange={(event) => {
+                setCategory(event.target.value);
+                resetVirtualScroll();
+              }}
+            >
               {filters.categories.map((item) => (
                 <option key={item}>{item}</option>
               ))}
@@ -193,7 +254,13 @@ const JiraTickets = ({
 
           <div className="jira-count">{filteredTickets.length} resultado(s)</div>
 
-          <div className="jira-ticket-table" role="table" aria-label="Tickets Jira Help Desk">
+          <div
+            className="jira-ticket-table"
+            ref={tableRef}
+            role="table"
+            aria-label="Tickets Jira Help Desk"
+            onScroll={handleTableScroll}
+          >
             <div className="jira-ticket-row jira-ticket-head" role="row">
               <span>Key</span>
               <span>Summary</span>
@@ -213,7 +280,15 @@ const JiraTickets = ({
               </div>
             )}
 
-            {visibleTickets.map((ticket) => (
+            {virtualRows.topSpacer > 0 && (
+              <div
+                className="jira-ticket-spacer"
+                style={{ "--ticket-spacer-height": `${virtualRows.topSpacer}px` }}
+                aria-hidden="true"
+              />
+            )}
+
+            {virtualRows.tickets.map((ticket) => (
               <button
                 key={ticket.key}
                 className={selectedTicket?.key === ticket.key ? "jira-ticket-row active" : "jira-ticket-row"}
@@ -233,10 +308,12 @@ const JiraTickets = ({
               </button>
             ))}
 
-            {filteredTickets.length > visibleTickets.length && (
-              <p className="jira-empty">
-                Mostrando {visibleTickets.length} de {filteredTickets.length}. Usa filtros para acotar la lista.
-              </p>
+            {virtualRows.bottomSpacer > 0 && (
+              <div
+                className="jira-ticket-spacer"
+                style={{ "--ticket-spacer-height": `${virtualRows.bottomSpacer}px` }}
+                aria-hidden="true"
+              />
             )}
 
             {filteredTickets.length === 0 && (

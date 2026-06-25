@@ -1,4 +1,4 @@
-import "../../styles/state-block.css";
+import "../../styles/shared/state-block.css";
 
 export const LoadingState = ({ title = "Cargando", description = "Preparando informacion..." }) => (
   <div className="state-block state-loading" role="status">

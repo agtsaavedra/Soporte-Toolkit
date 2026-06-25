@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../styles/solution-card.css";
+import "../styles/features/solutions/card.css";
 
 const COPY_MESSAGE_TIMEOUT = 1800;
 

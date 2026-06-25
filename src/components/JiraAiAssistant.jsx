@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { buildHelpdeskAiPrompt } from "../services/aiAssistantService";
-import "../styles/jira-ai-assistant.css";
+import "../styles/features/jira/ai-assistant.css";
 
 const DEFAULT_QUESTION =
   "Analiza el requerimiento, elegi la mejor solucion sugerida y dame acciones tecnicas concretas.";
