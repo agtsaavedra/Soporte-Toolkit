@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { DEFAULT_CATEGORY, TEMPLATE_CATEGORY, VIEWS } from "../config/appConfig";
+import { DEFAULT_CATEGORY, VIEWS } from "../config/appConfig";
 import {
   createSolutionIndex,
   filterSolutions,
@@ -48,12 +48,6 @@ export const useSolutionsCatalog = ({ authSession, showToast }) => {
         onlyPowerShell,
       }),
     [solutionIndex, search, selectedCategory, onlyPowerShell]
-  );
-
-  const templateSolutions = useMemo(
-    () =>
-      solutionIndex.filter((solution) => solution.category === TEMPLATE_CATEGORY),
-    [solutionIndex]
   );
 
   const applyRepositoryResult = (result) => {
@@ -215,13 +209,6 @@ export const useSolutionsCatalog = ({ authSession, showToast }) => {
     }
   };
 
-  const openTemplates = () => {
-    const firstTemplate = templateSolutions[0];
-    if (firstTemplate) setSelected(firstTemplate);
-    setSelectedCategory(TEMPLATE_CATEGORY);
-    return VIEWS.TEMPLATES;
-  };
-
   const resetAfterSignOut = () => {
     setCustomSolutions([]);
     setHistory([]);
@@ -242,7 +229,6 @@ export const useSolutionsCatalog = ({ authSession, showToast }) => {
     handleUpdateSolution,
     history,
     onlyPowerShell,
-    openTemplates,
     repositoryMode,
     resetAfterSignOut,
     search,

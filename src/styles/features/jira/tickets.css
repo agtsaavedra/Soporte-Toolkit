@@ -5,16 +5,16 @@
   min-height: 0;
   max-width: 1320px;
   flex-direction: column;
-  gap: 18px;
+  gap: 10px;
   margin: 0 auto;
 }
 
 .jira-live-header {
   display: flex;
-  gap: 18px;
+  gap: 10px;
   align-items: center;
   justify-content: space-between;
-  padding: 22px;
+  padding: 14px 16px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-top: 4px solid var(--accent);
@@ -24,15 +24,16 @@
 
 .jira-live-header h2 {
   color: var(--text-primary);
-  font-size: 28px;
+  font-size: 22px;
   line-height: 1.15;
 }
 
 .jira-live-header span,
 .jira-live-header small {
   display: block;
-  margin-top: 6px;
+  margin-top: 3px;
   color: var(--text-secondary);
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -65,8 +66,8 @@
 }
 
 .jira-live-actions button {
-  min-height: 40px;
-  padding: 9px 13px;
+  min-height: 34px;
+  padding: 7px 11px;
   color: #ffffff;
   cursor: pointer;
   background: var(--primary);
@@ -89,7 +90,7 @@
 }
 
 .jira-loader-row {
-  padding: 14px;
+  padding: 10px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -116,14 +117,14 @@
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) repeat(4, minmax(110px, 0.7fr));
   gap: 10px;
-  padding: 14px;
+  padding: 10px;
   border-bottom: 1px solid var(--border);
 }
 
 .jira-filters input,
 .jira-filters select {
-  min-height: 40px;
-  padding: 9px 11px;
+  min-height: 34px;
+  padding: 7px 10px;
   color: var(--text-primary);
   background: var(--bg-muted);
   border: 1px solid var(--border);
@@ -131,7 +132,7 @@
 }
 
 .jira-count {
-  padding: 11px 14px;
+  padding: 8px 12px;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border);
   font-size: 13px;
@@ -181,15 +182,15 @@
   gap: 10px;
   width: 100%;
   min-width: var(--jira-ticket-row-min-width);
-  min-height: 56px;
+  min-height: 48px;
   align-items: center;
-  padding: 10px 12px;
+  padding: 8px 12px;
   color: var(--text-secondary);
   text-align: left;
   background: transparent;
   border-bottom: 1px solid var(--border);
   content-visibility: auto;
-  contain-intrinsic-size: 56px;
+  contain-intrinsic-size: 48px;
 }
 
 .jira-ticket-spacer {
@@ -300,3 +301,4 @@ button.jira-ticket-row.active {
     display: none;
   }
 }
+

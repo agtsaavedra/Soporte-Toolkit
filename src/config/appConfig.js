@@ -3,12 +3,9 @@ import { ALL_CATEGORIES } from "../data/catalog";
 export const VIEWS = {
   CATALOG: "catalog",
   JIRA: "jira",
-  TEMPLATES: "templates",
   NEW: "new",
   EDIT: "edit",
 };
-
-export const TEMPLATE_CATEGORY = "Plantillas Jira";
 
 export const REPOSITORY_LABELS = {
   local: "Local",

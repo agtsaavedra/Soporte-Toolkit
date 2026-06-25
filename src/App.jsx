@@ -41,10 +41,6 @@ function App() {
     catalog.resetAfterSignOut();
   };
 
-  const handleOpenTemplates = () => {
-    setView(catalog.openTemplates());
-  };
-
   const handleAddSolution = async (solution) => {
     setView(await catalog.handleAddSolution(solution));
   };
@@ -85,7 +81,6 @@ function App() {
           else setView(nextView);
         }}
         onNewSolution={() => setView(VIEWS.NEW)}
-        onOpenTemplates={handleOpenTemplates}
         onPublishBase={catalog.handlePublishBase}
         onSelectSolution={(solution, nextView = VIEWS.CATALOG) => {
           if (solution) catalog.setSelected(solution);
@@ -122,14 +117,6 @@ function App() {
             cacheMeta={jira.jiraCacheMeta}
             error={jira.jiraError}
             solutions={catalog.solutionIndex}
-          />
-        ) : view === VIEWS.TEMPLATES && catalog.selected ? (
-          <SolutionCard
-            history={catalog.history}
-            solution={catalog.selected}
-            onDelete={handleDeleteSolution}
-            onEdit={() => setView(VIEWS.EDIT)}
-            onPromote={catalog.handlePromoteSelected}
           />
         ) : view === VIEWS.NEW ? (
           <div className="form-shell">

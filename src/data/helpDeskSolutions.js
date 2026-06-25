@@ -525,9 +525,5 @@ export const helpDeskSolutions = [
     jiraTemplate:
       "Hola, se reviso AFM Monitor y se avanzo con la instalacion/configuracion correspondiente. Si el inconveniente es de licencia, queda sujeto a validacion del responsable. Saludos.",
   }),
-  makeSolution({ id: "hd-043", title: "Plantilla Jira solicitud resuelta", category: "Plantillas Jira", tags: ["plantilla", "resuelto", "Jira"], jiraKeywords: ["cerrar", "resuelto", "respuesta"], resolutionType: "procedimiento" }),
-  makeSolution({ id: "hd-044", title: "Plantilla Jira falta informacion", category: "Plantillas Jira", tags: ["plantilla", "pendiente", "Jira"], jiraKeywords: ["falta informacion", "pendiente usuario"], resolutionType: "procedimiento" }),
-  makeSolution({ id: "hd-045", title: "Plantilla Jira derivacion a otra area", category: "Plantillas Jira", tags: ["plantilla", "derivacion", "Jira"], jiraKeywords: ["derivar", "escalamiento"], resolutionType: "escalamiento" }),
-  makeSolution({ id: "hd-046", title: "Plantilla Jira instalacion pendiente aprobacion", category: "Plantillas Jira", tags: ["plantilla", "aprobacion", "software"], jiraKeywords: ["aprobacion", "instalacion pendiente"], resolutionType: "instalacion", requiresApproval: true }),
 ].map(enrichSolution);
 

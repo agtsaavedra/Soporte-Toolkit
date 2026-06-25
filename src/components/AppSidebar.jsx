@@ -1,7 +1,6 @@
 const NAV_ITEMS = [
   { id: "catalog", label: "Soluciones", shortLabel: "S" },
   { id: "jira", label: "Jira Help Desk", shortLabel: "J" },
-  { id: "templates", label: "Plantillas", shortLabel: "P" },
 ];
 
 // La sidebar concentra navegación, filtros y acciones de la base de conocimiento.
@@ -17,7 +16,6 @@ const AppSidebar = ({
   onImport,
   onNavigate,
   onNewSolution,
-  onOpenTemplates,
   onPublishBase,
   onSelectSolution,
   onSignOut,
@@ -35,16 +33,7 @@ const AppSidebar = ({
   theme,
   view,
 }) => {
-  const handleNavigate = (nextView) => {
-    if (nextView === "templates") {
-      onOpenTemplates();
-      return;
-    }
-
-    onNavigate(nextView);
-  };
-
-  const shouldShowCatalogTools = view === "catalog" || view === "templates";
+  const shouldShowCatalogTools = view === "catalog";
 
   return (
     <aside className="sidebar">
@@ -72,7 +61,7 @@ const AppSidebar = ({
             className={view === item.id ? "active" : ""}
             data-short={item.shortLabel}
             title={item.label}
-            onClick={() => handleNavigate(item.id)}
+            onClick={() => onNavigate(item.id)}
           >
             {item.label}
           </button>
@@ -92,13 +81,11 @@ const AppSidebar = ({
               placeholder="Buscar problema, síntoma, comando..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              disabled={view !== "catalog"}
             />
 
             <select
               value={selectedCategory}
               onChange={(event) => onCategoryChange(event.target.value)}
-              disabled={view !== "catalog"}
             >
               {categories.map((category) => (
                 <option key={category} value={category}>
@@ -110,7 +97,6 @@ const AppSidebar = ({
             <button
               className={onlyPowerShell ? "filter-btn active" : "filter-btn"}
               onClick={onTogglePowerShell}
-              disabled={view !== "catalog"}
             >
               {onlyPowerShell ? "Solo PowerShell activo" : "Solo PowerShell"}
             </button>
@@ -132,9 +118,7 @@ const AppSidebar = ({
                     ? "solution-item active"
                     : "solution-item"
                 }
-                onClick={() =>
-                  onSelectSolution(solution, view === "templates" ? "templates" : "catalog")
-                }
+                onClick={() => onSelectSolution(solution, "catalog")}
               >
                 <strong>{solution.title}</strong>
                 <span>{solution.category}</span>
