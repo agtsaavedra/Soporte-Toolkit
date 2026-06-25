@@ -106,11 +106,6 @@
   white-space: nowrap;
 }
 
-.jira-suggestion-actions button:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-}
-
 .jira-suggestion-actions .secondary-action {
   color: var(--text-primary);
   background: var(--bg-card);
@@ -123,8 +118,7 @@
   margin-top: 10px;
 }
 
-.jira-suggestion-downloads a,
-.jira-suggestion-downloads code {
+.jira-suggestion-downloads span {
   width: fit-content;
   max-width: 100%;
   padding: 5px 8px;
@@ -134,12 +128,6 @@
   border-radius: var(--radius-sm);
   font-size: 12px;
   font-weight: 800;
-}
-
-.jira-suggestion-downloads code {
-  color: var(--text-secondary);
-  background: var(--bg-card);
-  border: 1px solid var(--border);
 }
 
 .jira-inline-solution {
@@ -152,9 +140,66 @@
 }
 
 .jira-inline-solution h4 {
-  margin-bottom: 8px;
+  margin-bottom: 0;
   color: var(--text-primary);
   font-size: 14px;
+}
+
+.jira-inline-heading {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.jira-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: flex-end;
+}
+
+.jira-inline-actions button {
+  min-height: 30px;
+  padding: 6px 9px;
+  font-size: 12px;
+}
+
+.jira-inline-actions .secondary-action {
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+
+.jira-inline-downloads {
+  display: grid;
+  gap: 7px;
+}
+
+.jira-inline-downloads a,
+.jira-inline-downloads code,
+.jira-inline-downloads span,
+.jira-inline-downloads p {
+  width: fit-content;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.jira-inline-downloads a {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.jira-inline-downloads code,
+.jira-inline-downloads span {
+  padding: 6px 8px;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
 }
 
 .jira-inline-solution ol {
@@ -214,5 +259,14 @@
 
   .jira-suggestion-actions button {
     flex: 1 1 180px;
+  }
+
+  .jira-inline-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .jira-inline-actions {
+    justify-content: flex-start;
   }
 }

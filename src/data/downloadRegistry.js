@@ -32,7 +32,7 @@ export const DOWNLOAD_REGISTRY = {
   },
   TEAMS: {
     product: "Microsoft Teams",
-    officialDownloadUrl: "https://www.microsoft.com/microsoft-teams/download-app",
+    officialDownloadUrl: "https://www.microsoft.com/en-us/microsoft-teams/download-app",
     wingetId: "Microsoft.Teams",
     installCommands: ["winget install Microsoft.Teams"],
     verificationSteps: ["Abrir Teams.", "Validar inicio de sesion del usuario."],
@@ -60,16 +60,16 @@ export const DOWNLOAD_REGISTRY = {
   },
   DWG_TRUEVIEW: {
     product: "DWG TrueView / Autodesk Viewer",
-    officialDownloadUrl: "https://www.autodesk.com/viewers",
+    officialDownloadUrl: "https://www.autodesk.com/products/dwg-trueview/overview",
     verificationSteps: ["Abrir DWG TrueView o Autodesk Viewer.", "Validar apertura del archivo DWG."],
   },
   BROTHER_SUPPORT: {
     product: "Brother",
-    officialDownloadUrl: "https://support.brother.com/",
+    officialDownloadUrl: "https://support.brother.com/g/b/productsearch.aspx?c=us&content=dl&lang=en",
   },
   LEXMARK_SUPPORT: {
     product: "Lexmark",
-    officialDownloadUrl: "https://www.lexmark.com/support",
+    officialDownloadUrl: "https://support.lexmark.com/en_us/drivers-downloads.html",
   },
   RICOH_SUPPORT: {
     product: "Ricoh",
@@ -77,11 +77,11 @@ export const DOWNLOAD_REGISTRY = {
   },
   HP_SUPPORT: {
     product: "HP",
-    officialDownloadUrl: "https://support.hp.com/",
+    officialDownloadUrl: "https://support.hp.com/us-en/drivers",
   },
   EPSON_SUPPORT: {
     product: "Epson",
-    officialDownloadUrl: "https://epson.com/Support",
+    officialDownloadUrl: "https://epson.com/Support/Point-of-Sale/Impact-Printers-%28Dot-Matrix%29/Epson-TM-U220/s/SPT_C31C514103",
   },
   GNAT: {
     product: "GNAT Escritorio",

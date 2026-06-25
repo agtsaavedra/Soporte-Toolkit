@@ -93,53 +93,6 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
               </button>
             </>
           )}
-          {solution.officialDownloadUrl && (
-            <button
-              className="secondary-action"
-              onClick={() => window.open(solution.officialDownloadUrl, "_blank", "noreferrer")}
-            >
-              Abrir descarga oficial
-            </button>
-          )}
-          {solution.internalDownloadPath && (
-            <button
-              className="secondary-action"
-              onClick={() => copyText(solution.internalDownloadPath, "Ruta interna")}
-            >
-              Copiar ruta interna
-            </button>
-          )}
-          <button
-            className="secondary-action"
-            onClick={() => copyText(commandsText, "Comandos")}
-            disabled={!commandsText}
-          >
-            Copiar comandos
-          </button>
-          {installCommandsText && (
-            <button
-              className="secondary-action"
-              onClick={() => copyText(installCommandsText, "Comandos de instalacion")}
-            >
-              Copiar comandos instalacion
-            </button>
-          )}
-          {verificationText && (
-            <button
-              className="secondary-action"
-              onClick={() => copyText(verificationText, "Pasos de validacion")}
-            >
-              Copiar validacion
-            </button>
-          )}
-          {solution.jiraTemplate && (
-            <button
-              className="secondary-action"
-              onClick={() => copyText(solution.jiraTemplate, "Respuesta Jira")}
-            >
-              Copiar respuesta Jira
-            </button>
-          )}
           <button onClick={() => copyText(buildProcedure(solution), "Ficha")}>
             Copiar ficha
           </button>
@@ -173,7 +126,27 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
         solution.installerFile ||
         solution.installerNotes) && (
         <section>
-          <h3>Descarga e instalador</h3>
+          <div className="section-heading">
+            <h3>Descarga e instalador</h3>
+            <div className="section-actions">
+              {solution.officialDownloadUrl && (
+                <button
+                  className="secondary-action"
+                  onClick={() => window.open(solution.officialDownloadUrl, "_blank", "noreferrer")}
+                >
+                  Abrir descarga oficial
+                </button>
+              )}
+              {solution.internalDownloadPath && (
+                <button
+                  className="secondary-action"
+                  onClick={() => copyText(solution.internalDownloadPath, "Ruta interna")}
+                >
+                  Copiar ruta interna
+                </button>
+              )}
+            </div>
+          </div>
           <div className="install-info-grid">
             {solution.officialDownloadUrl && (
               <div>
@@ -234,7 +207,17 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
 
       {solution.installCommands.length > 0 && (
         <section>
-          <h3>Comandos de instalacion</h3>
+          <div className="section-heading">
+            <h3>Comandos de instalacion</h3>
+            <div className="section-actions">
+              <button
+                className="secondary-action"
+                onClick={() => copyText(installCommandsText, "Comandos de instalacion")}
+              >
+                Copiar comandos instalacion
+              </button>
+            </div>
+          </div>
           <div className="commands">
             {solution.installCommands.map((command) => (
               <div key={commandText(command)} className="command-box">
@@ -257,7 +240,17 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
 
       {solution.verificationSteps.length > 0 && (
         <section>
-          <h3>Pasos de validacion</h3>
+          <div className="section-heading">
+            <h3>Pasos de validacion</h3>
+            <div className="section-actions">
+              <button
+                className="secondary-action"
+                onClick={() => copyText(verificationText, "Pasos de validacion")}
+              >
+                Copiar validacion
+              </button>
+            </div>
+          </div>
           <ol>
             {solution.verificationSteps.map((item) => (
               <li key={item}>{item}</li>
@@ -267,7 +260,19 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
       )}
 
       <section>
-        <h3>Comandos</h3>
+        <div className="section-heading">
+          <h3>Comandos</h3>
+          {commandsText && (
+            <div className="section-actions">
+              <button
+                className="secondary-action"
+                onClick={() => copyText(commandsText, "Comandos")}
+              >
+                Copiar comandos
+              </button>
+            </div>
+          )}
+        </div>
         <div className="commands">
           {solution.commands.map((command) => (
             <div key={command.command} className="command-box">
@@ -292,7 +297,17 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
 
       {solution.jiraTemplate && (
         <section>
-          <h3>Template Jira</h3>
+          <div className="section-heading">
+            <h3>Template Jira</h3>
+            <div className="section-actions">
+              <button
+                className="secondary-action"
+                onClick={() => copyText(solution.jiraTemplate, "Respuesta Jira")}
+              >
+                Copiar respuesta Jira
+              </button>
+            </div>
+          </div>
           <div className="user-message">{solution.jiraTemplate}</div>
         </section>
       )}

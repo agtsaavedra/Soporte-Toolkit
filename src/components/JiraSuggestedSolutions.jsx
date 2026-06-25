@@ -43,14 +43,8 @@ const JiraSuggestedSolutions = ({ suggestions, isLoading = false }) => {
 
                     {(solution.officialDownloadUrl || solution.internalDownloadPath) && (
                       <div className="jira-suggestion-downloads">
-                        {solution.officialDownloadUrl && (
-                          <a href={solution.officialDownloadUrl} target="_blank" rel="noreferrer">
-                            Descarga oficial
-                          </a>
-                        )}
-                        {solution.internalDownloadPath && (
-                          <code>{solution.internalDownloadPath}</code>
-                        )}
+                        {solution.officialDownloadUrl && <span>Descarga oficial disponible</span>}
+                        {solution.internalDownloadPath && <span>Ruta interna disponible</span>}
                       </div>
                     )}
                   </div>
@@ -70,50 +64,52 @@ const JiraSuggestedSolutions = ({ suggestions, isLoading = false }) => {
                   >
                     {isOpen ? "Cerrar ficha" : "Abrir ficha"}
                   </button>
-                  {solution.officialDownloadUrl && (
-                    <button
-                      className="secondary-action"
-                      onClick={() => window.open(solution.officialDownloadUrl, "_blank", "noreferrer")}
-                    >
-                      Abrir descarga oficial
-                    </button>
-                  )}
-                  <button
-                    onClick={() => copyText(solution.internalDownloadPath)}
-                    disabled={!solution.internalDownloadPath}
-                  >
-                    Copiar ruta interna
-                  </button>
-                  <button
-                    onClick={() => copyText(solution.jiraTemplate)}
-                    disabled={!solution.jiraTemplate}
-                  >
-                    Copiar respuesta Jira
-                  </button>
-                  <button onClick={() => copyText(commandTextValue)} disabled={!commandTextValue}>
-                    Copiar comandos
-                  </button>
-                  <button
-                    onClick={() => copyText(installCommandsTextValue)}
-                    disabled={!installCommandsTextValue}
-                  >
-                    Copiar instalacion
-                  </button>
-                  <button onClick={() => copyText(stepsTextValue)} disabled={!stepsTextValue}>
-                    Copiar pasos
-                  </button>
-                  <button
-                    onClick={() => copyText(verificationTextValue)}
-                    disabled={!verificationTextValue}
-                  >
-                    Copiar validacion
-                  </button>
                 </div>
 
                 {isOpen && (
                   <div className="jira-inline-solution">
+                    {(solution.officialDownloadUrl || solution.internalDownloadPath) && (
+                      <div>
+                        <div className="jira-inline-heading">
+                          <h4>Descarga e instalador</h4>
+                          <div className="jira-inline-actions">
+                            {solution.officialDownloadUrl && (
+                              <button
+                                className="secondary-action"
+                                onClick={() => window.open(solution.officialDownloadUrl, "_blank", "noreferrer")}
+                              >
+                                Abrir descarga oficial
+                              </button>
+                            )}
+                            {solution.internalDownloadPath && (
+                              <button onClick={() => copyText(solution.internalDownloadPath)}>
+                                Copiar ruta interna
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <div className="jira-inline-downloads">
+                          {solution.officialDownloadUrl && (
+                            <a href={solution.officialDownloadUrl} target="_blank" rel="noreferrer">
+                              {solution.officialDownloadUrl}
+                            </a>
+                          )}
+                          {solution.internalDownloadPath && <code>{solution.internalDownloadPath}</code>}
+                          {solution.installerFile && <span>Instalador: {solution.installerFile}</span>}
+                          {solution.installerNotes && <p>{solution.installerNotes}</p>}
+                        </div>
+                      </div>
+                    )}
+
                     <div>
-                      <h4>Pasos sugeridos</h4>
+                      <div className="jira-inline-heading">
+                        <h4>Pasos sugeridos</h4>
+                        {stepsTextValue && (
+                          <div className="jira-inline-actions">
+                            <button onClick={() => copyText(stepsTextValue)}>Copiar pasos</button>
+                          </div>
+                        )}
+                      </div>
                       <ol>
                         {solution.steps.map((step) => (
                           <li key={step}>{step}</li>
@@ -123,7 +119,14 @@ const JiraSuggestedSolutions = ({ suggestions, isLoading = false }) => {
 
                     {solution.verificationSteps.length > 0 && (
                       <div>
-                        <h4>Validacion</h4>
+                        <div className="jira-inline-heading">
+                          <h4>Validacion</h4>
+                          <div className="jira-inline-actions">
+                            <button onClick={() => copyText(verificationTextValue)}>
+                              Copiar validacion
+                            </button>
+                          </div>
+                        </div>
                         <ol>
                           {solution.verificationSteps.map((step) => (
                             <li key={step}>{step}</li>
@@ -134,7 +137,21 @@ const JiraSuggestedSolutions = ({ suggestions, isLoading = false }) => {
 
                     {(solution.commands.length > 0 || solution.installCommands.length > 0) && (
                       <div>
-                        <h4>Comandos</h4>
+                        <div className="jira-inline-heading">
+                          <h4>Comandos</h4>
+                          <div className="jira-inline-actions">
+                            {commandTextValue && (
+                              <button onClick={() => copyText(commandTextValue)}>
+                                Copiar comandos
+                              </button>
+                            )}
+                            {installCommandsTextValue && (
+                              <button onClick={() => copyText(installCommandsTextValue)}>
+                                Copiar instalacion
+                              </button>
+                            )}
+                          </div>
+                        </div>
                         <div className="jira-inline-commands">
                           {[...solution.commands, ...solution.installCommands].map((command) => (
                             <div key={commandText(command)}>
@@ -148,7 +165,14 @@ const JiraSuggestedSolutions = ({ suggestions, isLoading = false }) => {
 
                     {solution.jiraTemplate && (
                       <div>
-                        <h4>Template Jira</h4>
+                        <div className="jira-inline-heading">
+                          <h4>Template Jira</h4>
+                          <div className="jira-inline-actions">
+                            <button onClick={() => copyText(solution.jiraTemplate)}>
+                              Copiar respuesta Jira
+                            </button>
+                          </div>
+                        </div>
                         <p>{solution.jiraTemplate}</p>
                       </div>
                     )}

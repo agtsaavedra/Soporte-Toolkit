@@ -160,9 +160,30 @@
 }
 
 .solution-card section h3 {
-  margin-bottom: 12px;
+  margin-bottom: 0;
   color: var(--text-primary);
   font-size: 19px;
+}
+
+.section-heading {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.section-actions button {
+  min-height: 32px;
+  padding: 7px 10px;
+  font-size: 12px;
 }
 
 .solution-card ul,
@@ -308,6 +329,15 @@
   }
 
   .quick-actions {
+    justify-content: flex-start;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .section-actions {
     justify-content: flex-start;
   }
 
