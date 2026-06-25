@@ -46,6 +46,19 @@
   min-height: 16px;
 }
 
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.checkbox-grid .checkbox-row {
+  padding: 10px 12px;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
 .command-editor {
   display: flex;
   flex-direction: column;
@@ -103,6 +116,7 @@
 
 @media (max-width: 760px) {
   .form-grid,
+  .checkbox-grid,
   .command-editor-row {
     grid-template-columns: 1fr;
   }

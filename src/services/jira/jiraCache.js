@@ -94,9 +94,10 @@ export const saveTicketsToCache = async (
     lastSync = new Date().toISOString(),
     nextPageToken,
     isLastPage,
+    existingTickets,
   } = {}
 ) => {
-  const currentTickets = await loadCachedHelpdeskTickets();
+  const currentTickets = existingTickets ?? await loadCachedHelpdeskTickets();
   const byKey = new Map(currentTickets.map((ticket) => [ticket.key, ticket]));
   tickets.forEach((ticket) => byKey.set(ticket.key, ticket));
   const mergedTickets = [...byKey.values()].sort(

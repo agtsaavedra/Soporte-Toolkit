@@ -1,5 +1,7 @@
 html {
   background: var(--bg-main);
+  scrollbar-color: rgba(87, 110, 128, 0.38) transparent;
+  scrollbar-width: thin;
 }
 
 body {
@@ -32,4 +34,27 @@ input:focus-visible,
 select:focus-visible,
 button:focus-visible {
   box-shadow: var(--focus-ring);
+}
+
+* {
+  scrollbar-color: rgba(87, 110, 128, 0.38) transparent;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(87, 110, 128, 0.28);
+  border-radius: 999px;
+}
+
+*:hover::-webkit-scrollbar-thumb {
+  background: rgba(87, 110, 128, 0.48);
 }

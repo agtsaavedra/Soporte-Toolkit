@@ -18,8 +18,15 @@ const issue = (summary) => ({
 describe("solutionMatcher", () => {
   it.each([
     ["Instalacion Power BI Desktop", "Instalacion Power BI Desktop"],
-    ["Blanqueo contraseña AG usuario inhabilitado", "Blanqueo / desbloqueo AGSERVER"],
-    ["FortiClient no muestra Remote Access", "FortiClient no muestra Remote Access"],
+    ["Instalacion Google Earth de Escritorio", "Instalacion Google Earth Pro"],
+    ["Instalacion de software Fluke Connect Desktop para camara termografica", "Instalacion Fluke Connect Desktop"],
+    ["Instalar AGSERVER viejo 7.1 no Java SI00000", "IBM i Access 7.1 / AGSERVER viejo (NO JAVA)"],
+    ["Crear nueva sesion AGSERVER AS400", "AGSERVER / AS400 - Nueva sesion 5250"],
+    ["Instalar Adobe Reader para PDF", "Instalacion Adobe Reader"],
+    ["Instalar Acrobat Pro", "Acrobat Pro - instalacion con licencia"],
+    ["Necesito ver archivo DWG", "DWG TrueView / Autodesk Viewer"],
+    ["Instalar scanner HP ScanJet", "HP ScanJet / scanner HP"],
+    ["Instalar tickeadora Epson TM-U220", "Epson TM-U220 / Tickeadora"],
     ["No imprime la impresora IGRO06", "Liberar impresora / cola bloqueada"],
     ["ROOTS error excepcion", "ROOTS / error de excepcion"],
   ])("sugiere una solucion especifica para %s", (summary, expectedTitle) => {

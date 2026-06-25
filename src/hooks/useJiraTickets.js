@@ -43,7 +43,10 @@ export const useJiraTickets = ({ showToast }) => {
   }, []);
 
   const mergeJiraTickets = async (incomingTickets, cacheOptions = {}) => {
-    const mergedTickets = await saveTicketsToCache(incomingTickets, cacheOptions);
+    const mergedTickets = await saveTicketsToCache(incomingTickets, {
+      ...cacheOptions,
+      existingTickets: jiraTickets,
+    });
     const meta = await getTicketCacheMeta();
 
     setJiraTickets(mergedTickets);
@@ -140,6 +143,7 @@ export const useJiraTickets = ({ showToast }) => {
     await saveTicketsToCache([ticket], {
       nextPageToken: jiraNextPageToken,
       isLastPage: !jiraHasMore,
+      existingTickets: jiraTickets,
     });
   };
 

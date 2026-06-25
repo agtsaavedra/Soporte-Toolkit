@@ -128,6 +128,15 @@ export const normalizeSolution = (solution) => ({
     (solution.powershell ? "powershell" : "procedimiento"),
   requiresApproval: Boolean(solution.requiresApproval),
   internalOnly: Boolean(solution.internalOnly),
+  licenseRequired: Boolean(solution.licenseRequired),
+  officialDownloadUrl: normalizeBrokenText(solution.officialDownloadUrl ?? ""),
+  internalDownloadPath: normalizeBrokenText(solution.internalDownloadPath ?? ""),
+  installerFile: normalizeBrokenText(solution.installerFile ?? ""),
+  installerNotes: normalizeBrokenText(solution.installerNotes ?? ""),
+  installCommands: Array.isArray(solution.installCommands)
+    ? solution.installCommands.map(normalizeCommand)
+    : [],
+  verificationSteps: normalizeList(solution.verificationSteps),
   symptoms: normalizeList(solution.symptoms),
   causes: normalizeList(solution.causes),
   steps: normalizeList(solution.steps),
@@ -135,6 +144,8 @@ export const normalizeSolution = (solution) => ({
     ? solution.commands.map(normalizeCommand)
     : [],
   jiraKeywords: normalizeList(solution.jiraKeywords),
+  userMessage: normalizeBrokenText(solution.userMessage ?? ""),
+  jiraTemplate: normalizeBrokenText(solution.jiraTemplate ?? ""),
   internalNotes: normalizeBrokenText(solution.internalNotes ?? ""),
   source: solution.source ?? "base",
 });
@@ -156,14 +167,23 @@ const toSearchableText = (solution) =>
     solution.product,
     solution.risk,
     solution.time,
+    solution.officialDownloadUrl,
+    solution.internalDownloadPath,
+    solution.installerFile,
+    solution.installerNotes,
     ...solution.tags,
     ...solution.symptoms,
     ...solution.causes,
     ...solution.steps,
     ...solution.commands.map((command) => command.command),
     ...solution.commands.map((command) => command.description),
+    ...solution.installCommands.map((command) => command.command),
+    ...solution.installCommands.map((command) => command.description),
+    ...solution.verificationSteps,
     ...solution.jiraKeywords,
     solution.resolutionType,
+    solution.userMessage,
+    solution.jiraTemplate,
     solution.internalNotes,
   ]
     .join(" ")

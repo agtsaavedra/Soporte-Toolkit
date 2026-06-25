@@ -76,6 +76,7 @@ No usa API paga de OpenAI ni guarda credenciales. Al usar `Abrir ChatGPT`, la co
 - `src/hooks`: estado de dominio (`useAuthSession`, `useSolutionsCatalog`, `useJiraTickets`, `useTheme`, `useToast`).
 - `src/config`: constantes compartidas de aplicacion y Jira.
 - `src/data`: catalogo, normalizacion y schema de soluciones.
+- `src/data/downloadRegistry.js`: catalogo central de descargas oficiales, rutas internas y validaciones por producto.
 - `src/services`: integraciones, matching, Jira, Supabase y persistencia.
 - `src/shared/ui`: componentes reutilizables de estado.
 - `src/styles`: CSS separado por capas y feature. Ver `src/styles/README.md`.

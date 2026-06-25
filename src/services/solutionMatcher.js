@@ -51,6 +51,90 @@ export const INTENTS = {
     products: ["fluke", "fluke connect", "camara termografica"],
     keywords: ["fluke", "fluke connect", "camara termografica"],
   },
+  GNAT: {
+    label: "GNAT Escritorio",
+    category: "Instalacion de software",
+    parent: "INSTALACION_SOFTWARE",
+    products: ["gnat", "gnat escritorio"],
+    keywords: ["gnat", "gnat escritorio", "instalar gnat", "actualizar gnat"],
+  },
+  BUDI: {
+    label: "BUDI",
+    category: "Instalacion de software",
+    parent: "INSTALACION_SOFTWARE",
+    products: ["budi"],
+    keywords: ["budi", "instalar budi", "actualizar budi", "clave budi"],
+  },
+  SIC: {
+    label: "SIC",
+    category: "Instalacion de software",
+    parent: "INSTALACION_SOFTWARE",
+    products: ["sic"],
+    keywords: ["sic", "instalar sic"],
+  },
+  AFM: {
+    label: "AFM Monitor",
+    category: "Instalacion de software",
+    parent: "INSTALACION_SOFTWARE",
+    products: ["afm", "afm monitor"],
+    keywords: ["afm", "afm monitor", "licencia afm", "instalar afm"],
+  },
+  ADOBE_READER: {
+    label: "Adobe Reader/PDF",
+    category: "Instalacion de software",
+    parent: "INSTALACION_SOFTWARE",
+    products: ["adobe reader", "acrobat reader", "reader", "pdf"],
+    keywords: ["adobe reader", "acrobat reader", "reader", "abrir pdf", "instalar pdf"],
+  },
+  ADOBE_ACROBAT_PRO: {
+    label: "Acrobat Pro + licencia",
+    category: "Instalacion de software",
+    parent: "INSTALACION_SOFTWARE",
+    products: ["acrobat pro", "adobe pro", "adobe acrobat pro"],
+    keywords: ["acrobat pro", "adobe pro", "licencia adobe", "editar pdf", "firmar pdf"],
+  },
+  CHROME: {
+    label: "Google Chrome",
+    category: "Instalacion de software",
+    parent: "INSTALACION_SOFTWARE",
+    products: ["chrome", "google chrome"],
+    keywords: ["chrome", "google chrome", "navegador chrome"],
+  },
+  TEAMS: {
+    label: "Microsoft Teams",
+    category: "Instalacion de software",
+    parent: "INSTALACION_SOFTWARE",
+    products: ["teams", "microsoft teams"],
+    keywords: ["teams", "microsoft teams", "instalar teams"],
+  },
+  SEVEN_ZIP: {
+    label: "7-Zip",
+    category: "Instalacion de software",
+    parent: "INSTALACION_SOFTWARE",
+    products: ["7zip", "7-zip", "7 zip"],
+    keywords: ["7zip", "7-zip", "descomprimir", "comprimir", "archivo zip"],
+  },
+  WINRAR: {
+    label: "WinRAR",
+    category: "Instalacion de software",
+    parent: "INSTALACION_SOFTWARE",
+    products: ["winrar"],
+    keywords: ["winrar", "archivo rar", "instalar winrar"],
+  },
+  AUTOCAD_LICENSE: {
+    label: "AutoCAD + licencia",
+    category: "Instalacion de software",
+    parent: "INSTALACION_SOFTWARE",
+    products: ["autocad", "autodesk"],
+    keywords: ["autocad", "autodesk", "licencia autocad", "instalar autocad"],
+  },
+  DWG_TRUEVIEW: {
+    label: "DWG TrueView/visor",
+    category: "Instalacion de software",
+    parent: "INSTALACION_SOFTWARE",
+    products: ["dwg", "trueview", "autodesk viewer"],
+    keywords: ["dwg", "trueview", "autodesk viewer", "ver planos", "abrir plano", "visor dwg"],
+  },
   WPS: {
     label: "WPS Office",
     category: "Diagnostico PowerShell",
@@ -111,11 +195,53 @@ export const INTENTS = {
     products: ["agserver", "as400", "ibm i access", "5250"],
     keywords: ["agserver", "as400", "ibm i access", "5250", "sesion"],
   },
+  IBM_I_ACCESS_71: {
+    label: "IBM i Access 7.1 viejo",
+    category: "SAP / AGSERVER / AS400",
+    products: ["ibm i access 7.1", "ibm i access", "access viejo", "si00000"],
+    keywords: ["ibm i access 7.1", "access viejo", "no java", "si00000", "instalacion base", "actualizacion sps", "vcredist32", "vcredist64"],
+  },
+  IBM_ACS_JAVA: {
+    label: "IBM ACS Java",
+    category: "SAP / AGSERVER / AS400",
+    products: ["ibm acs", "access client solutions", "acs java"],
+    keywords: ["ibm acs", "access client solutions", "acs java", "java"],
+  },
   TICKETEADORA: {
     label: "tickeadora Epson",
     category: "SAP / AGSERVER / AS400",
     products: ["tickeadora", "ticketera", "tiquetera", "epson", "bematech", "tm-u220", "pc5250"],
     keywords: ["tickeadora", "ticketera", "tiquetera", "epson", "bematech", "tm-u220", "ticket", "fiscal", "caja", "pc5250"],
+  },
+  SCANNER_HP: {
+    label: "HP ScanJet",
+    category: "Impresoras y scanners",
+    products: ["hp scanjet", "scanner hp", "escaner hp"],
+    keywords: ["hp scanjet", "scanner hp", "escaner hp", "digitalizar", "twain", "wia"],
+  },
+  KODAK_SCANMATE: {
+    label: "Kodak ScanMate",
+    category: "Impresoras y scanners",
+    products: ["kodak", "scanmate", "smarttouch"],
+    keywords: ["kodak", "scanmate", "scanner kodak", "smarttouch"],
+  },
+  IMPRESORA_LEXMARK: {
+    label: "Lexmark",
+    category: "Impresoras y scanners",
+    products: ["lexmark"],
+    keywords: ["lexmark", "driver lexmark", "impresora lexmark"],
+  },
+  IMPRESORA_RICOH: {
+    label: "Ricoh",
+    category: "Impresoras y scanners",
+    products: ["ricoh"],
+    keywords: ["ricoh", "driver ricoh", "impresora ricoh"],
+  },
+  BROTHER_PTOUCH: {
+    label: "Brother P-touch",
+    category: "Impresoras y scanners",
+    products: ["brother", "p-touch", "ptouch"],
+    keywords: ["brother", "p-touch", "ptouch", "etiquetadora", "label printer"],
   },
   DEBMEDIA: {
     label: "DebMedia",
@@ -170,6 +296,16 @@ const PRODUCT_ALIASES = {
   "PORTAL AUTOGESTION": ["portal autogestion", "portal de autogestion", "autogestion"],
   SAP: ["sap"],
   "POWER BI": ["power bi", "powerbi", "power bi desktop", "pbix"],
+  "GOOGLE EARTH": ["google earth", "google earth pro", "earth"],
+  "FLUKE": ["fluke", "fluke connect", "camara termografica"],
+  "ADOBE READER": ["adobe reader", "acrobat reader", "reader", "pdf"],
+  "ADOBE ACROBAT PRO": ["acrobat pro", "adobe acrobat pro", "adobe pro"],
+  "GOOGLE CHROME": ["chrome", "google chrome"],
+  "MICROSOFT TEAMS": ["teams", "microsoft teams"],
+  "7-ZIP": ["7zip", "7-zip", "7 zip"],
+  WINRAR: ["winrar"],
+  AUTOCAD: ["autocad", "autodesk"],
+  "DWG TRUEVIEW": ["dwg", "trueview", "autodesk viewer"],
   FORTICLIENT: ["forticlient", "forti", "vpn", "remote access"],
   FORTITOKEN: ["fortitoken"],
   WPS: ["wps", "wps office", "kingsoft"],
@@ -178,7 +314,15 @@ const PRODUCT_ALIASES = {
   SIC: ["sic"],
   "ADOBE ACROBAT": ["adobe", "acrobat"],
   "SCANNER KODAK / HP": ["scanner", "escaner", "scaner", "kodak", "scanmate", "hp scanjet"],
+  "HP SCANJET": ["hp scanjet", "scanner hp", "escaner hp"],
+  "KODAK SCANMATE": ["kodak", "scanmate", "smarttouch"],
+  LEXMARK: ["lexmark"],
+  RICOH: ["ricoh"],
+  "BROTHER P-TOUCH": ["brother", "p-touch", "ptouch"],
   "TICKETERA FISCAL": ["ticketera", "tiquetera", "fiscal", "bematech", "epson"],
+  "IBM I ACCESS 7.1": ["ibm i access 7.1", "access viejo", "si00000", "no java"],
+  "IBM ACS JAVA": ["ibm acs", "access client solutions", "acs java"],
+  "AFM MONITOR": ["afm", "afm monitor"],
   PAC: ["pac", "certificado", "err_cert", "no segura"],
   "AUDIO / PERIFERICOS": ["audio", "parlante", "parlantes", "auricular", "teclado", "mouse"],
 };
@@ -378,6 +522,14 @@ const solutionText = (solution) =>
       ...(solution.steps ?? []),
       ...(solution.commands ?? []).map((command) => command.command),
       ...(solution.commands ?? []).map((command) => command.description),
+      ...(solution.installCommands ?? []).map((command) => command.command ?? command),
+      ...(solution.installCommands ?? []).map((command) => command.description),
+      ...(solution.verificationSteps ?? []),
+      solution.officialDownloadUrl,
+      solution.internalDownloadPath,
+      solution.installerFile,
+      solution.installerNotes,
+      solution.jiraTemplate,
       solution.internalNotes,
     ].join(" ")
   );
@@ -407,6 +559,10 @@ const getSolutionMatchData = (solution) => {
     commands: normalizeTerms(
       commands.flatMap((command) => [command.command, command.description])
     ),
+    installCommands: normalizeTerms(
+      (solution.installCommands ?? []).flatMap((command) => [command.command ?? command, command.description])
+    ),
+    verificationSteps: normalizeTerms(solution.verificationSteps),
   };
 
   SOLUTION_MATCH_CACHE.set(solution, data);
@@ -498,6 +654,52 @@ export const scoreSolutionsForIssue = (issue, solutions) => {
         reasons.push("ticket pide crear nueva sesion AGSERVER/AS400");
       }
 
+      const mentionsIbmAccess71 = countNormalizedMatches(issueText, [
+        "si00000",
+        "instalacion base",
+        "actualizacion sps",
+        "vcredist32",
+        "vcredist64",
+        "ibm i access 7.1",
+        "access viejo",
+        "no java",
+      ]) > 0;
+
+      if (mentionsIbmAccess71 && intent === "IBM_I_ACCESS_71") {
+        score += 180;
+        reasons.push("priorizada por IBM i Access 7.1 viejo / NO JAVA");
+      }
+
+      if (mentionsIbmAccess71 && intent === "IBM_ACS_JAVA") {
+        score -= 220;
+        reasons.push("penalizada porque el ticket indica viejo/7.1/no Java");
+      }
+
+      if (mentionsIbmAccess71 && intent === "AS400_SESION") {
+        score -= 140;
+        reasons.push("penalizada porque el ticket pide instalacion IBM i Access, no solo sesion");
+      }
+
+      if (!mentionsIbmAccess71 && detectedIntent.primary === "AS400_SESION" && intent === "IBM_I_ACCESS_71") {
+        score -= 160;
+        reasons.push("penalizada porque el ticket pide crear sesion, no instalar IBM i Access");
+      }
+
+      if (detectedIntent.primary === "DWG_TRUEVIEW" && intent === "AUTOCAD_LICENSE" && !issueText.includes("licencia")) {
+        score -= 120;
+        reasons.push("penalizada porque el ticket pide visualizar DWG, no AutoCAD completo");
+      }
+
+      if (detectedIntent.primary === "ADOBE_ACROBAT_PRO" && intent === "ADOBE_READER") {
+        score -= 110;
+        reasons.push("penalizada porque el ticket pide Acrobat Pro/licencia");
+      }
+
+      if (detectedIntent.primary === "ADOBE_READER" && intent === "ADOBE_ACROBAT_PRO" && !issueText.includes("pro")) {
+        score -= 110;
+        reasons.push("penalizada porque Reader alcanza para PDF sin licencia Pro");
+      }
+
       if ((detectedIntent.primary === "AS400_SESION" || issueText.includes("sesi")) && ["CLAVES_AGSERVER", "PORTAL_AUTOGESTION"].includes(intent)) {
         score -= 90;
         reasons.push("penalizada porque el ticket pide sesion, no blanqueo de clave");
@@ -540,19 +742,25 @@ export const scoreSolutionsForIssue = (issue, solutions) => {
       score += addWeightedFieldScore({ parts, values: data.steps, points: 2, reason: "pasos", reasons });
       score += addWeightedFieldScore({
         parts,
-        values: data.commands,
+        values: [...data.commands, ...data.installCommands],
         points: 1,
         reason: "comandos",
         reasons,
       });
+      score += addWeightedFieldScore({ parts, values: data.verificationSteps, points: 2, reason: "validacion", reasons });
 
       if (
         detectedIntent.isSpecific &&
         GENERIC_INTENTS.has(intent) &&
         INTENTS[detectedIntent.primary]?.parent !== intent
       ) {
-        score -= 35;
+        score -= 65;
         reasons.push("penalizada por generica ante una intencion especifica");
+      }
+
+      if (detectedIntent.isSpecific && intent === "INSTALACION_SOFTWARE" && detectedIntent.primary !== "INSTALACION_SOFTWARE") {
+        score -= 45;
+        reasons.push("penalizada porque existe ficha especifica de producto");
       }
 
       if (!isRelatedCategory(detectedIntent, solution)) {
@@ -596,7 +804,23 @@ export const scoreSolutionsForIssue = (issue, solutions) => {
 export const getSuggestedSolutions = (issue, solutions, limit = 5) => {
   const scored = scoreSolutionsForIssue(issue, solutions);
 
-  if (scored.length > 0) return scored.slice(0, limit);
+  if (scored.length > 0) {
+    const topScore = scored[0].score;
+    const useful = scored.filter((item) => item.score >= Math.max(MIN_SCORE, topScore * 0.42));
+    const selected = [];
+    let genericCount = 0;
+
+    useful.forEach((item) => {
+      if (selected.length >= limit) return;
+      if (item.isGeneric) {
+        if (genericCount >= 1) return;
+        genericCount += 1;
+      }
+      selected.push(item);
+    });
+
+    return selected.length > 0 ? selected : scored.slice(0, Math.min(limit, 2));
+  }
 
   const fallback = solutions
     .filter((solution) => ["EQUIPO_HARDWARE", "SOLICITAR_DATOS"].includes(solution.intent))

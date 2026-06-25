@@ -16,17 +16,34 @@ const splitTags = (value) =>
     .map((item) => item.trim())
     .filter(Boolean);
 
+const commandsToText = (commands = []) =>
+  commands.map((command) => (typeof command === "string" ? command : command.command)).join("\n");
+
 const initialForm = {
   title: "",
   category: "",
+  intent: "",
+  product: "",
   tags: "",
   risk: "Bajo",
   time: "10-20 min",
   powershell: true,
+  requiresApproval: false,
+  internalOnly: false,
+  licenseRequired: false,
+  officialDownloadUrl: "",
+  internalDownloadPath: "",
+  installerFile: "",
+  installerNotes: "",
+  installCommands: "",
+  verificationSteps: "",
   symptoms: "",
   causes: "",
   steps: "",
   commands: [emptyCommand],
+  jiraKeywords: "",
+  userMessage: "",
+  jiraTemplate: "",
   internalNotes: "",
 };
 
@@ -36,14 +53,28 @@ const solutionToForm = (solution) => {
   return {
     title: solution.title,
     category: solution.category,
+    intent: solution.intent,
+    product: solution.product,
     tags: solution.tags.join(", "),
     risk: solution.risk,
     time: solution.time,
     powershell: solution.powershell,
+    requiresApproval: solution.requiresApproval,
+    internalOnly: solution.internalOnly,
+    licenseRequired: solution.licenseRequired,
+    officialDownloadUrl: solution.officialDownloadUrl,
+    internalDownloadPath: solution.internalDownloadPath,
+    installerFile: solution.installerFile,
+    installerNotes: solution.installerNotes,
+    installCommands: commandsToText(solution.installCommands),
+    verificationSteps: solution.verificationSteps.join("\n"),
     symptoms: solution.symptoms.join("\n"),
     causes: solution.causes.join("\n"),
     steps: solution.steps.join("\n"),
     commands: solution.commands.length > 0 ? solution.commands : [emptyCommand],
+    jiraKeywords: solution.jiraKeywords.join(", "),
+    userMessage: solution.userMessage,
+    jiraTemplate: solution.jiraTemplate,
     internalNotes: solution.internalNotes,
   };
 };
@@ -89,16 +120,30 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
       id: initialSolution?.id ?? `custom-${Date.now()}`,
       title: form.title,
       category: form.category || "General",
+      intent: form.intent,
+      product: form.product,
       tags: splitTags(form.tags),
       risk: form.risk,
       time: form.time,
       powershell: form.powershell,
+      requiresApproval: form.requiresApproval,
+      internalOnly: form.internalOnly,
+      licenseRequired: form.licenseRequired,
+      officialDownloadUrl: form.officialDownloadUrl,
+      internalDownloadPath: form.internalDownloadPath,
+      installerFile: form.installerFile,
+      installerNotes: form.installerNotes,
+      installCommands: splitLines(form.installCommands),
+      verificationSteps: splitLines(form.verificationSteps),
       symptoms: splitLines(form.symptoms),
       causes: splitLines(form.causes),
       steps: splitLines(form.steps),
       commands: form.commands
         .filter((command) => command.command.trim())
         .map(normalizeCommand),
+      jiraKeywords: splitTags(form.jiraKeywords),
+      userMessage: form.userMessage,
+      jiraTemplate: form.jiraTemplate,
       internalNotes: form.internalNotes,
       source: initialSolution?.source ?? "custom",
     });
@@ -111,22 +156,40 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
     <form className="solution-form" onSubmit={handleSubmit}>
       <div className="form-grid">
         <label>
-          Título
+          Titulo
           <input
             required
             value={form.title}
             onChange={(event) => updateField("title", event.target.value)}
-            placeholder="Ej: Teams no inicia sesión"
+            placeholder="Ej: Power BI Desktop no instalado"
           />
         </label>
 
         <label>
-          Categoría
+          Categoria
           <input
             required
             value={form.category}
             onChange={(event) => updateField("category", event.target.value)}
-            placeholder="Ej: Microsoft 365"
+            placeholder="Ej: Instalacion de software"
+          />
+        </label>
+
+        <label>
+          Intent
+          <input
+            value={form.intent}
+            onChange={(event) => updateField("intent", event.target.value)}
+            placeholder="Ej: POWER_BI"
+          />
+        </label>
+
+        <label>
+          Producto
+          <input
+            value={form.product}
+            onChange={(event) => updateField("product", event.target.value)}
+            placeholder="Ej: Power BI Desktop"
           />
         </label>
 
@@ -157,22 +220,105 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
         <input
           value={form.tags}
           onChange={(event) => updateField("tags", event.target.value)}
-          placeholder="Teams, Office, Login"
+          placeholder="Power BI, Microsoft, instalacion"
         />
       </label>
 
-      <label className="checkbox-row">
-        <input
-          type="checkbox"
-          checked={form.powershell}
-          onChange={(event) => updateField("powershell", event.target.checked)}
+      <div className="checkbox-grid">
+        <label className="checkbox-row">
+          <input
+            type="checkbox"
+            checked={form.powershell}
+            onChange={(event) => updateField("powershell", event.target.checked)}
+          />
+          Incluye PowerShell
+        </label>
+
+        <label className="checkbox-row">
+          <input
+            type="checkbox"
+            checked={form.requiresApproval}
+            onChange={(event) => updateField("requiresApproval", event.target.checked)}
+          />
+          Requiere aprobacion
+        </label>
+
+        <label className="checkbox-row">
+          <input
+            type="checkbox"
+            checked={form.licenseRequired}
+            onChange={(event) => updateField("licenseRequired", event.target.checked)}
+          />
+          Requiere licencia
+        </label>
+
+        <label className="checkbox-row">
+          <input
+            type="checkbox"
+            checked={form.internalOnly}
+            onChange={(event) => updateField("internalOnly", event.target.checked)}
+          />
+          Solo interno
+        </label>
+      </div>
+
+      <div className="form-grid">
+        <label>
+          Descarga oficial
+          <input
+            value={form.officialDownloadUrl}
+            onChange={(event) => updateField("officialDownloadUrl", event.target.value)}
+            placeholder="https://..."
+          />
+        </label>
+
+        <label>
+          Ruta interna
+          <input
+            value={form.internalDownloadPath}
+            onChange={(event) => updateField("internalDownloadPath", event.target.value)}
+            placeholder="[RUTA_INTERNA]/Software"
+          />
+        </label>
+
+        <label>
+          Instalador esperado
+          <input
+            value={form.installerFile}
+            onChange={(event) => updateField("installerFile", event.target.value)}
+            placeholder="setup.exe"
+          />
+        </label>
+
+        <label>
+          Notas de instalacion
+          <input
+            value={form.installerNotes}
+            onChange={(event) => updateField("installerNotes", event.target.value)}
+            placeholder="Detalle operativo de instalacion"
+          />
+        </label>
+      </div>
+
+      <label>
+        Comandos de instalacion, uno por linea
+        <textarea
+          value={form.installCommands}
+          onChange={(event) => updateField("installCommands", event.target.value)}
         />
-        Incluye PowerShell
+      </label>
+
+      <label>
+        Pasos de validacion, uno por linea
+        <textarea
+          value={form.verificationSteps}
+          onChange={(event) => updateField("verificationSteps", event.target.value)}
+        />
       </label>
 
       <div className="form-grid">
         <label>
-          Síntomas, uno por línea
+          Sintomas, uno por linea
           <textarea
             required
             value={form.symptoms}
@@ -181,7 +327,7 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
         </label>
 
         <label>
-          Causas posibles, una por línea
+          Causas posibles, una por linea
           <textarea
             required
             value={form.causes}
@@ -191,7 +337,7 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
       </div>
 
       <label>
-        Pasos sugeridos, uno por línea
+        Pasos sugeridos, uno por linea
         <textarea
           required
           value={form.steps}
@@ -221,7 +367,7 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
               onChange={(event) =>
                 updateCommand(index, "description", event.target.value)
               }
-              placeholder="Descripción del comando"
+              placeholder="Descripcion del comando"
             />
             <button type="button" onClick={() => removeCommand(index)}>
               Quitar
@@ -229,6 +375,31 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
           </div>
         ))}
       </div>
+
+      <label>
+        Keywords Jira separados por coma
+        <input
+          value={form.jiraKeywords}
+          onChange={(event) => updateField("jiraKeywords", event.target.value)}
+          placeholder="power bi, pbix, instalar power bi"
+        />
+      </label>
+
+      <label>
+        Mensaje interno de usuario
+        <textarea
+          value={form.userMessage}
+          onChange={(event) => updateField("userMessage", event.target.value)}
+        />
+      </label>
+
+      <label>
+        Template Jira
+        <textarea
+          value={form.jiraTemplate}
+          onChange={(event) => updateField("jiraTemplate", event.target.value)}
+        />
+      </label>
 
       <label>
         Notas internas
@@ -245,7 +416,7 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
           </button>
         )}
         <button className="submit-solution" type="submit">
-          {isEditing ? "Guardar cambios" : "Guardar solución"}
+          {isEditing ? "Guardar cambios" : "Guardar solucion"}
         </button>
       </div>
     </form>

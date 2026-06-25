@@ -3,13 +3,21 @@ import { getSuggestedSolutions } from "../src/services/solutionMatcher.js";
 
 const cases = [
   ["Instalacion Power BI Desktop", ["Instalacion Power BI Desktop"]],
-  ["Blanqueo contraseña AG usuario inhabilitado", ["Blanqueo / desbloqueo AGSERVER"]],
+  ["Instalacion Google Earth de Escritorio", ["Instalacion Google Earth Pro"]],
+  ["Instalacion de software Fluke Connect Desktop para camara termografica", ["Instalacion Fluke Connect Desktop"]],
+  ["Instalar AGSERVER viejo 7.1 no Java SI00000", ["IBM i Access 7.1 / AGSERVER viejo (NO JAVA)"]],
+  ["Crear nueva sesion AGSERVER AS400", ["AGSERVER / AS400 - Nueva sesion 5250"]],
+  ["Instalar Adobe Reader para PDF", ["Instalacion Adobe Reader"]],
+  ["Instalar Acrobat Pro", ["Acrobat Pro - instalacion con licencia"]],
+  ["Necesito ver archivo DWG", ["DWG TrueView / Autodesk Viewer"]],
+  ["Instalar scanner HP ScanJet", ["HP ScanJet / scanner HP"]],
+  ["Instalar tickeadora Epson TM-U220", ["Epson TM-U220 / Tickeadora"]],
+  ["Blanqueo contrasena AG usuario inhabilitado", ["Blanqueo / desbloqueo AGSERVER"]],
   ["FortiClient no muestra Remote Access", ["FortiClient no muestra Remote Access"]],
   ["No imprime la impresora IGRO06", ["Liberar impresora / cola bloqueada"]],
   ["Outlook lento, se cuelga al abrir correo", ["Outlook lento / OST grande"]],
   ["Quitar WPS, los documentos abren con WPS", ["Quitar WPS Office por PowerShell"]],
   ["Configurar SAP GUI CGP", ["SAP GUI - Configuracion CGP"]],
-  ["Crear nueva sesion AGSERVER AS400", ["AGSERVER / AS400 - Nueva sesion"]],
   ["DebMedia no muestra pantalla de DNI", ["DebMedia Player - Configuracion"]],
   ["ROOTS error excepcion", ["ROOTS / error de excepcion"]],
 ];

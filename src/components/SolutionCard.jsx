@@ -6,51 +6,68 @@ const COPY_MESSAGE_TIMEOUT = 1800;
 const commandText = (command) =>
   typeof command === "string" ? command : command.command;
 
+const commandDescription = (command) =>
+  typeof command === "string" ? "" : command.description;
+
 const sectionToText = (title, items, formatter = (item) => `- ${item}`) =>
-  `${title}:\n${items.map(formatter).join("\n")}`;
+  items.length > 0 ? `${title}:\n${items.map(formatter).join("\n")}` : "";
+
+const numberedLines = (items) =>
+  items.map((item, index) => `${index + 1}. ${item}`).join("\n");
 
 const buildProcedure = (solution) =>
   [
     solution.title,
-    `Categoría: ${solution.category}`,
+    `Categoria: ${solution.category}`,
     `Riesgo: ${solution.risk}`,
     `Tiempo estimado: ${solution.time}`,
+    solution.requiresApproval ? "Requiere aprobacion: si" : "",
+    solution.licenseRequired ? "Requiere licencia: si" : "",
+    solution.officialDownloadUrl ? `Descarga oficial: ${solution.officialDownloadUrl}` : "",
+    solution.internalDownloadPath ? `Ruta interna: ${solution.internalDownloadPath}` : "",
+    solution.installerFile ? `Instalador esperado: ${solution.installerFile}` : "",
+    solution.installerNotes ? `Notas de instalacion: ${solution.installerNotes}` : "",
     "",
-    sectionToText("Síntomas", solution.symptoms),
+    sectionToText("Sintomas", solution.symptoms),
     "",
     sectionToText("Causas posibles", solution.causes),
     "",
-    sectionToText(
-      "Pasos sugeridos",
-      solution.steps,
-      (item, index) => `${index + 1}. ${item}`
-    ),
+    sectionToText("Pasos sugeridos", solution.steps, (item, index) => `${index + 1}. ${item}`),
     "",
     sectionToText(
       "Comandos",
       solution.commands,
       (command) =>
         `- ${commandText(command)}${
-          command.description ? `\n  Descripción: ${command.description}` : ""
+          commandDescription(command) ? `\n  Descripcion: ${commandDescription(command)}` : ""
         }`
     ),
     "",
+    sectionToText("Comandos de instalacion", solution.installCommands, commandText),
+    "",
+    sectionToText("Pasos de validacion", solution.verificationSteps),
+    "",
+    solution.jiraTemplate ? `Respuesta Jira:\n${solution.jiraTemplate}` : "",
+    "",
     "Notas internas:",
     solution.internalNotes,
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 
 const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) => {
   const [copiedLabel, setCopiedLabel] = useState("");
   const isEditable = solution.source !== "base";
   const canPromote = isEditable && solution.source !== "shared";
+  const commandsText = solution.commands.map(commandText).join("\n");
+  const installCommandsText = solution.installCommands.map(commandText).join("\n");
+  const verificationText = numberedLines(solution.verificationSteps);
 
   const copyText = async (text, label) => {
     await navigator.clipboard.writeText(text);
     setCopiedLabel(label);
     window.setTimeout(() => setCopiedLabel(""), COPY_MESSAGE_TIMEOUT);
   };
-
-  const commandsText = solution.commands.map(commandText).join("\n");
 
   return (
     <article className="solution-card">
@@ -76,12 +93,53 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
               </button>
             </>
           )}
+          {solution.officialDownloadUrl && (
+            <button
+              className="secondary-action"
+              onClick={() => window.open(solution.officialDownloadUrl, "_blank", "noreferrer")}
+            >
+              Abrir descarga oficial
+            </button>
+          )}
+          {solution.internalDownloadPath && (
+            <button
+              className="secondary-action"
+              onClick={() => copyText(solution.internalDownloadPath, "Ruta interna")}
+            >
+              Copiar ruta interna
+            </button>
+          )}
           <button
             className="secondary-action"
             onClick={() => copyText(commandsText, "Comandos")}
+            disabled={!commandsText}
           >
             Copiar comandos
           </button>
+          {installCommandsText && (
+            <button
+              className="secondary-action"
+              onClick={() => copyText(installCommandsText, "Comandos de instalacion")}
+            >
+              Copiar comandos instalacion
+            </button>
+          )}
+          {verificationText && (
+            <button
+              className="secondary-action"
+              onClick={() => copyText(verificationText, "Pasos de validacion")}
+            >
+              Copiar validacion
+            </button>
+          )}
+          {solution.jiraTemplate && (
+            <button
+              className="secondary-action"
+              onClick={() => copyText(solution.jiraTemplate, "Respuesta Jira")}
+            >
+              Copiar respuesta Jira
+            </button>
+          )}
           <button onClick={() => copyText(buildProcedure(solution), "Ficha")}>
             Copiar ficha
           </button>
@@ -99,6 +157,8 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
           Riesgo {solution.risk}
         </span>
         <span className="time">Tiempo {solution.time}</span>
+        {solution.requiresApproval && <span className="source">Requiere aprobacion</span>}
+        {solution.licenseRequired && <span className="source">Requiere licencia</span>}
         {isEditable && <span className="source">Agregada</span>}
       </div>
 
@@ -108,8 +168,45 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
         ))}
       </div>
 
+      {(solution.officialDownloadUrl ||
+        solution.internalDownloadPath ||
+        solution.installerFile ||
+        solution.installerNotes) && (
+        <section>
+          <h3>Descarga e instalador</h3>
+          <div className="install-info-grid">
+            {solution.officialDownloadUrl && (
+              <div>
+                <strong>Descarga oficial</strong>
+                <a href={solution.officialDownloadUrl} target="_blank" rel="noreferrer">
+                  {solution.officialDownloadUrl}
+                </a>
+              </div>
+            )}
+            {solution.internalDownloadPath && (
+              <div>
+                <strong>Ruta interna</strong>
+                <code>{solution.internalDownloadPath}</code>
+              </div>
+            )}
+            {solution.installerFile && (
+              <div>
+                <strong>Instalador esperado</strong>
+                <span>{solution.installerFile}</span>
+              </div>
+            )}
+            {solution.installerNotes && (
+              <div>
+                <strong>Notas de instalacion</strong>
+                <span>{solution.installerNotes}</span>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       <section>
-        <h3>Síntomas</h3>
+        <h3>Sintomas</h3>
         <ul>
           {solution.symptoms.map((item) => (
             <li key={item}>{item}</li>
@@ -135,6 +232,40 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
         </ol>
       </section>
 
+      {solution.installCommands.length > 0 && (
+        <section>
+          <h3>Comandos de instalacion</h3>
+          <div className="commands">
+            {solution.installCommands.map((command) => (
+              <div key={commandText(command)} className="command-box">
+                <div className="command-content">
+                  <code>{commandText(command)}</code>
+                  {commandDescription(command) && (
+                    <p>
+                      <strong>Descripcion:</strong> {commandDescription(command)}
+                    </p>
+                  )}
+                </div>
+                <button onClick={() => copyText(commandText(command), "Comando")}>
+                  Copiar
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {solution.verificationSteps.length > 0 && (
+        <section>
+          <h3>Pasos de validacion</h3>
+          <ol>
+            {solution.verificationSteps.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ol>
+        </section>
+      )}
+
       <section>
         <h3>Comandos</h3>
         <div className="commands">
@@ -144,7 +275,7 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
                 <code>{command.command}</code>
                 {command.description && (
                   <p>
-                    <strong>Descripción:</strong> {command.description}
+                    <strong>Descripcion:</strong> {command.description}
                   </p>
                 )}
               </div>
@@ -153,8 +284,18 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
               </button>
             </div>
           ))}
+          {solution.commands.length === 0 && (
+            <p className="empty-results">Esta ficha no tiene comandos asociados.</p>
+          )}
         </div>
       </section>
+
+      {solution.jiraTemplate && (
+        <section>
+          <h3>Template Jira</h3>
+          <div className="user-message">{solution.jiraTemplate}</div>
+        </section>
+      )}
 
       <section>
         <h3>Notas internas</h3>
