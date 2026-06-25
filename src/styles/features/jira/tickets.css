@@ -1,4 +1,5 @@
 ﻿.jira-shell {
+  --jira-ticket-row-min-width: 1060px;
   display: flex;
   max-width: 1320px;
   flex-direction: column;
@@ -133,6 +134,7 @@
   max-height: calc(100vh - 430px);
   min-height: 360px;
   overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .jira-ticket-row {
@@ -140,6 +142,7 @@
   grid-template-columns: 88px minmax(260px, 1.7fr) 130px 110px minmax(130px, 0.8fr) 150px 86px;
   gap: 10px;
   width: 100%;
+  min-width: var(--jira-ticket-row-min-width);
   min-height: 56px;
   align-items: center;
   padding: 10px 12px;
@@ -153,7 +156,13 @@
 
 .jira-ticket-spacer {
   height: var(--ticket-spacer-height);
+  min-width: var(--jira-ticket-row-min-width);
   pointer-events: none;
+}
+
+.jira-loader-row,
+.jira-empty {
+  min-width: var(--jira-ticket-row-min-width);
 }
 
 button.jira-ticket-row {
@@ -224,6 +233,13 @@ button.jira-ticket-row.active {
 
   .jira-ticket-row {
     grid-template-columns: 82px minmax(180px, 1fr) 100px 82px;
+    min-width: 620px;
+  }
+
+  .jira-ticket-spacer,
+  .jira-loader-row,
+  .jira-empty {
+    min-width: 620px;
   }
 
   .jira-ticket-row span:nth-child(4),
