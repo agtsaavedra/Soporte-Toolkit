@@ -1,6 +1,8 @@
 ﻿.jira-shell {
   --jira-ticket-row-min-width: 1060px;
   display: flex;
+  height: 100%;
+  min-height: 0;
   max-width: 1320px;
   flex-direction: column;
   gap: 18px;
@@ -92,11 +94,17 @@
 }
 
 .jira-workspace {
-  display: block;
+  display: flex;
+  min-height: 0;
+  flex: 1;
 }
 
 .jira-list-panel {
-  max-height: calc(100vh - 210px);
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
   overflow: hidden;
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -131,8 +139,8 @@
 }
 
 .jira-ticket-table {
-  max-height: calc(100vh - 430px);
-  min-height: 360px;
+  min-height: 0;
+  flex: 1;
   overflow-x: scroll;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -247,11 +255,25 @@ button.jira-ticket-row.active {
 
 @media (max-width: 1280px) {
   .jira-ticket-table {
-    max-height: 520px;
+    min-height: 0;
   }
 }
 
 @media (max-width: 820px) {
+  .jira-shell {
+    height: auto;
+  }
+
+  .jira-workspace,
+  .jira-list-panel {
+    display: block;
+  }
+
+  .jira-ticket-table {
+    max-height: 520px;
+    min-height: 360px;
+  }
+
   .jira-live-header {
     align-items: flex-start;
     flex-direction: column;

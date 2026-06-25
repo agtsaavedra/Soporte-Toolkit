@@ -107,7 +107,7 @@ function App() {
         view={view}
       />
 
-      <section className="content">
+      <section className={view === VIEWS.JIRA ? "content content-jira" : "content"}>
         {view === VIEWS.JIRA ? (
           <JiraTickets
             tickets={jira.jiraTickets}
