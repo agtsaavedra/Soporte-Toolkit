@@ -12,14 +12,15 @@ const copyText = async (text) => {
 const JiraAiAssistant = ({ ticket, suggestions }) => {
   const [question, setQuestion] = useState(DEFAULT_QUESTION);
   const [notice, setNotice] = useState("");
-  const [isPromptVisible, setIsPromptVisible] = useState(true);
+  const [isPromptVisible, setIsPromptVisible] = useState(false);
 
-  const prompt = useMemo(
-    () => buildHelpdeskAiPrompt({ ticket, suggestions, question }),
-    [question, suggestions, ticket]
+  const visiblePrompt = useMemo(
+    () => (isPromptVisible ? buildHelpdeskAiPrompt({ ticket, suggestions, question }) : ""),
+    [isPromptVisible, question, suggestions, ticket]
   );
 
   const copyPrompt = async () => {
+    const prompt = buildHelpdeskAiPrompt({ ticket, suggestions, question });
     await copyText(prompt);
     setNotice("Consulta lista copiada.");
   };
@@ -81,7 +82,7 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
             <small>Incluye ticket, comentarios y soluciones sugeridas.</small>
           </div>
           <textarea
-            value={prompt}
+            value={visiblePrompt}
             readOnly
             rows={12}
             onFocus={(event) => event.target.select()}

@@ -25,7 +25,13 @@ const buildTicketSummary = (ticket) =>
     .filter(Boolean)
     .join("\n");
 
-const JiraTicketDetail = ({ ticket, suggestions, isLoading = false, onClose }) => {
+const JiraTicketDetail = ({
+  ticket,
+  suggestions,
+  suggestionsLoading = false,
+  isLoading = false,
+  onClose,
+}) => {
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "Escape") onClose?.();
@@ -97,6 +103,7 @@ const JiraTicketDetail = ({ ticket, suggestions, isLoading = false, onClose }) =
             <JiraSuggestedSolutions
               ticket={ticket}
               suggestions={suggestions}
+              isLoading={suggestionsLoading}
             />
 
             <details className="jira-section jira-collapsible-section">

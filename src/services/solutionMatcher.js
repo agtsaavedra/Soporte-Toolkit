@@ -189,6 +189,8 @@ const SOURCE_WEIGHTS = {
   changelog: 0.35,
   metadata: 0.75,
 };
+const SOLUTION_MATCH_CACHE = new WeakMap();
+const INTENT_MATCH_CACHE = new Map();
 
 export const normalizeText = (value = "") =>
   String(value)
@@ -252,25 +254,35 @@ export const getIssuePlainText = (issue = {}) => {
 
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const hasTerm = (text, value) => {
-  const term = normalizeText(value);
+const hasNormalizedTerm = (text, term) => {
   if (!term) return false;
 
   if (/^[a-z0-9]{1,3}$/.test(term)) return new RegExp(`(^|[^a-z0-9])${escapeRegExp(term)}(?=$|[^a-z0-9])`).test(text);
 
   return text.includes(term);
 };
-const countMatches = (text, values = []) =>
-  values.reduce((count, value) => {
-    const normalized = normalizeText(value);
-    return hasTerm(text, normalized) ? count + 1 : count;
-  }, 0);
 
-const firstMatches = (text, values = [], limit = 3) =>
-  values
-    .map(normalizeText)
-    .filter((value) => hasTerm(text, value))
-    .slice(0, limit);
+const normalizeTerms = (values = []) =>
+  values.map(normalizeText).filter(Boolean);
+
+const firstNormalizedMatches = (text, values = [], limit = 3) =>
+  values.filter((value) => hasNormalizedTerm(text, value)).slice(0, limit);
+
+const countNormalizedMatches = (text, values = []) =>
+  values.reduce((count, value) => (hasNormalizedTerm(text, value) ? count + 1 : count), 0);
+
+const getIntentMatchData = (intent, config) => {
+  const cached = INTENT_MATCH_CACHE.get(intent);
+  if (cached) return cached;
+
+  const data = {
+    products: normalizeTerms(config.products),
+    keywords: normalizeTerms(config.keywords),
+  };
+
+  INTENT_MATCH_CACHE.set(intent, data);
+  return data;
+};
 
 const getProductTerms = (solution, config) => {
   const product = normalizeText(solution.product).toUpperCase();
@@ -284,14 +296,17 @@ const getProductTerms = (solution, config) => {
 };
 
 const scoreIntentInText = ({ intent, config, text, weight }) => {
-  const keywordMatches = countMatches(text, config.keywords);
-  const productMatches = countMatches(text, config.products);
+  const intentData = getIntentMatchData(intent, config);
+  const keywordMatches = countNormalizedMatches(text, intentData.keywords);
+  const productMatches = countNormalizedMatches(text, intentData.products);
   const installBoost =
-    config.parent === "INSTALACION_SOFTWARE" && countMatches(text, INTENTS.INSTALACION_SOFTWARE.keywords) > 0
+    config.parent === "INSTALACION_SOFTWARE" &&
+    countNormalizedMatches(text, getIntentMatchData("INSTALACION_SOFTWARE", INTENTS.INSTALACION_SOFTWARE).keywords) > 0
       ? 2
       : 0;
   const sessionBoost =
-    intent === "AS400_SESION" && (countMatches(text, ["sesion", "nueva sesion", "5250"]) > 0 || text.includes("sesi"))
+    intent === "AS400_SESION" &&
+    (countNormalizedMatches(text, ["sesion", "nueva sesion", "5250"]) > 0 || text.includes("sesi"))
       ? 40
       : 0;
 
@@ -315,10 +330,10 @@ const detectIntentFromParts = (parts) => {
         intent,
         label: config.label,
         category: config.category,
-        products: firstMatches(fullText, config.products),
-        keywords: firstMatches(fullText, config.keywords),
-        summaryProducts: firstMatches(normalizedParts.summary, config.products),
-        summaryKeywords: firstMatches(normalizedParts.summary, config.keywords),
+        products: firstNormalizedMatches(fullText, getIntentMatchData(intent, config).products),
+        keywords: firstNormalizedMatches(fullText, getIntentMatchData(intent, config).keywords),
+        summaryProducts: firstNormalizedMatches(normalizedParts.summary, getIntentMatchData(intent, config).products),
+        summaryKeywords: firstNormalizedMatches(normalizedParts.summary, getIntentMatchData(intent, config).keywords),
         score,
         generic: Boolean(config.generic),
       };
@@ -367,12 +382,43 @@ const solutionText = (solution) =>
     ].join(" ")
   );
 
+const getSolutionMatchData = (solution) => {
+  const cached = SOLUTION_MATCH_CACHE.get(solution);
+  if (cached) return cached;
+
+  const intent = inferSolutionIntent(solution);
+  const config = INTENTS[intent];
+  const commands = solution.commands ?? [];
+  const data = {
+    intent,
+    config,
+    isGeneric: GENERIC_INTENTS.has(intent),
+    text: solutionText(solution),
+    normalizedCategory: normalizeText(solution.category),
+    normalizedProduct: normalizeText(solution.product),
+    productTerms: normalizeTerms(getProductTerms(solution, config)),
+    jiraKeywords: normalizeTerms(solution.jiraKeywords),
+    tags: normalizeTerms(solution.tags),
+    title: normalizeTerms([solution.title]),
+    category: normalizeTerms([solution.category]),
+    symptoms: normalizeTerms(solution.symptoms),
+    causes: normalizeTerms(solution.causes),
+    steps: normalizeTerms(solution.steps),
+    commands: normalizeTerms(
+      commands.flatMap((command) => [command.command, command.description])
+    ),
+  };
+
+  SOLUTION_MATCH_CACHE.set(solution, data);
+  return data;
+};
+
 const addWeightedFieldScore = ({ parts, values, points, reason, reasons }) => {
   const found = new Map();
   let score = 0;
 
   Object.entries(parts).forEach(([source, text]) => {
-    const matches = firstMatches(text, values, 4);
+    const matches = firstNormalizedMatches(text, values, 4);
     if (matches.length === 0) return;
 
     matches.forEach((match) => found.set(match, source));
@@ -389,7 +435,8 @@ const addWeightedFieldScore = ({ parts, values, points, reason, reasons }) => {
 const isRelatedCategory = (detectedIntent, solution) => {
   if (detectedIntent.primary === "UNKNOWN") return true;
   const category = INTENTS[detectedIntent.primary]?.category;
-  return !category || normalizeText(solution.category).includes(normalizeText(category));
+  const data = getSolutionMatchData(solution);
+  return !category || data.normalizedCategory.includes(normalizeText(category));
 };
 
 const buildReason = ({ detectedIntent, solution, reasons, score }) => {
@@ -412,19 +459,18 @@ export const scoreSolutionsForIssue = (issue, solutions) => {
 
   const scored = solutions
     .map((solution) => {
-      const intent = inferSolutionIntent(solution);
-      const config = INTENTS[intent];
-      const text = solutionText(solution);
-      const productTerms = getProductTerms(solution, config);
-      const productMatches = firstMatches(primaryText, productTerms, 4).filter(Boolean);
-      const hasSolutionProductMatch = productMatches.length > 0 && productMatches.some((product) => hasTerm(text, product));
+      const data = getSolutionMatchData(solution);
+      const intent = data.intent;
+      const config = data.config;
+      const productMatches = firstNormalizedMatches(primaryText, data.productTerms, 4).filter(Boolean);
+      const hasSolutionProductMatch = productMatches.length > 0 && productMatches.some((product) => hasNormalizedTerm(data.text, product));
       const reasons = [];
       let score = 0;
 
       const directMatches = [
-        ...firstMatches(primaryText, solution.jiraKeywords, 4),
-        ...firstMatches(primaryText, solution.tags, 4),
-        ...firstMatches(primaryText, [solution.title, solution.product], 4),
+        ...firstNormalizedMatches(primaryText, data.jiraKeywords, 4),
+        ...firstNormalizedMatches(primaryText, data.tags, 4),
+        ...firstNormalizedMatches(primaryText, [...data.title, data.normalizedProduct], 4),
       ];
 
       if (detectedIntent.primary !== "UNKNOWN" && intent === detectedIntent.primary) {
@@ -485,16 +531,16 @@ export const scoreSolutionsForIssue = (issue, solutions) => {
         reasons.push("penalizada porque autogestion solo aplica a gestion de claves");
       }
 
-      score += addWeightedFieldScore({ parts, values: solution.jiraKeywords, points: 15, reason: "keywords", reasons });
-      score += addWeightedFieldScore({ parts, values: solution.tags, points: 10, reason: "tags", reasons });
-      score += addWeightedFieldScore({ parts, values: [solution.title], points: 20, reason: "titulo", reasons });
-      score += addWeightedFieldScore({ parts, values: [solution.category], points: 6, reason: "categoria", reasons });
-      score += addWeightedFieldScore({ parts, values: solution.symptoms, points: 4, reason: "sintomas", reasons });
-      score += addWeightedFieldScore({ parts, values: solution.causes, points: 4, reason: "causas", reasons });
-      score += addWeightedFieldScore({ parts, values: solution.steps, points: 2, reason: "pasos", reasons });
+      score += addWeightedFieldScore({ parts, values: data.jiraKeywords, points: 15, reason: "keywords", reasons });
+      score += addWeightedFieldScore({ parts, values: data.tags, points: 10, reason: "tags", reasons });
+      score += addWeightedFieldScore({ parts, values: data.title, points: 20, reason: "titulo", reasons });
+      score += addWeightedFieldScore({ parts, values: data.category, points: 6, reason: "categoria", reasons });
+      score += addWeightedFieldScore({ parts, values: data.symptoms, points: 4, reason: "sintomas", reasons });
+      score += addWeightedFieldScore({ parts, values: data.causes, points: 4, reason: "causas", reasons });
+      score += addWeightedFieldScore({ parts, values: data.steps, points: 2, reason: "pasos", reasons });
       score += addWeightedFieldScore({
         parts,
-        values: (solution.commands ?? []).flatMap((command) => [command.command, command.description]),
+        values: data.commands,
         points: 1,
         reason: "comandos",
         reasons,
@@ -521,7 +567,7 @@ export const scoreSolutionsForIssue = (issue, solutions) => {
         reasons: [...new Set(reasons)],
         reason: buildReason({ detectedIntent, solution, reasons, score }),
         detectedIntent,
-        isGeneric: GENERIC_INTENTS.has(intent),
+        isGeneric: data.isGeneric,
       };
     })
     .filter((item) => item.score >= MIN_SCORE)

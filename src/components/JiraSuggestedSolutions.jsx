@@ -10,7 +10,7 @@ const copyText = async (text) => {
 const numberedLines = (items) =>
   items.map((item, index) => `${index + 1}. ${item}`).join("\n");
 
-const JiraSuggestedSolutions = ({ suggestions }) => {
+const JiraSuggestedSolutions = ({ suggestions, isLoading = false }) => {
   const [openSolutionId, setOpenSolutionId] = useState("");
   const hasUsefulSuggestions = suggestions.some((suggestion) => !suggestion.isFallback);
 
@@ -18,12 +18,14 @@ const JiraSuggestedSolutions = ({ suggestions }) => {
     <section className="jira-section jira-suggestions">
       <div className="jira-suggestions-heading">
         <h3>Soluciones sugeridas</h3>
-        {!hasUsefulSuggestions && (
+        {isLoading && <p>Analizando ticket contra la base de soluciones...</p>}
+        {!isLoading && !hasUsefulSuggestions && (
           <p>No hay una solucion confiable para este ticket. Usar diagnostico general o crear nueva ficha.</p>
         )}
       </div>
 
-      <div className="jira-suggestion-list">
+      {!isLoading && (
+        <div className="jira-suggestion-list">
         {suggestions.map(({ solution, score, reason, isFallback }) => {
           const isOpen = openSolutionId === solution.id;
           const commandTextValue = solution.commands.map(commandText).join("\n");
@@ -95,7 +97,8 @@ const JiraSuggestedSolutions = ({ suggestions }) => {
             </article>
           );
         })}
-      </div>
+        </div>
+      )}
     </section>
   );
 };

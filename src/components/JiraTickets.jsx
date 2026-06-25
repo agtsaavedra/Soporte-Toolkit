@@ -13,6 +13,11 @@ const OVERSCAN_ROWS = 8;
 const hasCompleteTicketDetail = (ticket) =>
   Boolean(ticket.description || ticket.comments.length > 0 || ticket.changelog.length > 0);
 
+const waitForNextFrame = () =>
+  new Promise((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+
 const formatDate = (value) => {
   if (!value) return "-";
   return new Date(value).toLocaleString("es-AR");
@@ -65,6 +70,8 @@ const JiraTickets = ({
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [detailLoadingKey, setDetailLoadingKey] = useState("");
   const [detailError, setDetailError] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [scrollTop, setScrollTop] = useState(0);
   const tableRef = useRef(null);
   const scrollFrameRef = useRef(0);
@@ -76,6 +83,36 @@ const JiraTickets = ({
     },
     []
   );
+
+  useEffect(() => {
+    let idleId = null;
+    const setupId = window.setTimeout(() => {
+      if (!isDetailOpen || !selectedTicket) {
+        setSuggestions([]);
+        setSuggestionsLoading(false);
+        return;
+      }
+
+      setSuggestions([]);
+      setSuggestionsLoading(true);
+
+      const runMatcher = () => {
+        setSuggestions(getSuggestedSolutions(selectedTicket, solutions, 6));
+        setSuggestionsLoading(false);
+      };
+
+      idleId = window.requestIdleCallback
+        ? window.requestIdleCallback(runMatcher, { timeout: 350 })
+        : window.setTimeout(runMatcher, 0);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(setupId);
+      if (idleId === null) return;
+      if (window.cancelIdleCallback) window.cancelIdleCallback(idleId);
+      else window.clearTimeout(idleId);
+    };
+  }, [isDetailOpen, selectedTicket, solutions]);
 
   const indexedTickets = useMemo(
     () =>
@@ -125,10 +162,6 @@ const JiraTickets = ({
     };
   }, [filteredTickets, scrollTop]);
 
-  const suggestions = useMemo(
-    () => (selectedTicket ? getSuggestedSolutions(selectedTicket, solutions, 6) : []),
-    [selectedTicket, solutions]
-  );
   const hasSyncedTickets = tickets.length > 0 || Boolean(cacheMeta?.lastSync);
 
   const handleTableScroll = (event) => {
@@ -154,6 +187,7 @@ const JiraTickets = ({
 
     setDetailLoadingKey(ticket.key);
     try {
+      await waitForNextFrame();
       const detail = await fetchTicketByKey(ticket.key);
       if (onTicketLoaded) await onTicketLoaded(detail);
       else onSelectTicket(detail);
@@ -332,6 +366,7 @@ const JiraTickets = ({
         <JiraTicketDetail
           ticket={selectedTicket}
           suggestions={suggestions}
+          suggestionsLoading={suggestionsLoading}
           isLoading={Boolean(detailLoadingKey)}
           onClose={() => setIsDetailOpen(false)}
         />
