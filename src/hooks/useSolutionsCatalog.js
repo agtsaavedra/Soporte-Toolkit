@@ -120,7 +120,7 @@ export const useSolutionsCatalog = ({ authSession, showToast }) => {
 
     applyRepositoryResult(result);
     setSelected(result.item);
-    showToast("Solucion guardada");
+    showToast("Solución guardada");
     return VIEWS.CATALOG;
   };
 
@@ -129,7 +129,7 @@ export const useSolutionsCatalog = ({ authSession, showToast }) => {
 
     applyRepositoryResult(result);
     setSelected(result.item);
-    showToast("Solucion actualizada");
+    showToast("Solución actualizada");
     return VIEWS.CATALOG;
   };
 
@@ -137,7 +137,7 @@ export const useSolutionsCatalog = ({ authSession, showToast }) => {
     if (!selected || selected.source === "base") return null;
 
     const confirmed = window.confirm(
-      `Eliminar la solucion "${selected.title}" de la base compartida?`
+      `¿Eliminar la solución "${selected.title}" de la base compartida?`
     );
 
     if (!confirmed) return null;
@@ -152,7 +152,7 @@ export const useSolutionsCatalog = ({ authSession, showToast }) => {
 
     applyRepositoryResult(result);
     setSelected(nextSelected);
-    showToast("Solucion eliminada");
+    showToast("Solución eliminada");
     return VIEWS.CATALOG;
   };
 
@@ -162,7 +162,7 @@ export const useSolutionsCatalog = ({ authSession, showToast }) => {
     const result = await publishSolutions([selected], customSolutions);
     applyRepositoryResult(result);
     setSelected(result.items.find((item) => item.id === selected.id) ?? selected);
-    showToast("Solucion publicada en la base compartida");
+    showToast("Solución publicada en la base compartida");
   };
 
   const handlePublishBase = async () => {
@@ -186,7 +186,7 @@ export const useSolutionsCatalog = ({ authSession, showToast }) => {
     link.download = `soporte-toolkit-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    showToast("Exportacion generada");
+    showToast("Exportación generada");
   };
 
   const handleImport = async (event) => {
@@ -197,11 +197,11 @@ export const useSolutionsCatalog = ({ authSession, showToast }) => {
       const parsed = JSON.parse(await file.text());
       const items = Array.isArray(parsed) ? parsed : parsed.solutions;
 
-      if (!Array.isArray(items)) throw new Error("Formato invalido");
+      if (!Array.isArray(items)) throw new Error("Formato inválido");
 
       const result = await importUserSolutions(items, customSolutions);
       applyRepositoryResult(result);
-      showToast(`${items.length} solucion(es) importadas`);
+      showToast(`${items.length} solución(es) importadas`);
     } catch {
       showToast("No se pudo importar el archivo");
     } finally {

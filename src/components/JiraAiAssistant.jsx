@@ -3,7 +3,7 @@ import { buildHelpdeskAiPrompt } from "../services/aiAssistantService";
 import "../styles/features/jira/ai-assistant.css";
 
 const DEFAULT_QUESTION =
-  "Analiza el requerimiento, elegi la mejor solucion sugerida y dame acciones tecnicas concretas.";
+  "Analizá el requerimiento, elegí la mejor solución sugerida y dame acciones técnicas concretas.";
 
 const copyText = async (text) => {
   await navigator.clipboard.writeText(text);
@@ -47,15 +47,14 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
       </div>
 
       <p className="jira-ai-mode-note">
-        La app copia el contexto completo del ticket y abre ChatGPT. No usa API
-        paga ni guarda credenciales.
+        La app copia el contexto completo del ticket y abre ChatGPT. No usa API paga ni guarda credenciales.
       </p>
 
       <textarea
         value={question}
         onChange={(event) => setQuestion(event.target.value)}
         rows={5}
-        placeholder="Pedile a la IA que analice el ticket, compare soluciones o redacte una respuesta..."
+        placeholder="Pedile a la IA que analice el ticket, compare soluciones o proponga pasos técnicos..."
       />
 
       <div className="jira-ai-actions">
@@ -93,8 +92,8 @@ const JiraAiAssistant = ({ ticket, suggestions }) => {
 
       <div className="jira-ai-answer">
         <p>
-          Despues de abrir ChatGPT, pega la consulta copiada y pedi el analisis.
-          El texto incluye descripcion, comentarios recientes y soluciones sugeridas.
+          Después de abrir ChatGPT, pegá la consulta copiada y pedí el análisis.
+          El texto incluye descripción, comentarios recientes y soluciones sugeridas.
         </p>
       </div>
     </aside>

@@ -156,7 +156,7 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
     <form className="solution-form" onSubmit={handleSubmit}>
       <div className="form-grid">
         <label>
-          Titulo
+          Título
           <input
             required
             value={form.title}
@@ -166,12 +166,12 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
         </label>
 
         <label>
-          Categoria
+          Categoría
           <input
             required
             value={form.category}
             onChange={(event) => updateField("category", event.target.value)}
-            placeholder="Ej: Instalacion de software"
+            placeholder="Ej: Instalación de software"
           />
         </label>
 
@@ -220,7 +220,7 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
         <input
           value={form.tags}
           onChange={(event) => updateField("tags", event.target.value)}
-          placeholder="Power BI, Microsoft, instalacion"
+          placeholder="Power BI, Microsoft, instalación"
         />
       </label>
 
@@ -240,7 +240,7 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
             checked={form.requiresApproval}
             onChange={(event) => updateField("requiresApproval", event.target.checked)}
           />
-          Requiere aprobacion
+          Requiere aprobación
         </label>
 
         <label className="checkbox-row">
@@ -291,17 +291,17 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
         </label>
 
         <label>
-          Notas de instalacion
+          Notas de instalación
           <input
             value={form.installerNotes}
             onChange={(event) => updateField("installerNotes", event.target.value)}
-            placeholder="Detalle operativo de instalacion"
+            placeholder="Detalle operativo de instalación"
           />
         </label>
       </div>
 
       <label>
-        Comandos de instalacion, uno por linea
+        Comandos de instalación, uno por línea
         <textarea
           value={form.installCommands}
           onChange={(event) => updateField("installCommands", event.target.value)}
@@ -309,7 +309,7 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
       </label>
 
       <label>
-        Pasos de validacion, uno por linea
+        Pasos de validación, uno por línea
         <textarea
           value={form.verificationSteps}
           onChange={(event) => updateField("verificationSteps", event.target.value)}
@@ -318,7 +318,7 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
 
       <div className="form-grid">
         <label>
-          Sintomas, uno por linea
+          Síntomas, uno por línea
           <textarea
             required
             value={form.symptoms}
@@ -327,7 +327,7 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
         </label>
 
         <label>
-          Causas posibles, una por linea
+          Causas posibles, una por línea
           <textarea
             required
             value={form.causes}
@@ -337,7 +337,7 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
       </div>
 
       <label>
-        Pasos sugeridos, uno por linea
+        Pasos sugeridos, uno por línea
         <textarea
           required
           value={form.steps}
@@ -367,7 +367,7 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
               onChange={(event) =>
                 updateCommand(index, "description", event.target.value)
               }
-              placeholder="Descripcion del comando"
+              placeholder="Descripción del comando"
             />
             <button type="button" onClick={() => removeCommand(index)}>
               Quitar
@@ -386,7 +386,7 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
       </label>
 
       <label>
-        Mensaje interno de usuario
+        Nota interna para el técnico
         <textarea
           value={form.userMessage}
           onChange={(event) => updateField("userMessage", event.target.value)}
@@ -394,7 +394,7 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
       </label>
 
       <label>
-        Template Jira
+        Nota Jira
         <textarea
           value={form.jiraTemplate}
           onChange={(event) => updateField("jiraTemplate", event.target.value)}
@@ -416,7 +416,7 @@ const SolutionForm = ({ initialSolution, onCancel, onSubmit }) => {
           </button>
         )}
         <button className="submit-solution" type="submit">
-          {isEditing ? "Guardar cambios" : "Guardar solucion"}
+          {isEditing ? "Guardar cambios" : "Guardar solución"}
         </button>
       </div>
     </form>

@@ -24,28 +24,28 @@ export const INTENTS = {
     keywords: ["portal autogestion", "portal de autogestion", "autogestion", "asociar usuario", "registrar portal"],
   },
   INSTALACION_SOFTWARE: {
-    label: "instalacion de software",
+    label: "instalación de software",
     category: "Instalacion de software",
     generic: true,
     products: ["software", "programa", "aplicacion", "gnat", "budi", "sic", "adobe", "afm", "buscafugas"],
     keywords: ["instalar", "instalacion", "software", "programa", "aplicacion", "setup", "instalador", "actualizacion", "actualizar", "licencia", "gnat", "budi", "sic", "adobe", "afm monitor"],
   },
   POWER_BI: {
-    label: "Power BI + instalacion",
+    label: "Power BI + instalación",
     category: "Instalacion de software",
     parent: "INSTALACION_SOFTWARE",
     products: ["power bi", "powerbi", "power bi desktop"],
     keywords: ["power bi", "powerbi", "power bi desktop"],
   },
   GOOGLE_EARTH: {
-    label: "Google Earth + instalacion",
+    label: "Google Earth + instalación",
     category: "Instalacion de software",
     parent: "INSTALACION_SOFTWARE",
     products: ["google earth", "google earth pro", "earth"],
     keywords: ["google earth", "google earth pro", "earth"],
   },
   FLUKE: {
-    label: "Fluke + instalacion",
+    label: "Fluke + instalación",
     category: "Instalacion de software",
     parent: "INSTALACION_SOFTWARE",
     products: ["fluke", "fluke connect", "camara termografica"],
@@ -190,7 +190,7 @@ export const INTENTS = {
     keywords: ["sap gui", "sap logon", "cgp", "produ_sap"],
   },
   AS400_SESION: {
-    label: "AGSERVER/AS400 sesion",
+    label: "AGSERVER/AS400 sesión",
     category: "SAP / AGSERVER / AS400",
     products: ["agserver", "as400", "ibm i access", "5250"],
     keywords: ["agserver", "as400", "ibm i access", "5250", "sesion"],
@@ -250,7 +250,7 @@ export const INTENTS = {
     keywords: ["debmedia", "player", "turnos", "check-in", "dni", "pantalla"],
   },
   ROOTS: {
-    label: "ROOTS excepcion",
+    label: "ROOTS excepción",
     category: "Aplicaciones internas",
     products: ["roots", ".net"],
     keywords: ["roots", "excepcion", "exception", ".net"],
@@ -651,7 +651,7 @@ export const scoreSolutionsForIssue = (issue, solutions) => {
 
       if ((detectedIntent.primary === "AS400_SESION" || issueText.includes("sesi")) && solution.id === "hd-029") {
         score += 120;
-        reasons.push("ticket pide crear nueva sesion AGSERVER/AS400");
+        reasons.push("ticket pide crear nueva sesión AGSERVER/AS400");
       }
 
       const mentionsIbmAccess71 = countNormalizedMatches(issueText, [
@@ -677,12 +677,12 @@ export const scoreSolutionsForIssue = (issue, solutions) => {
 
       if (mentionsIbmAccess71 && intent === "AS400_SESION") {
         score -= 140;
-        reasons.push("penalizada porque el ticket pide instalacion IBM i Access, no solo sesion");
+        reasons.push("penalizada porque el ticket pide instalación IBM i Access, no solo sesión");
       }
 
       if (!mentionsIbmAccess71 && detectedIntent.primary === "AS400_SESION" && intent === "IBM_I_ACCESS_71") {
         score -= 160;
-        reasons.push("penalizada porque el ticket pide crear sesion, no instalar IBM i Access");
+        reasons.push("penalizada porque el ticket pide crear sesión, no instalar IBM i Access");
       }
 
       if (detectedIntent.primary === "DWG_TRUEVIEW" && intent === "AUTOCAD_LICENSE" && !issueText.includes("licencia")) {
@@ -702,7 +702,7 @@ export const scoreSolutionsForIssue = (issue, solutions) => {
 
       if ((detectedIntent.primary === "AS400_SESION" || issueText.includes("sesi")) && ["CLAVES_AGSERVER", "PORTAL_AUTOGESTION"].includes(intent)) {
         score -= 90;
-        reasons.push("penalizada porque el ticket pide sesion, no blanqueo de clave");
+        reasons.push("penalizada porque el ticket pide sesión, no blanqueo de clave");
       }
       if (detectedIntent.primary === "OUTLOOK" && solution.id === "hd-014") {
         score += 25;
@@ -737,7 +737,7 @@ export const scoreSolutionsForIssue = (issue, solutions) => {
       score += addWeightedFieldScore({ parts, values: data.tags, points: 10, reason: "tags", reasons });
       score += addWeightedFieldScore({ parts, values: data.title, points: 20, reason: "titulo", reasons });
       score += addWeightedFieldScore({ parts, values: data.category, points: 6, reason: "categoria", reasons });
-      score += addWeightedFieldScore({ parts, values: data.symptoms, points: 4, reason: "sintomas", reasons });
+      score += addWeightedFieldScore({ parts, values: data.symptoms, points: 4, reason: "síntomas", reasons });
       score += addWeightedFieldScore({ parts, values: data.causes, points: 4, reason: "causas", reasons });
       score += addWeightedFieldScore({ parts, values: data.steps, points: 2, reason: "pasos", reasons });
       score += addWeightedFieldScore({
@@ -747,7 +747,7 @@ export const scoreSolutionsForIssue = (issue, solutions) => {
         reason: "comandos",
         reasons,
       });
-      score += addWeightedFieldScore({ parts, values: data.verificationSteps, points: 2, reason: "validacion", reasons });
+      score += addWeightedFieldScore({ parts, values: data.verificationSteps, points: 2, reason: "validación", reasons });
 
       if (
         detectedIntent.isSpecific &&
@@ -829,7 +829,7 @@ export const getSuggestedSolutions = (issue, solutions, limit = 5) => {
       solution,
       score: 0,
       reasons: ["fallback"],
-      reason: "No hay una solucion confiable para este ticket. Usar diagnostico general o solicitar mas datos.",
+      reason: "No hay una solución confiable para este ticket. Usar diagnóstico general o solicitar más datos.",
       detectedIntent: { primary: "UNKNOWN", label: "sin intencion clara" },
       isFallback: true,
     }));

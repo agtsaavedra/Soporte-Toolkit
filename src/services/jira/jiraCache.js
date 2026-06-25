@@ -1,8 +1,9 @@
 const DB_NAME = "soporte-toolkit-jira";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const TICKETS_STORE = "tickets";
 const META_STORE = "meta";
 const META_KEY = "helpdesk";
+const CREATED_INDEX = "created";
 
 const openDb = () =>
   new Promise((resolve, reject) => {
@@ -10,9 +11,17 @@ const openDb = () =>
 
     request.onupgradeneeded = () => {
       const db = request.result;
+      let ticketStore;
       if (!db.objectStoreNames.contains(TICKETS_STORE)) {
-        db.createObjectStore(TICKETS_STORE, { keyPath: "key" });
+        ticketStore = db.createObjectStore(TICKETS_STORE, { keyPath: "key" });
+      } else {
+        ticketStore = request.transaction.objectStore(TICKETS_STORE);
       }
+
+      if (!ticketStore.indexNames.contains(CREATED_INDEX)) {
+        ticketStore.createIndex(CREATED_INDEX, "created", { unique: false });
+      }
+
       if (!db.objectStoreNames.contains(META_STORE)) {
         db.createObjectStore(META_STORE, { keyPath: "id" });
       }
@@ -46,14 +55,25 @@ export const loadCachedHelpdeskTickets = async () => {
 
   return new Promise((resolve, reject) => {
     const tx = db.transaction(TICKETS_STORE, "readonly");
-    const request = tx.objectStore(TICKETS_STORE).getAll();
+    const tickets = [];
+    const store = tx.objectStore(TICKETS_STORE);
+    const source = store.indexNames.contains(CREATED_INDEX)
+      ? store.index(CREATED_INDEX)
+      : store;
+    const request = source.openCursor(null, "prev");
 
     request.onsuccess = () => {
-      db.close();
-      resolve(
-        request.result.sort((a, b) => new Date(b.created) - new Date(a.created))
-      );
+      const cursor = request.result;
+      if (!cursor) return;
+      tickets.push(cursor.value);
+      cursor.continue();
     };
+
+    tx.oncomplete = () => {
+      db.close();
+      resolve(tickets);
+    };
+
     request.onerror = () => {
       db.close();
       reject(request.error);

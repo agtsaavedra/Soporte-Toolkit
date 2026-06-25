@@ -20,7 +20,7 @@ const JiraSuggestedSolutions = ({ suggestions, isLoading = false }) => {
         <h3>Soluciones sugeridas</h3>
         {isLoading && <p>Analizando ticket contra la base de soluciones...</p>}
         {!isLoading && !hasUsefulSuggestions && (
-          <p>No hay una solucion confiable para este ticket. Usar diagnostico general o crear nueva ficha.</p>
+          <p>No hay una solución confiable para este ticket. Usar diagnóstico general o crear nueva ficha.</p>
         )}
       </div>
 
@@ -52,8 +52,8 @@ const JiraSuggestedSolutions = ({ suggestions, isLoading = false }) => {
                     <small><span>Score</span>{score}</small>
                     <small><span>Tiempo</span>{solution.time}</small>
                     <small><span>Riesgo</span>{solution.risk}</small>
-                    {solution.requiresApproval && <small><span>Aprueba</span>Si</small>}
-                    {solution.licenseRequired && <small><span>Licencia</span>Si</small>}
+                    {solution.requiresApproval && <small><span>Aprueba</span>Sí</small>}
+                    {solution.licenseRequired && <small><span>Licencia</span>Sí</small>}
                   </div>
                 </div>
 
@@ -120,10 +120,10 @@ const JiraSuggestedSolutions = ({ suggestions, isLoading = false }) => {
                     {solution.verificationSteps.length > 0 && (
                       <div>
                         <div className="jira-inline-heading">
-                          <h4>Validacion</h4>
+                          <h4>Validación</h4>
                           <div className="jira-inline-actions">
                             <button onClick={() => copyText(verificationTextValue)}>
-                              Copiar validacion
+                              Copiar validación
                             </button>
                           </div>
                         </div>
@@ -147,7 +147,7 @@ const JiraSuggestedSolutions = ({ suggestions, isLoading = false }) => {
                             )}
                             {installCommandsTextValue && (
                               <button onClick={() => copyText(installCommandsTextValue)}>
-                                Copiar instalacion
+                                Copiar instalación
                               </button>
                             )}
                           </div>
@@ -166,10 +166,10 @@ const JiraSuggestedSolutions = ({ suggestions, isLoading = false }) => {
                     {solution.jiraTemplate && (
                       <div>
                         <div className="jira-inline-heading">
-                          <h4>Template Jira</h4>
+                          <h4>Nota Jira</h4>
                           <div className="jira-inline-actions">
                             <button onClick={() => copyText(solution.jiraTemplate)}>
-                              Copiar respuesta Jira
+                              Copiar nota Jira
                             </button>
                           </div>
                         </div>

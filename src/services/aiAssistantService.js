@@ -13,8 +13,8 @@ const formatCommands = (commands = []) =>
     })
     .join("\n");
 
-// Construye un prompt tecnico y autocontenido para pegar en ChatGPT.
-// No genera mensajes para el solicitante: solo pide diagnostico, acciones y riesgos.
+// Construye un prompt técnico y autocontenido para pegar en ChatGPT.
+// No genera mensajes para el solicitante: solo pide diagnóstico, acciones y riesgos.
 export const buildHelpdeskAiPrompt = ({ ticket, suggestions, question }) => {
   const compactSuggestions = suggestions.slice(0, 4).map(({ solution, score, reason }) => ({
     title: solution.title,
@@ -27,11 +27,11 @@ export const buildHelpdeskAiPrompt = ({ ticket, suggestions, question }) => {
   }));
 
   return [
-    "Actua como asistente senior de Mesa de Ayuda IT.",
+    "Actuá como asistente senior de Mesa de Ayuda IT.",
     "Objetivo: ayudar a resolver el ticket con pasos concretos, sin relleno y sin inventar datos.",
-    "No pidas credenciales ni sugieras compartir contrasenas, tokens o datos sensibles.",
+    "No pidas credenciales ni sugieras compartir contraseñas, tokens o datos sensibles.",
     "",
-    `Consulta del tecnico: ${question}`,
+    `Consulta del técnico: ${question}`,
     "",
     "Ticket Jira:",
     `Key: ${ticket.key}`,
@@ -40,7 +40,7 @@ export const buildHelpdeskAiPrompt = ({ ticket, suggestions, question }) => {
     `Prioridad: ${ticket.priority}`,
     `Asignado: ${ticket.assignee}`,
     `Reporta: ${ticket.reporter}`,
-    `Descripcion: ${ticket.description || "Sin descripcion."}`,
+    `Descripción: ${ticket.description || "Sin descripción."}`,
     "",
     "Comentarios recientes:",
     ticket.comments.slice(-3).map((comment) => `- ${comment.author}: ${comment.body}`).join("\n") || "- Sin comentarios.",
@@ -59,8 +59,8 @@ export const buildHelpdeskAiPrompt = ({ ticket, suggestions, question }) => {
       )
       .join("\n\n") || "Sin soluciones confiables.",
     "",
-    "Devolve una respuesta breve con este formato:",
-    "Diagnostico probable:",
+    "Devolvé una salida breve con este formato:",
+    "Diagnóstico probable:",
     "Acciones recomendadas:",
     "Datos faltantes si aplica:",
     "Riesgos o validaciones antes de ejecutar:",

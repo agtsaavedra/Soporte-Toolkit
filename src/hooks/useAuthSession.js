@@ -19,9 +19,9 @@ export const useAuthSession = ({ showToast }) => {
         if (!session) return;
 
         setAuthSession(session);
-        showToast("Email confirmado. Sesion iniciada.");
+        showToast("Email confirmado. Sesión iniciada.");
       } catch {
-        showToast("No se pudo completar el callback de autenticacion");
+        showToast("No se pudo completar el callback de autenticación");
       }
     };
 
@@ -47,19 +47,19 @@ export const useAuthSession = ({ showToast }) => {
 
       setAuthSession(session);
       if (session.access_token) {
-        showToast(mode === "signup" ? "Usuario creado" : "Sesion iniciada");
+        showToast(mode === "signup" ? "Usuario creado" : "Sesión iniciada");
       } else {
         showToast("Usuario creado. Confirma el email antes de entrar.");
       }
     } catch {
-      showToast("No se pudo completar la autenticacion");
+      showToast("No se pudo completar la autenticación");
     }
   };
 
   const handleSignOut = async () => {
     await signOut();
     setAuthSession(null);
-    showToast("Sesion cerrada");
+    showToast("Sesión cerrada");
   };
 
   return {

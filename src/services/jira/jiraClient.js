@@ -46,7 +46,7 @@ const jiraRequest = async (path, params) => {
 
     if (!response.ok) {
       const detail = await response.text();
-      throw new Error(`Jira respondio ${response.status}${detail ? `: ${detail}` : ""}`);
+      throw new Error(`Jira respondió ${response.status}${detail ? `: ${detail}` : ""}`);
     }
 
     return response.json();
@@ -54,7 +54,7 @@ const jiraRequest = async (path, params) => {
     throw new Error(
       proxyUrl
         ? `${error.message}. Revisa el proxy local de Jira y las variables JIRA_EMAIL/JIRA_API_TOKEN.`
-        : `${error.message}. El navegador bloquea Jira por CORS aunque tengas sesion iniciada. Usa npm run web:dev con proxy local, o npm run desktop:dev.`,
+        : `${error.message}. El navegador bloquea Jira por CORS aunque tengas sesión iniciada. Usá npm run web:dev con proxy local, o npm run desktop:dev.`,
       { cause: error }
     );
   }

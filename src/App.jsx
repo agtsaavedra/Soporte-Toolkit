@@ -12,7 +12,7 @@ import { useTheme } from "./hooks/useTheme";
 import { useToast } from "./hooks/useToast";
 import "./styles/layout/app.css";
 
-// App queda como composicion de alto nivel: layout + vistas + conexion entre hooks.
+// App queda como composición de alto nivel: layout + vistas + conexión entre hooks.
 function App() {
   const importInputRef = useRef(null);
   const [view, setView] = useState(VIEWS.CATALOG);
@@ -122,7 +122,7 @@ function App() {
           <div className="form-shell">
             <div className="form-heading">
               <p className="eyebrow">Base de conocimiento</p>
-              <h2>Nueva solucion</h2>
+              <h2>Nueva solución</h2>
             </div>
             <SolutionForm key="new-solution" onSubmit={handleAddSolution} />
           </div>
@@ -130,7 +130,7 @@ function App() {
           <div className="form-shell">
             <div className="form-heading">
               <p className="eyebrow">Base de conocimiento</p>
-              <h2>Editar solucion</h2>
+              <h2>Editar solución</h2>
             </div>
             <SolutionForm
               key={catalog.selected.id}
@@ -148,7 +148,7 @@ function App() {
             onPromote={catalog.handlePromoteSelected}
           />
         ) : (
-          <div className="empty-card">Selecciona una solucion.</div>
+          <div className="empty-card">Selecciona una solución.</div>
         )}
       </section>
 

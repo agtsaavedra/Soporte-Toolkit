@@ -18,7 +18,7 @@ export const useJiraTickets = ({ showToast }) => {
 
   useEffect(() => {
     window.soporteToolkit?.onJiraLoginReady?.(() => {
-      showToast("Sesion Jira lista. Ya podes actualizar tickets.");
+      showToast("Sesión Jira lista. Ya podés actualizar tickets.");
     });
   }, [showToast]);
 
@@ -65,16 +65,16 @@ export const useJiraTickets = ({ showToast }) => {
 
     const result = await window.soporteToolkit.openJiraLogin();
     if (result?.alreadyAuthenticated) {
-      showToast("Sesion Jira activa. Ya podes actualizar tickets.");
+      showToast("Sesión Jira activa. Ya podés actualizar tickets.");
       return;
     }
 
     if (result?.alreadyOpen) {
-      showToast("La ventana de Jira ya esta abierta para validar sesion.");
+      showToast("La ventana de Jira ya está abierta para validar sesión.");
       return;
     }
 
-    showToast("Completa el login de Jira; la ventana se cierra sola al detectar sesion.");
+    showToast("Completá el login de Jira; la ventana se cierra sola al detectar sesión.");
   };
 
   const refreshJiraTickets = async () => {
@@ -126,8 +126,8 @@ export const useJiraTickets = ({ showToast }) => {
       setJiraHasMore(!result.isLast && Boolean(result.nextPageToken));
       showToast(`${result.tickets.length} ticket(s) cargados`);
     } catch (error) {
-      setJiraError(error.message || "No se pudo cargar mas desde Jira.");
-      showToast(error.message || "No se pudo cargar mas");
+      setJiraError(error.message || "No se pudo cargar más desde Jira.");
+      showToast(error.message || "No se pudo cargar más");
     } finally {
       setJiraLoading(false);
     }

@@ -1,12 +1,8 @@
 import { useEffect } from "react";
+import { formatJiraDate } from "../services/jira/jiraTicketFilters";
 import JiraAiAssistant from "./JiraAiAssistant";
 import JiraSuggestedSolutions from "./JiraSuggestedSolutions";
 import "../styles/features/jira/ticket-detail.css";
-
-const formatDate = (value) => {
-  if (!value) return "Sin fecha";
-  return new Date(value).toLocaleString("es-AR");
-};
 
 const copyText = async (text) => {
   await navigator.clipboard.writeText(text);
@@ -19,7 +15,7 @@ const buildTicketSummary = (ticket) =>
     `Prioridad: ${ticket.priority}`,
     `Asignado: ${ticket.assignee}`,
     `Reporta: ${ticket.reporter}`,
-    `Creado: ${formatDate(ticket.created)}`,
+    `Creado: ${formatJiraDate(ticket.created, "Sin fecha")}`,
     ticket.url,
   ]
     .filter(Boolean)
@@ -82,9 +78,9 @@ const JiraTicketDetail = ({
           <span><strong>Prioridad</strong>{ticket.priority}</span>
           <span><strong>Asignado</strong>{ticket.assignee}</span>
           <span><strong>Reporta</strong>{ticket.reporter}</span>
-          <span><strong>Creado</strong>{formatDate(ticket.created)}</span>
-          <span><strong>Resolution date</strong>{formatDate(ticket.resolutionDate)}</span>
-          <span><strong>Categoria</strong>{ticket.detectedCategory}</span>
+          <span><strong>Creado</strong>{formatJiraDate(ticket.created, "Sin fecha")}</span>
+          <span><strong>Resolution date</strong>{formatJiraDate(ticket.resolutionDate, "Sin fecha")}</span>
+          <span><strong>Categoría</strong>{ticket.detectedCategory}</span>
         </div>
 
         <div className="jira-resolution-grid">
@@ -97,7 +93,7 @@ const JiraTicketDetail = ({
 
             <section className="jira-section jira-summary-section">
               <h3>Resumen del pedido</h3>
-              <p>{ticket.description || "Sin descripcion."}</p>
+              <p>{ticket.description || "Sin descripción."}</p>
             </section>
 
             <JiraSuggestedSolutions
@@ -112,7 +108,7 @@ const JiraTicketDetail = ({
                 {ticket.comments.map((comment) => (
                   <article key={comment.id || `${comment.author}-${comment.created}`}>
                     <strong>{comment.author}</strong>
-                    <time>{formatDate(comment.created)}</time>
+                    <time>{formatJiraDate(comment.created, "Sin fecha")}</time>
                     <p>{comment.body}</p>
                   </article>
                 ))}
@@ -126,7 +122,7 @@ const JiraTicketDetail = ({
                 {ticket.changelog.slice(0, 12).map((history) => (
                   <article key={history.id || history.created}>
                     <strong>{history.author}</strong>
-                    <time>{formatDate(history.created)}</time>
+                    <time>{formatJiraDate(history.created, "Sin fecha")}</time>
                     {history.items.map((item) => (
                       <span key={`${item.field}-${item.from}-${item.to}`}>
                         {item.field}: {item.from || "-"} -&gt; {item.to || "-"}

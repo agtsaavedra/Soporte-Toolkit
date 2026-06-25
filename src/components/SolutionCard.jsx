@@ -18,17 +18,17 @@ const numberedLines = (items) =>
 const buildProcedure = (solution) =>
   [
     solution.title,
-    `Categoria: ${solution.category}`,
+    `Categoría: ${solution.category}`,
     `Riesgo: ${solution.risk}`,
     `Tiempo estimado: ${solution.time}`,
-    solution.requiresApproval ? "Requiere aprobacion: si" : "",
-    solution.licenseRequired ? "Requiere licencia: si" : "",
+    solution.requiresApproval ? "Requiere aprobación: sí" : "",
+    solution.licenseRequired ? "Requiere licencia: sí" : "",
     solution.officialDownloadUrl ? `Descarga oficial: ${solution.officialDownloadUrl}` : "",
     solution.internalDownloadPath ? `Ruta interna: ${solution.internalDownloadPath}` : "",
     solution.installerFile ? `Instalador esperado: ${solution.installerFile}` : "",
-    solution.installerNotes ? `Notas de instalacion: ${solution.installerNotes}` : "",
+    solution.installerNotes ? `Notas de instalación: ${solution.installerNotes}` : "",
     "",
-    sectionToText("Sintomas", solution.symptoms),
+    sectionToText("Síntomas", solution.symptoms),
     "",
     sectionToText("Causas posibles", solution.causes),
     "",
@@ -39,15 +39,15 @@ const buildProcedure = (solution) =>
       solution.commands,
       (command) =>
         `- ${commandText(command)}${
-          commandDescription(command) ? `\n  Descripcion: ${commandDescription(command)}` : ""
+          commandDescription(command) ? `\n  Descripción: ${commandDescription(command)}` : ""
         }`
     ),
     "",
-    sectionToText("Comandos de instalacion", solution.installCommands, commandText),
+    sectionToText("Comandos de instalación", solution.installCommands, commandText),
     "",
-    sectionToText("Pasos de validacion", solution.verificationSteps),
+    sectionToText("Pasos de validación", solution.verificationSteps),
     "",
-    solution.jiraTemplate ? `Respuesta Jira:\n${solution.jiraTemplate}` : "",
+    solution.jiraTemplate ? `Nota Jira:\n${solution.jiraTemplate}` : "",
     "",
     "Notas internas:",
     solution.internalNotes,
@@ -110,7 +110,7 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
           Riesgo {solution.risk}
         </span>
         <span className="time">Tiempo {solution.time}</span>
-        {solution.requiresApproval && <span className="source">Requiere aprobacion</span>}
+        {solution.requiresApproval && <span className="source">Requiere aprobación</span>}
         {solution.licenseRequired && <span className="source">Requiere licencia</span>}
         {isEditable && <span className="source">Agregada</span>}
       </div>
@@ -170,7 +170,7 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
             )}
             {solution.installerNotes && (
               <div>
-                <strong>Notas de instalacion</strong>
+                <strong>Notas de instalación</strong>
                 <span>{solution.installerNotes}</span>
               </div>
             )}
@@ -179,7 +179,7 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
       )}
 
       <section>
-        <h3>Sintomas</h3>
+        <h3>Síntomas</h3>
         <ul>
           {solution.symptoms.map((item) => (
             <li key={item}>{item}</li>
@@ -208,13 +208,13 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
       {solution.installCommands.length > 0 && (
         <section>
           <div className="section-heading">
-            <h3>Comandos de instalacion</h3>
+            <h3>Comandos de instalación</h3>
             <div className="section-actions">
               <button
                 className="secondary-action"
-                onClick={() => copyText(installCommandsText, "Comandos de instalacion")}
+                onClick={() => copyText(installCommandsText, "Comandos de instalación")}
               >
-                Copiar comandos instalacion
+                Copiar comandos instalación
               </button>
             </div>
           </div>
@@ -225,7 +225,7 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
                   <code>{commandText(command)}</code>
                   {commandDescription(command) && (
                     <p>
-                      <strong>Descripcion:</strong> {commandDescription(command)}
+                      <strong>Descripción:</strong> {commandDescription(command)}
                     </p>
                   )}
                 </div>
@@ -241,13 +241,13 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
       {solution.verificationSteps.length > 0 && (
         <section>
           <div className="section-heading">
-            <h3>Pasos de validacion</h3>
+            <h3>Pasos de validación</h3>
             <div className="section-actions">
               <button
                 className="secondary-action"
-                onClick={() => copyText(verificationText, "Pasos de validacion")}
+                onClick={() => copyText(verificationText, "Pasos de validación")}
               >
-                Copiar validacion
+                Copiar validación
               </button>
             </div>
           </div>
@@ -280,7 +280,7 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
                 <code>{command.command}</code>
                 {command.description && (
                   <p>
-                    <strong>Descripcion:</strong> {command.description}
+                    <strong>Descripción:</strong> {command.description}
                   </p>
                 )}
               </div>
@@ -298,13 +298,13 @@ const SolutionCard = ({ history = [], solution, onDelete, onEdit, onPromote }) =
       {solution.jiraTemplate && (
         <section>
           <div className="section-heading">
-            <h3>Template Jira</h3>
+            <h3>Nota Jira</h3>
             <div className="section-actions">
               <button
                 className="secondary-action"
-                onClick={() => copyText(solution.jiraTemplate, "Respuesta Jira")}
+                onClick={() => copyText(solution.jiraTemplate, "Nota Jira")}
               >
-                Copiar respuesta Jira
+                Copiar nota Jira
               </button>
             </div>
           </div>

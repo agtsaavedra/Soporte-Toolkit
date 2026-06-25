@@ -1,11 +1,17 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { fetchTicketByKey } from "../services/jiraService";
+import {
+  ALL_FILTER,
+  buildTicketFilterOptions,
+  filterJiraTickets,
+  formatJiraDate,
+  withTicketSearchIndex,
+} from "../services/jira/jiraTicketFilters";
 import { getSuggestedSolutions } from "../services/solutionMatcher";
 import { EmptyState, ErrorState, LoadingState } from "../shared/ui/StateBlock";
 import JiraTicketDetail from "./JiraTicketDetail";
 import "../styles/features/jira/tickets.css";
 
-const ALL = "Todos";
 const ROW_HEIGHT = 56;
 const VISIBLE_ROWS = 20;
 const OVERSCAN_ROWS = 8;
@@ -17,36 +23,6 @@ const waitForNextFrame = () =>
   new Promise((resolve) => {
     requestAnimationFrame(() => resolve());
   });
-
-const formatDate = (value) => {
-  if (!value) return "-";
-  return new Date(value).toLocaleString("es-AR");
-};
-
-const uniqueValues = (tickets, field) => [
-  ALL,
-  ...new Set(tickets.map((ticket) => ticket[field]).filter(Boolean)),
-];
-
-const buildTicketSearchText = (ticket) =>
-  [
-    ticket.key,
-    ticket.summary,
-    ticket.description,
-    ticket.reporter,
-    ticket.assignee,
-    ticket.status,
-    ticket.priority,
-    ticket.detectedCategory,
-    ticket.plainText,
-  ]
-    .join(" ")
-    .toLocaleLowerCase("es-AR");
-
-const matchesQuery = (ticket, query) => {
-  if (!query) return true;
-  return ticket.searchText.includes(query.toLocaleLowerCase("es-AR"));
-};
 
 const JiraTickets = ({
   tickets,
@@ -63,10 +39,10 @@ const JiraTickets = ({
   solutions,
 }) => {
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState(ALL);
-  const [assignee, setAssignee] = useState(ALL);
-  const [priority, setPriority] = useState(ALL);
-  const [category, setCategory] = useState(ALL);
+  const [status, setStatus] = useState(ALL_FILTER);
+  const [assignee, setAssignee] = useState(ALL_FILTER);
+  const [priority, setPriority] = useState(ALL_FILTER);
+  const [category, setCategory] = useState(ALL_FILTER);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [detailLoadingKey, setDetailLoadingKey] = useState("");
   const [detailError, setDetailError] = useState("");
@@ -114,38 +90,19 @@ const JiraTickets = ({
     };
   }, [isDetailOpen, selectedTicket, solutions]);
 
-  const indexedTickets = useMemo(
-    () =>
-      tickets.map((ticket) => {
-        if (ticket.searchText) return ticket;
-        return {
-          ...ticket,
-          searchText: buildTicketSearchText(ticket),
-        };
-      }),
-    [tickets]
-  );
+  const indexedTickets = useMemo(() => tickets.map(withTicketSearchIndex), [tickets]);
 
-  const filters = useMemo(
-    () => ({
-      statuses: uniqueValues(indexedTickets, "status"),
-      assignees: uniqueValues(indexedTickets, "assignee"),
-      priorities: uniqueValues(indexedTickets, "priority"),
-      categories: uniqueValues(indexedTickets, "detectedCategory"),
-    }),
-    [indexedTickets]
-  );
+  const filters = useMemo(() => buildTicketFilterOptions(indexedTickets), [indexedTickets]);
 
   const filteredTickets = useMemo(
     () =>
-      indexedTickets.filter(
-        (ticket) =>
-          matchesQuery(ticket, deferredQuery) &&
-          (status === ALL || ticket.status === status) &&
-          (assignee === ALL || ticket.assignee === assignee) &&
-          (priority === ALL || ticket.priority === priority) &&
-          (category === ALL || ticket.detectedCategory === category)
-      ),
+      filterJiraTickets(indexedTickets, {
+        query: deferredQuery,
+        status,
+        assignee,
+        priority,
+        category,
+      }),
     [assignee, category, deferredQuery, indexedTickets, priority, status]
   );
 
@@ -205,7 +162,7 @@ const JiraTickets = ({
           <p className="eyebrow">Jira Help Desk</p>
           <h2>Consola viva de tickets</h2>
           <span>
-            {tickets.length} ticket(s) · última sync {cacheMeta?.lastSync ? formatDate(cacheMeta.lastSync) : "pendiente"}
+            {tickets.length} ticket(s) · última sync {cacheMeta?.lastSync ? formatJiraDate(cacheMeta.lastSync) : "pendiente"}
           </span>
           <small className={hasSyncedTickets ? "jira-session-ok" : "jira-session-pending"}>
             {hasSyncedTickets ? "Jira conectado" : "Sesión Jira sin validar"}
@@ -221,7 +178,7 @@ const JiraTickets = ({
             {isLoading ? "Actualizando..." : "Actualizar tickets"}
           </button>
           <button type="button" onClick={onLoadMore} disabled={isLoading || !hasMore}>
-            Cargar mas
+            Cargar más
           </button>
         </div>
       </section>
@@ -302,7 +259,7 @@ const JiraTickets = ({
               <span>Priority</span>
               <span>Assignee</span>
               <span>Created</span>
-              <span>Accion</span>
+              <span>Acción</span>
             </div>
 
             {isLoading && (
@@ -335,7 +292,7 @@ const JiraTickets = ({
                 <span>{ticket.status}</span>
                 <span>{ticket.priority}</span>
                 <span>{ticket.assignee}</span>
-                <time>{formatDate(ticket.created)}</time>
+                <time>{formatJiraDate(ticket.created)}</time>
                 <span className="jira-row-action">
                   {detailLoadingKey === ticket.key ? "Cargando" : "Abrir"}
                 </span>

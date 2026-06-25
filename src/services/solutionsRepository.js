@@ -392,7 +392,7 @@ export const deleteUserSolution = async (solution, currentSolutions) => {
 export const importUserSolutions = async (items, currentSolutions) => {
   const invalidItem = items.find((item) => validateSolutionShape(item).length > 0);
   if (invalidItem) {
-    throw new Error("El archivo contiene soluciones con formato invalido.");
+    throw new Error("El archivo contiene soluciones con formato inválido.");
   }
 
   const normalizedItems = items.map((item) =>

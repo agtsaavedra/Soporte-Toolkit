@@ -70,7 +70,7 @@ export const normalizeJiraIssue = (issue) => {
     summary: fields.summary ?? "Sin resumen",
     description: extractADFText(fields.description),
     status: normalizeStatus(fields.status),
-    resolution: fields.resolution?.name ?? "Sin resolucion",
+    resolution: fields.resolution?.name ?? "Sin resolución",
     priority: normalizePriority(fields.priority),
     issueType: fields.issuetype?.name ?? "Sin tipo",
     created: fields.created ?? issue.created ?? "",
